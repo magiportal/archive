@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAGI Portal — RMIT Melbourne</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-wordmark">
+      <span class="nav-wordmark-magi">MAGI</span>
+      <span class="nav-wordmark-sub">Portal</span>
+    </div>
+    <div class="nav-links">
+      <div class="nav-link active">Archive</div>
+      <div class="nav-link">Students</div>
+      <div class="nav-link">Research</div>
+      <div class="nav-link">Studio</div>
+      <div class="nav-link">
+        <span class="nav-live"><span class="nav-dot"></span>2026</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <div class="nav-link">Search</div>
+    </div>
+  </nav>
+
+  <!-- ── HERO ──────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-rule"></div>
+
+    <div class="hero-logo">
+      <div class="logo-wrap" id="logo-wrap">
+        <div class="letter-wrap">
+          <img class="logo-letter" id="letter-m" src="M-logo.png" alt="M" draggable="false" />
+          <div class="letter-label" style="--label-color:#c8e800;--label-text:#4a5200">Masters of</div>
+        </div>
+        <div class="letter-wrap">
+          <img class="logo-letter" id="letter-a" data-spec="animation" src="A-logo.png" alt="A" draggable="false" />
+          <div class="letter-label" style="--label-color:#ff20c0;--label-text:#fff">Animation</div>
+        </div>
+        <div class="letter-wrap">
+          <img class="logo-letter" id="letter-g" data-spec="games" src="G-logo.png" alt="G" draggable="false" />
+          <div class="letter-label" style="--label-color:#1eceff;--label-text:#003a4a">Games</div>
+        </div>
+        <div class="letter-wrap">
+          <img class="logo-letter" id="letter-i" data-spec="interactivity" src="I-logo.png" alt="I" draggable="false" />
+          <div class="letter-label" style="--label-color:#ff6b1a;--label-text:#fff">Interactivity</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HERO INFO STRIP ───────────────────────────── -->
+  <div class="hero-strip">
+
+    <div class="hero-strip-desc">
+      <div class="strip-eyebrow">RMIT Melbourne — Master of Animation, Games &amp; Interactivity</div>
+      <p class="strip-tagline">A living archive of student works, research, and practice-led inquiry.</p>
+    </div>
+
+    <div class="hero-strip-stats">
+      <div class="strip-stat"><div class="strip-n">48</div><div class="strip-label">Students</div></div>
+      <div class="strip-stat"><div class="strip-n">214</div><div class="strip-label">Works</div></div>
+      <div class="strip-stat"><div class="strip-n">6</div><div class="strip-label">Cohorts</div></div>
+      <div class="strip-stat"><div class="strip-n">∞</div><div class="strip-label">Archive</div></div>
+    </div>
+
+    <div class="hero-strip-actions">
+      <a class="strip-btn strip-btn-primary" href="#upload">+ Upload a Work</a>
+      <a class="strip-btn" href="#specialisations">Explore ↓</a>
+      <a class="strip-btn" href="#" target="_blank" rel="noopener">EXPO 2025 ↗</a>
+    </div>
+
+  </div>
+
+  <!-- ── SPECIALISATIONS ───────────────────────────── -->
+  <section id="specialisations" class="specs">
+
+    <!-- Animation — A — magenta -->
+    <div class="spec-panel" id="spec-animation" data-spec="animation">
+      <div class="spec-inner">
+        <div class="spec-label">A</div>
+        <div class="spec-title">Animation</div>
+        <div class="spec-desc">Narrative, motion, and character-driven practice spanning 2D, 3D, and experimental forms.</div>
+        <div class="spec-count">
+          <span class="spec-n">18</span>
+          <span class="spec-unit">Students</span>
+        </div>
+        <div class="spec-works">
+          <div class="spec-work-row">
+            <span class="spec-work-title">Kinetic Type Study</span>
+            <span class="spec-work-student">Student Name</span>
+            <span class="spec-work-year">2025</span>
+          </div>
+          <div class="spec-work-row">
+            <span class="spec-work-title">Frame by Frame</span>
+            <span class="spec-work-student">Student Name</span>
+            <span class="spec-work-year">2025</span>
+          </div>
+          <div class="spec-work-row ghost">
+            <span class="spec-work-title">— Add work —</span>
+            <span class="spec-work-student"></span>
+            <span class="spec-work-year"></span>
+          </div>
+        </div>
+        <a class="spec-link" href="#">View all Animation works ›</a>
+      </div>
+    </div>
+
+    <!-- Games — G — cyan -->
+    <div class="spec-panel" id="spec-games" data-spec="games">
+      <div class="spec-inner">
+        <div class="spec-label">G</div>
+        <div class="spec-title">Games</div>
+        <div class="spec-desc">Play, systems, and world-building — from indie games to critical play and alt-controllers.</div>
+        <div class="spec-count">
+          <span class="spec-n">16</span>
+          <span class="spec-unit">Students</span>
+        </div>
+        <div class="spec-works">
+          <div class="spec-work-row">
+            <span class="spec-work-title">TAMAC1DE</span>
+            <span class="spec-work-student">Adrian Frichitthavong</span>
+            <span class="spec-work-year">2026</span>
+          </div>
+          <div class="spec-work-row">
+            <span class="spec-work-title">Held, Instantaneously</span>
+            <span class="spec-work-student">Adrian Frichitthavong</span>
+            <span class="spec-work-year">2024</span>
+          </div>
+          <div class="spec-work-row ghost">
+            <span class="spec-work-title">— Add work —</span>
+            <span class="spec-work-student"></span>
+            <span class="spec-work-year"></span>
+          </div>
+        </div>
+        <a class="spec-link" href="#">View all Games works ›</a>
+      </div>
+    </div>
+
+    <!-- Interactivity — I — orange -->
+    <div class="spec-panel" id="spec-interactivity" data-spec="interactivity">
+      <div class="spec-inner">
+        <div class="spec-label">I</div>
+        <div class="spec-title">Interactivity</div>
+        <div class="spec-desc">Installation, physical computing, live performance tech, and networked experience design.</div>
+        <div class="spec-count">
+          <span class="spec-n">14</span>
+          <span class="spec-unit">Students</span>
+        </div>
+        <div class="spec-works">
+          <div class="spec-work-row">
+            <span class="spec-work-title">Luminous Festival — Boids</span>
+            <span class="spec-work-student">Adrian Frichitthavong</span>
+            <span class="spec-work-year">2025</span>
+          </div>
+          <div class="spec-work-row">
+            <span class="spec-work-title">CCTV / PORTALS</span>
+            <span class="spec-work-student">Adrian Frichitthavong</span>
+            <span class="spec-work-year">2025</span>
+          </div>
+          <div class="spec-work-row ghost">
+            <span class="spec-work-title">— Add work —</span>
+            <span class="spec-work-student"></span>
+            <span class="spec-work-year"></span>
+          </div>
+        </div>
+        <a class="spec-link" href="#">View all Interactivity works ›</a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── UPLOAD CTA ─────────────────────────────────── -->
+  <section id="upload" class="upload-cta">
+    <div class="upload-inner">
+      <div class="upload-text">
+        <div class="upload-title">Submit Your Work</div>
+        <div class="upload-desc">Add your project, documentation, or research to the MAGI archive. Every work, every iteration.</div>
+      </div>
+      <a class="upload-btn" href="#">+ Upload a Work →</a>
+    </div>
+  </section>
+
+  <!-- ── NEWS & EVENTS ──────────────────────────────── -->
+  <section id="news">
+
+    <div class="bar">
+      <div class="bar-title">News &amp; Events</div>
+      <div class="bar-right"><div class="bar-link">View All ›</div></div>
+    </div>
+
+    <div class="news-grid">
+
+      <div class="news-card news-card-featured">
+        <div class="news-tag">Exhibition</div>
+        <div class="news-title">MAGI EXPO 2026 — Call for Works</div>
+        <div class="news-body">Submissions are now open for the 2026 end-of-year exhibition. All current students are invited to submit their Studio 3 major projects for consideration.</div>
+        <div class="news-meta"><span class="news-date">15 Apr 2026</span><a class="news-link" href="#">Read more ›</a></div>
+      </div>
+
+      <div class="news-card">
+        <div class="news-tag">Workshop</div>
+        <div class="news-title">End the Boring Internet — Three.js Intensive</div>
+        <div class="news-body">A hands-on session covering interactive web graphics, GitHub Pages deployment, and creative coding fundamentals. Open to all MAGI students.</div>
+        <div class="news-meta"><span class="news-date">22 Apr 2026</span><a class="news-link" href="#">Read more ›</a></div>
+      </div>
+
+      <div class="news-card">
+        <div class="news-tag">Event</div>
+        <div class="news-title">Luminous Festival — MAGI Installations</div>
+        <div class="news-body">Three MAGI student works selected for the Luminous Festival programme at Federation Square. Public exhibition running through May.</div>
+        <div class="news-meta"><span class="news-date">1 May 2026</span><a class="news-link" href="#">Read more ›</a></div>
+      </div>
+
+      <div class="news-card">
+        <div class="news-tag">Deadline</div>
+        <div class="news-title">Studio 3 — Week 4 Folio Submissions</div>
+        <div class="news-body">Week 4 documentation and progress folios are due. Upload to MAGI Portal using the submit form. Feedback sessions scheduled for the following week.</div>
+        <div class="news-meta"><span class="news-date">28 Apr 2026</span><a class="news-link" href="#">Read more ›</a></div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ── ARCHIVE ───────────────────────────────────── -->
+  <section id="archive">
+
+    <div class="bar">
+      <div class="bar-title">All Works</div>
+      <div class="bar-right">
+        <div class="view-btn active" id="btn-grid">Grid</div>
+        <div class="view-btn" id="btn-list">List</div>
+        <div class="bar-link">View All ›</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="filter-btn active" data-filter="all">All</div>
+      <div class="filter-btn" data-filter="animation">Animation</div>
+      <div class="filter-btn" data-filter="games">Games</div>
+      <div class="filter-btn" data-filter="interactivity">Interactivity</div>
+    </div>
+
+    <div id="view-grid">
+
+      <div class="work-card" data-spec="games" data-tags="Unity HDRP WebSocket Critical Design">
+        <div class="card-thumb" style="--thumb-bg:#d6f8ff">
+          <svg viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#1eceff" opacity="0.15"/><rect x="30" y="30" width="40" height="40" fill="#1eceff" opacity="0.35"/><rect x="90" y="30" width="40" height="18" fill="#1eceff" opacity="0.5"/><rect x="90" y="52" width="40" height="18" fill="#1eceff" opacity="0.25"/><circle cx="50" cy="50" r="8" fill="#1eceff" opacity="0.8"/></svg>
+        </div>
+        <div class="card-meta"><span>2026</span><span>Games</span></div>
+        <div class="card-title">TAMAC1DE — Gacha Installation</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">Unity HDRP</span><span class="tag">WebSocket</span><span class="tag">Critical Design</span></div>
+      </div>
+
+      <div class="work-card" data-spec="interactivity" data-tags="React Three Fiber Web">
+        <div class="card-thumb" style="--thumb-bg:#fff0e6">
+          <svg viewBox="0 0 160 100"><circle cx="80" cy="50" r="38" fill="#ff6b1a" opacity="0.1"/><circle cx="80" cy="50" r="24" fill="#ff6b1a" opacity="0.15"/><circle cx="80" cy="50" r="12" fill="#ff6b1a" opacity="0.3"/><circle cx="80" cy="50" r="4" fill="#ff6b1a" opacity="0.8"/><circle cx="118" cy="28" r="7" fill="#ff6b1a" opacity="0.3"/><circle cx="40" cy="72" r="5" fill="#ff6b1a" opacity="0.25"/><circle cx="130" cy="66" r="4" fill="#ff6b1a" opacity="0.2"/></svg>
+        </div>
+        <div class="card-meta"><span>2025</span><span>Interactivity</span></div>
+        <div class="card-title">MAGI EXPO — Orbital Exhibition Site</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">React Three Fiber</span><span class="tag">Web</span></div>
+      </div>
+
+      <div class="work-card" data-spec="interactivity" data-tags="MediaPipe TouchDesigner GLSL">
+        <div class="card-thumb" style="--thumb-bg:#fff0e6">
+          <svg viewBox="0 0 160 100"><path d="M20 80 Q40 20 60 50 Q80 80 100 30 Q120 10 140 40" stroke="#ff6b1a" stroke-width="2.5" fill="none" opacity="0.6"/><path d="M20 70 Q50 40 80 60 Q110 80 140 50" stroke="#ff6b1a" stroke-width="1.5" fill="none" opacity="0.3"/><circle cx="60" cy="50" r="4" fill="#ff6b1a" opacity="0.8"/><circle cx="100" cy="30" r="4" fill="#ff6b1a" opacity="0.8"/><circle cx="140" cy="40" r="4" fill="#ff6b1a" opacity="0.8"/></svg>
+        </div>
+        <div class="card-meta"><span>2025</span><span>Interactivity</span></div>
+        <div class="card-title">Luminous Festival — Hand Tracking Boids</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">MediaPipe</span><span class="tag">TouchDesigner</span><span class="tag">GLSL</span></div>
+      </div>
+
+      <div class="work-card" data-spec="interactivity" data-tags="NDI Network Performance">
+        <div class="card-thumb" style="--thumb-bg:#fff0e6">
+          <svg viewBox="0 0 160 100"><rect x="10" y="55" width="36" height="35" fill="#ff6b1a" opacity="0.4"/><rect x="10" y="30" width="36" height="25" fill="#ff6b1a" opacity="0.15"/><rect x="62" y="45" width="36" height="45" fill="#ff6b1a" opacity="0.4"/><rect x="62" y="20" width="36" height="25" fill="#ff6b1a" opacity="0.15"/><rect x="114" y="35" width="36" height="55" fill="#ff6b1a" opacity="0.4"/><rect x="114" y="10" width="36" height="25" fill="#ff6b1a" opacity="0.15"/></svg>
+        </div>
+        <div class="card-meta"><span>2025</span><span>Interactivity</span></div>
+        <div class="card-title">CCTV / PORTALS — NDI Camera Network</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">NDI</span><span class="tag">Network</span><span class="tag">Performance</span></div>
+      </div>
+
+      <div class="work-card" data-spec="games" data-tags="Unity WebSocket Installation">
+        <div class="card-thumb" style="--thumb-bg:#d6f8ff">
+          <svg viewBox="0 0 160 100"><rect x="30" y="40" width="100" height="50" fill="#1eceff" opacity="0.15"/><rect x="50" y="48" width="60" height="30" fill="#1eceff" opacity="0.25"/><circle cx="80" cy="63" r="10" fill="#1eceff" opacity="0.5"/><rect x="72" y="22" width="16" height="22" fill="#1eceff" opacity="0.4"/><circle cx="80" cy="20" r="7" fill="#1eceff" opacity="0.6"/></svg>
+        </div>
+        <div class="card-meta"><span>2024</span><span>Games</span></div>
+        <div class="card-title">Held, Instantaneously</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">Unity</span><span class="tag">WebSocket</span><span class="tag">Installation</span></div>
+      </div>
+
+      <div class="work-card" data-spec="interactivity" data-tags="WebSocket Unity Web">
+        <div class="card-thumb" style="--thumb-bg:#fff0e6">
+          <svg viewBox="0 0 160 100"><rect x="10" y="10" width="140" height="18" fill="#ff6b1a" opacity="0.3"/><rect x="18" y="36" width="124" height="10" fill="#ff6b1a" opacity="0.2"/><rect x="18" y="50" width="90" height="10" fill="#ff6b1a" opacity="0.2"/><rect x="18" y="64" width="60" height="10" fill="#ff6b1a" opacity="0.2"/><rect x="18" y="78" width="100" height="10" fill="#ff6b1a" opacity="0.15"/></svg>
+        </div>
+        <div class="card-meta"><span>2024</span><span>Interactivity</span></div>
+        <div class="card-title">ArchiveGram — TikTok Cam Navigator</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">WebSocket</span><span class="tag">Unity</span><span class="tag">Web</span></div>
+      </div>
+
+      <div class="work-card" data-spec="animation" data-tags="Education Blender Workshop">
+        <div class="card-thumb" style="--thumb-bg:#ffe8f9">
+          <svg viewBox="0 0 160 100"><polygon points="80,15 140,85 20,85" fill="#ff20c0" opacity="0.1"/><polygon points="80,30 125,80 35,80" fill="#ff20c0" opacity="0.15"/><polygon points="80,48 108,75 52,75" fill="#ff20c0" opacity="0.3"/><circle cx="80" cy="15" r="4" fill="#ff20c0" opacity="0.7"/></svg>
+        </div>
+        <div class="card-meta"><span>2024</span><span>Animation</span></div>
+        <div class="card-title">Friday Blender Workshop Series</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">Education</span><span class="tag">Blender</span><span class="tag">Workshop</span></div>
+      </div>
+
+      <div class="work-card" data-spec="interactivity" data-tags="Three.js Education Web">
+        <div class="card-thumb" style="--thumb-bg:#fff0e6">
+          <svg viewBox="0 0 160 100"><rect x="20" y="20" width="52" height="60" fill="#ff6b1a" opacity="0.12"/><rect x="88" y="20" width="52" height="28" fill="#ff6b1a" opacity="0.22"/><rect x="88" y="52" width="52" height="28" fill="#ff6b1a" opacity="0.12"/><rect x="28" y="30" width="36" height="5" fill="#ff6b1a" opacity="0.5"/><rect x="28" y="40" width="24" height="5" fill="#ff6b1a" opacity="0.4"/><rect x="28" y="50" width="30" height="5" fill="#ff6b1a" opacity="0.4"/><rect x="28" y="60" width="20" height="5" fill="#ff6b1a" opacity="0.3"/></svg>
+        </div>
+        <div class="card-meta"><span>2024</span><span>Interactivity</span></div>
+        <div class="card-title">End the Boring Internet — Three.js Workshop</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">Three.js</span><span class="tag">Education</span><span class="tag">Web</span></div>
+      </div>
+
+      <div class="work-card" data-spec="interactivity" data-tags="TouchDesigner GLSL Interactive">
+        <div class="card-thumb" style="--thumb-bg:#fff0e6">
+          <svg viewBox="0 0 160 100"><ellipse cx="80" cy="50" rx="56" ry="34" fill="#ff6b1a" opacity="0.08"/><ellipse cx="80" cy="50" rx="36" ry="20" fill="#ff6b1a" opacity="0.14"/><ellipse cx="80" cy="50" rx="18" ry="10" fill="#ff6b1a" opacity="0.28"/><line x1="80" y1="16" x2="80" y2="84" stroke="#ff6b1a" stroke-width="1" opacity="0.2"/><line x1="24" y1="50" x2="136" y2="50" stroke="#ff6b1a" stroke-width="1" opacity="0.2"/></svg>
+        </div>
+        <div class="card-meta"><span>2023</span><span>Interactivity</span></div>
+        <div class="card-title">Fortune Teller — Dwell Detection</div>
+        <div class="card-student">Adrian Frichitthavong</div>
+        <div class="card-tags"><span class="tag">TouchDesigner</span><span class="tag">GLSL</span><span class="tag">Interactive</span></div>
+      </div>
+
+      <div class="work-card ghost">
+        <div class="card-thumb" style="--thumb-bg:#f5f5f5">
+          <svg viewBox="0 0 160 100"><rect x="60" y="38" width="40" height="40" fill="#ccc" opacity="0.25"/><line x1="80" y1="18" x2="80" y2="34" stroke="#ccc" stroke-width="1.5" opacity="0.5"/><line x1="72" y1="26" x2="88" y2="26" stroke="#ccc" stroke-width="1.5" opacity="0.5"/></svg>
+        </div>
+        <div class="card-meta"><span>202X</span><span>—</span></div>
+        <div class="card-title">Student Work</div>
+        <div class="card-student">Student Name</div>
+        <div class="card-tags"><span class="tag">Tag</span></div>
+      </div>
+
+    </div>
+
+    <div id="view-list">
+      <div class="list-row head">
+        <div class="col-head">#</div>
+        <div class="col-head">Title</div>
+        <div class="col-head">Student</div>
+        <div class="col-head">Specialisation</div>
+        <div class="col-head">Tags</div>
+        <div class="col-head" style="text-align:right">Year</div>
+      </div>
+      <div class="list-row" data-spec="games"><div class="col-n">01</div><div class="col-title">TAMAC1DE — Gacha Installation</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Games</div><div class="col-tags"><span class="list-tag">Unity HDRP</span><span class="list-tag">Critical Design</span></div><div class="col-year">2026</div></div>
+      <div class="list-row" data-spec="interactivity"><div class="col-n">02</div><div class="col-title">MAGI EXPO — Orbital Exhibition Site</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">React Three Fiber</span></div><div class="col-year">2025</div></div>
+      <div class="list-row" data-spec="interactivity"><div class="col-n">03</div><div class="col-title">Luminous Festival — Hand Tracking Boids</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">MediaPipe</span><span class="list-tag">GLSL</span></div><div class="col-year">2025</div></div>
+      <div class="list-row" data-spec="interactivity"><div class="col-n">04</div><div class="col-title">CCTV / PORTALS — NDI Camera Network</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">NDI</span><span class="list-tag">Network</span></div><div class="col-year">2025</div></div>
+      <div class="list-row" data-spec="games"><div class="col-n">05</div><div class="col-title">Held, Instantaneously</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Games</div><div class="col-tags"><span class="list-tag">Unity</span><span class="list-tag">WebSocket</span></div><div class="col-year">2024</div></div>
+      <div class="list-row" data-spec="interactivity"><div class="col-n">06</div><div class="col-title">ArchiveGram — TikTok Cam Navigator</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">WebSocket</span><span class="list-tag">Unity</span></div><div class="col-year">2024</div></div>
+      <div class="list-row" data-spec="animation"><div class="col-n">07</div><div class="col-title">Friday Blender Workshop Series</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Animation</div><div class="col-tags"><span class="list-tag">Blender</span><span class="list-tag">Workshop</span></div><div class="col-year">2024</div></div>
+      <div class="list-row" data-spec="interactivity"><div class="col-n">08</div><div class="col-title">End the Boring Internet — Three.js Workshop</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">Three.js</span><span class="list-tag">Web</span></div><div class="col-year">2024</div></div>
+      <div class="list-row" data-spec="interactivity"><div class="col-n">09</div><div class="col-title">Fortune Teller — Dwell Detection</div><div class="col-student">Adrian Frichitthavong</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">TouchDesigner</span><span class="list-tag">GLSL</span></div><div class="col-year">2023</div></div>
+    </div>
+
+  </section>
+
+  <!-- ── STUDENTS ───────────────────────────────────── -->
+  <div class="bar">
+    <div class="bar-title">Students — 2026 Cohort</div>
+    <div class="bar-right"><div class="bar-link">All Cohorts ›</div></div>
+  </div>
+
+  <div class="students-grid">
+    <div class="student-card" data-spec="interactivity">
+      <div class="student-initials">AF</div>
+      <div class="student-name">Adrian Frichitthavong</div>
+      <div class="student-stream">Interactivity</div>
+      <div class="student-count">9 works <em>/ Studio 3</em></div>
+    </div>
+    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Animation</div><div class="student-count">0 works</div></div>
+    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Games</div><div class="student-count">0 works</div></div>
+    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Animation</div><div class="student-count">0 works</div></div>
+    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Interactivity</div><div class="student-count">0 works</div></div>
+    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Games</div><div class="student-count">0 works</div></div>
+  </div>
+
+  <!-- ── MEDIA GALLERY ─────────────────────────────── -->
+  <section id="gallery">
+
+    <div class="bar">
+      <div class="bar-title">Media Gallery</div>
+      <div class="bar-right"><div class="bar-link">View All ›</div></div>
+    </div>
+
+    <div class="gallery-grid">
+
+      <div class="gallery-item">
+        <div class="gallery-img">
+          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" fill="#e8e8e8"/><rect x="85" y="88" width="70" height="56" rx="2" fill="none" stroke="#bbb" stroke-width="1.5"/><circle cx="101" cy="104" r="6" fill="none" stroke="#bbb" stroke-width="1.5"/><polyline points="85,132 108,112 122,126 138,108 155,132" fill="none" stroke="#bbb" stroke-width="1.5"/></svg>
+          <div class="gallery-overlay">
+            <div class="gallery-item-label">Interactivity</div>
+            <div class="gallery-item-title">MAGI EXPO — Orbital Exhibition Site</div>
+            <div class="gallery-item-student">Adrian Frichitthavong — 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-img">
+          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" fill="#e8e8e8"/><rect x="85" y="88" width="70" height="56" rx="2" fill="none" stroke="#bbb" stroke-width="1.5"/><circle cx="101" cy="104" r="6" fill="none" stroke="#bbb" stroke-width="1.5"/><polyline points="85,132 108,112 122,126 138,108 155,132" fill="none" stroke="#bbb" stroke-width="1.5"/></svg>
+          <div class="gallery-overlay">
+            <div class="gallery-item-label">Interactivity</div>
+            <div class="gallery-item-title">Luminous Festival — Hand Tracking Boids</div>
+            <div class="gallery-item-student">Adrian Frichitthavong — 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-img">
+          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" fill="#e8e8e8"/><rect x="85" y="88" width="70" height="56" rx="2" fill="none" stroke="#bbb" stroke-width="1.5"/><circle cx="101" cy="104" r="6" fill="none" stroke="#bbb" stroke-width="1.5"/><polyline points="85,132 108,112 122,126 138,108 155,132" fill="none" stroke="#bbb" stroke-width="1.5"/></svg>
+          <div class="gallery-overlay">
+            <div class="gallery-item-label">Games</div>
+            <div class="gallery-item-title">Held, Instantaneously — Dating App Terrarium</div>
+            <div class="gallery-item-student">Adrian Frichitthavong — 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-img">
+          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" fill="#e8e8e8"/><rect x="85" y="88" width="70" height="56" rx="2" fill="none" stroke="#bbb" stroke-width="1.5"/><circle cx="101" cy="104" r="6" fill="none" stroke="#bbb" stroke-width="1.5"/><polyline points="85,132 108,112 122,126 138,108 155,132" fill="none" stroke="#bbb" stroke-width="1.5"/></svg>
+          <div class="gallery-overlay">
+            <div class="gallery-item-label">Interactivity</div>
+            <div class="gallery-item-title">CCTV / PORTALS — NDI Camera Network</div>
+            <div class="gallery-item-student">Adrian Frichitthavong — 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <div class="gallery-img">
+          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><rect width="240" height="240" fill="#e8e8e8"/><rect x="85" y="88" width="70" height="56" rx="2" fill="none" stroke="#bbb" stroke-width="1.5"/><circle cx="101" cy="104" r="6" fill="none" stroke="#bbb" stroke-width="1.5"/><polyline points="85,132 108,112 122,126 138,108 155,132" fill="none" stroke="#bbb" stroke-width="1.5"/></svg>
+          <div class="gallery-overlay">
+            <div class="gallery-item-label">Games</div>
+            <div class="gallery-item-title">TAMAC1DE — Gacha Installation</div>
+            <div class="gallery-item-student">Adrian Frichitthavong — 2026</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ── FOOTER ────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="footer-copy">MAGI Portal — RMIT Melbourne — 2026</div>
+    <div class="footer-links">
+      <a class="footer-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <div class="footer-link">Students</div>
+      <div class="footer-link">Archive</div>
+      <div class="footer-link">Contact</div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
