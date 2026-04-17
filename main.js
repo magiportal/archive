@@ -1,11 +1,4 @@
-// ── LOGO ↔ SPECIALISATION SYSTEM ─────────────────
-//
-// Each letter has data-spec="animation|games|interactivity"
-// On hover:
-//   1. Logo: dim all letters, brighten the hovered one(s)
-//   2. Panels: fade out non-matching, tint-highlight match
-//   3. Archive cards: dim non-matching spec
-// On leave: reset everything
+
 
 const logoWrap  = document.getElementById('logo-wrap');
 const letters   = logoWrap.querySelectorAll('.logo-letter');
