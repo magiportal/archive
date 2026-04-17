@@ -1,8 +1,9 @@
-
+// ── LOGO ↔ SPECIALISATION SYSTEM ─────────────────
 
 const logoWrap  = document.getElementById('logo-wrap');
 const letters   = logoWrap.querySelectorAll('.logo-letter');
 const letterM   = document.getElementById('letter-m');
+const letterG   = document.getElementById('letter-g');
 const panels    = document.querySelectorAll('.spec-panel');
 const cards     = document.querySelectorAll('.work-card:not(.ghost)');
 const listRows  = document.querySelectorAll('#view-list .list-row:not(.head)');
@@ -27,24 +28,15 @@ function deactivate() {
   listRows.forEach(r => r.classList.remove('dimmed'));
 }
 
-// M — colour reveal only, no spec activation
-letterM.addEventListener('mouseenter', () => {
-  letterM.style.filter = 'grayscale(0) brightness(1)';
-});
-letterM.addEventListener('mouseleave', () => {
-  letterM.style.filter = '';
-});
-
-// A, G, I — full spec activation
+// All letters — full spec activation (I handled separately below)
 letters.forEach(letter => {
   if (!letter.dataset.spec) return;
+  if (letter.id === 'letter-i') return;
   letter.addEventListener('mouseenter', () => activate(letter.dataset.spec));
   letter.addEventListener('mouseleave', deactivate);
 });
 
 // ── G — DRAGGABLE WITH PHYSICS ────────────────────
-
-const letterG = document.getElementById('letter-g');
 
 let gX = 0, gY = 0;
 let gVX = 0, gVY = 0;
@@ -54,14 +46,13 @@ let dragStartX = 0, dragStartY = 0;
 let rafId = null;
 let gHovered = false;
 
-const DRAG_LERP   = 0.055;  // heavier lag — lower = more sluggish
-const SPRING_K    = 0.055;  // softer spring — slower pull back
-const DAMPING     = 0.82;   // higher = more overshoot and slosh
+const DRAG_LERP   = 0.055;
+const SPRING_K    = 0.055;
+const DAMPING     = 0.82;
 const SNAP_THRESH = 0.4;
 
 function applyG() {
   const tilt = Math.max(-22, Math.min(22, gVX * 3.5));
-  // preserve the hover translateX(5px) when not dragging
   const hoverX = (!isDragging && gHovered) ? 5 : 0;
   letterG.style.transform = `translate(${gX + hoverX}px, ${gY}px) rotate(${tilt}deg)`;
 }
@@ -96,7 +87,6 @@ function snapLoop() {
     gX = 0; gY = 0; gVX = 0; gVY = 0;
     letterG.style.transform = '';
     letterG.classList.remove('is-dragging');
-    // restore CSS transition so hover animation works again
     letterG.style.transition = '';
   }
 }
@@ -104,7 +94,7 @@ function snapLoop() {
 letterG.addEventListener('mouseenter', () => { gHovered = true; });
 letterG.addEventListener('mouseleave', () => {
   gHovered = false;
-  if (isDragging) return; // don't deactivate spec while dragging
+  if (isDragging) return;
 });
 
 letterG.addEventListener('mousedown', e => {
@@ -115,7 +105,6 @@ letterG.addEventListener('mousedown', e => {
   dragStartY = e.clientY - gY;
   letterG.classList.add('is-dragging');
   letterG.style.transition = 'filter 0.25s ease, opacity 0.25s ease';
-  // lock highlight on for the drag
   activate('games');
   dragLoop();
 });
@@ -134,6 +123,219 @@ document.addEventListener('mouseup', () => {
   rafId = requestAnimationFrame(snapLoop);
 });
 
+// ── LETTER I — TITTLE INTERACTION ────────────────
+
+const letterI       = document.getElementById('letter-i');
+const letterIWrap   = document.getElementById('letter-i-wrap');
+const iContainer    = letterIWrap.querySelector('.letter-i-container');
+const scoreEl       = document.getElementById('tittle-score');
+const hero          = document.querySelector('.hero');
+
+let tittle          = null;
+let tittleActive    = false;
+let tittleX         = 0;
+let tittleY         = 0;
+let tittleVX        = 0;
+let tittleVY        = 0;
+let tittleRaf       = null;
+let score           = 0;
+let hasHitFloor     = false;
+
+const GRAVITY       = 0.35;
+const BOUNCE        = 0.62;
+const FRICTION      = 0.985;
+
+function updateScore(n, lost) {
+  score = n;
+  if (lost) {
+    scoreEl.textContent = score > 0 ? `${score} ✕` : '';
+    scoreEl.classList.add('visible', 'lost');
+  } else if (score > 0) {
+    scoreEl.textContent = score.toString();
+    scoreEl.classList.add('visible');
+    scoreEl.classList.remove('lost');
+  } else {
+    scoreEl.classList.remove('visible', 'lost');
+  }
+}
+
+function resetScore() {
+  score = 0;
+  hasHitFloor = false;
+  scoreEl.textContent = '';
+  scoreEl.classList.remove('visible', 'lost');
+}
+
+function spawnTittle() {
+  const isFirstSpawn = !tittle;
+
+  if (!tittle) {
+    tittle = document.createElement('div');
+    tittle.className = 'tittle-ball';
+    document.body.appendChild(tittle);
+
+    // only the ball itself bounces on click
+    tittle.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!tittleActive) return;
+      // only score if ball hasn't hit the floor since last bounce
+      if (!hasHitFloor) {
+        updateScore(score + 1, false);
+      } else {
+        // hit floor already — reset streak and start fresh
+        hasHitFloor = false;
+        updateScore(1, false);
+      }
+      cancelAnimationFrame(tittleRaf);
+      tittleVX = (Math.random() - 0.5) * 12;
+      tittleVY = -(7 + Math.random() * 6);
+      tittleActive = true;
+      bounceTittle();
+    });
+  }
+
+  // always start from the I when hidden (first spawn or after retract)
+  if (isFirstSpawn || tittle.style.display === 'none') {
+    const iRect = letterI.getBoundingClientRect();
+    tittleX = iRect.left + iRect.width * 0.3;
+    tittleY = iRect.top  - 10;
+    tittle.style.left = tittleX + 'px';
+    tittle.style.top  = tittleY + 'px';
+  }
+
+  tittle.style.display = 'block';
+
+  // initial kick from I
+  tittleVX = (Math.random() - 0.5) * 8;
+  tittleVY = -(6 + Math.random() * 5);
+  tittleActive = true;
+
+  cancelAnimationFrame(tittleRaf);
+  bounceTittle();
+}
+
+function retractTittle() {
+  if (!tittle) return;
+  cancelAnimationFrame(tittleRaf);
+  tittleActive = false;
+
+  const SPRING          = 0.022;
+  const RETRACT_DAMPING = 0.88;
+
+  function retractLoop() {
+    const iRect   = letterI.getBoundingClientRect();
+    const targetX = iRect.left + iRect.width * 0;
+    const targetY = iRect.top  - 10;
+
+    // spring force toward I
+    tittleVX += (targetX - tittleX) * SPRING;
+    tittleVY += (targetY - tittleY) * SPRING;
+
+    // damping
+    tittleVX *= RETRACT_DAMPING;
+    tittleVY *= RETRACT_DAMPING;
+
+    tittleX += tittleVX;
+    tittleY += tittleVY;
+
+    tittle.style.left = tittleX + 'px';
+    tittle.style.top  = tittleY + 'px';
+
+    const dist = Math.sqrt(
+      (targetX - tittleX) ** 2 + (targetY - tittleY) ** 2
+    );
+    const speed = Math.sqrt(tittleVX ** 2 + tittleVY ** 2);
+
+    if (dist < 1.5 && speed < 0.5) {
+      tittle.style.display = 'none';
+      tittleX = targetX;
+      tittleY = targetY;
+      tittleVX = 0;
+      tittleVY = 0;
+      iContainer.classList.remove('decapitated');
+      resetScore();
+      return;
+    }
+
+    tittleRaf = requestAnimationFrame(retractLoop);
+  }
+
+  tittleRaf = requestAnimationFrame(retractLoop);
+}
+
+function bounceTittle() {
+  if (!tittleActive) return;
+
+  // refresh hero bounds each frame in case of scroll
+  const heroRect = hero.getBoundingClientRect();
+  const tw = tittle.offsetWidth  || 52;
+  const th = tittle.offsetHeight || 52;
+
+  const minX = heroRect.left;
+  const maxX = heroRect.right  - tw;
+  const minY = heroRect.top;
+  const maxY = heroRect.bottom - th;
+
+  tittleVY += GRAVITY;
+  tittleVX *= FRICTION;
+
+  tittleX += tittleVX;
+  tittleY += tittleVY;
+
+  // floor bounce
+  if (tittleY >= maxY) {
+    tittleY  = maxY;
+    tittleVY = -Math.abs(tittleVY) * BOUNCE;
+    tittleVX *= 0.9;
+    if (Math.abs(tittleVY) < 0.8) tittleVY = 0;
+    // hitting the floor loses the streak
+    if (!hasHitFloor && score > 0) {
+      hasHitFloor = true;
+      updateScore(score, true);
+    }
+  }
+
+  // ceiling
+  if (tittleY <= minY) {
+    tittleY  = minY;
+    tittleVY = Math.abs(tittleVY) * BOUNCE;
+  }
+
+  // left wall
+  if (tittleX <= minX) {
+    tittleX  = minX;
+    tittleVX = Math.abs(tittleVX) * BOUNCE;
+  }
+
+  // right wall
+  if (tittleX >= maxX) {
+    tittleX  = maxX;
+    tittleVX = -Math.abs(tittleVX) * BOUNCE;
+  }
+
+  tittle.style.left = tittleX + 'px';
+  tittle.style.top  = tittleY + 'px';
+
+  tittleRaf = requestAnimationFrame(bounceTittle);
+}
+
+// click the I — first click decapitates, subsequent clicks retract the ball back
+iContainer.addEventListener('click', e => {
+  e.stopPropagation();
+
+  if (!iContainer.classList.contains('decapitated')) {
+    // first click — decapitate and launch
+    iContainer.classList.add('decapitated');
+    spawnTittle();
+  } else {
+    // already decapitated — retract ball back to I
+    retractTittle();
+  }
+});
+
+// keep hover/spec activation on the img itself
+letterI.addEventListener('mouseenter', () => activate('interactivity'));
+letterI.addEventListener('mouseleave', deactivate);
 
 const viewGrid = document.getElementById('view-grid');
 const viewList = document.getElementById('view-list');
