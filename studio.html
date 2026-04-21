@@ -649,6 +649,23 @@
       margin-left: auto;
     }
 
+    /* ── LIVE CURSORS ─────────────────────────────── */
+
+    .live-cursor {
+      position: absolute;
+      pointer-events: none;
+      z-index: 999;
+      transform: translate(-5px, -5px);
+    }
+
+    .live-cursor-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+
     /* ── PROMINENT PIN BUTTON ─────────────────────── */
 
     .pin-btn {
@@ -835,6 +852,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     // ── STATE ──────────────────────────────────────────
     const STORE_KEY = 'magi-studio-cards';
@@ -1013,21 +1031,15 @@
     });
     document.getElementById('btn-reset-view').addEventListener('click', centreOnCards);
 
-    // ── SUPABASE CONFIG ────────────────────────────────
-    const SUPA_URL  = 'https://hzzhuikzvdfcizkuelte.supabase.co';
-    const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
-    const TABLE     = 'studio_cards';
-    const HEADERS   = { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY };
-
-    async function dbFetch(path, opts = {}) {
-      const res = await fetch(`${SUPA_URL}/rest/v1/${path}`, { headers: HEADERS, ...opts });
-      if (!res.ok) { console.error('Supabase error', res.status, await res.text()); return null; }
-      return res.status === 204 ? null : res.json();
-    }
+    // ── SUPABASE CLIENT ────────────────────────────────
+    const SUPA_URL = 'https://hzzhuikzvdfcizkuelte.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
+    const TABLE    = 'studio_cards';
+    const db       = supabase.createClient(SUPA_URL, SUPA_KEY);
 
     async function loadCards() {
       showStatus('Loading…');
-      const data = await dbFetch(`${TABLE}?order=date.asc`);
+      const { data, error } = await db.from(TABLE).select('*').order('date', { ascending: true });
       if (data) {
         cards = data.map(row => ({ ...row, tags: row.tags ? row.tags.split(',').filter(Boolean) : [] }));
       }
@@ -1040,23 +1052,19 @@
 
     async function saveCard(card) {
       const row = { ...card, tags: (card.tags || []).join(',') };
-      await dbFetch(`${TABLE}`, {
-        method: 'POST',
-        headers: { ...HEADERS, 'Prefer': 'resolution=merge-duplicates' },
-        body: JSON.stringify(row)
-      });
+      const { error } = await db.from(TABLE).upsert(row);
+      if (error) console.error('saveCard error:', error);
     }
 
     async function updateCard(card) {
       const row = { ...card, tags: (card.tags || []).join(',') };
-      await dbFetch(`${TABLE}?id=eq.${card.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(row)
-      });
+      const { error } = await db.from(TABLE).update(row).eq('id', card.id);
+      if (error) console.error('updateCard error:', error);
     }
 
     async function deleteCard(id) {
-      await dbFetch(`${TABLE}?id=eq.${id}`, { method: 'DELETE' });
+      const { error } = await db.from(TABLE).delete().eq('id', id);
+      if (error) console.error('deleteCard error:', error);
     }
 
     async function seedCards() {
@@ -1073,26 +1081,18 @@
 
     // ── REALTIME ───────────────────────────────────────
     function subscribeRealtime() {
-      const ws = new WebSocket(
-        `${SUPA_URL.replace('https','wss')}/realtime/v1/websocket?apikey=${SUPA_KEY}&vsn=1.0.0`
-      );
+      db.channel('studio_cards_changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, payload => {
+          const { eventType, new: record, old: old_record } = payload;
 
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ topic: 'realtime:public:studio_cards', event: 'phx_join', payload: {}, ref: '1' }));
-      };
-
-      ws.onmessage = e => {
-        const msg = JSON.parse(e.data);
-        if (msg.event !== 'phx_reply' && msg.payload?.data) {
-          const { type, record, old_record } = msg.payload.data;
-          if (type === 'INSERT') {
+          if (eventType === 'INSERT') {
             const c = { ...record, tags: record.tags ? record.tags.split(',').filter(Boolean) : [] };
             if (!cards.find(x => x.id === c.id)) {
               cards.push(c);
               inner.appendChild(makeCardEl(c));
               applyFilters();
             }
-          } else if (type === 'UPDATE') {
+          } else if (eventType === 'UPDATE') {
             const idx = cards.findIndex(x => x.id === record.id);
             if (idx !== -1) {
               cards[idx] = { ...record, tags: record.tags ? record.tags.split(',').filter(Boolean) : [] };
@@ -1100,18 +1100,75 @@
               if (el) el.replaceWith(makeCardEl(cards[idx]));
               applyFilters();
             }
-          } else if (type === 'DELETE') {
+          } else if (eventType === 'DELETE') {
             cards = cards.filter(x => x.id !== old_record.id);
             const el = inner.querySelector(`[data-id="${old_record.id}"]`);
             if (el) el.remove();
           }
-        }
-        // heartbeat
-        if (msg.event === 'heartbeat') ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: '2' }));
-      };
+        })
+        .subscribe();
     }
 
-    // ── STATUS INDICATOR ───────────────────────────────
+    // ── LIVE CURSORS + DRAG SYNC ──────────────────────
+    const MY_ID    = uid();
+    const MY_COLOR = `hsl(${Math.floor(Math.random()*360)},70%,55%)`;
+    const cursorEls = {};
+    let cursorChannel = null;
+
+    function startCursors() {
+      cursorChannel = db.channel('presence', { config: { broadcast: { self: false } } });
+
+      cursorChannel.on('broadcast', { event: 'cursor' }, ({ payload }) => {
+        const { id, color, x, y, active } = payload;
+        if (id === MY_ID) return;
+        if (!active) {
+          if (cursorEls[id]) { cursorEls[id].remove(); delete cursorEls[id]; }
+          return;
+        }
+        if (!cursorEls[id]) {
+          const el = document.createElement('div');
+          el.className = 'live-cursor';
+          el.innerHTML = `<div class="live-cursor-dot" style="background:${color}"></div>`;
+          document.getElementById('studio-canvas').appendChild(el);
+          cursorEls[id] = el;
+        }
+        cursorEls[id].style.left = x + 'px';
+        cursorEls[id].style.top  = y + 'px';
+      });
+
+      // live card drag sync from others
+      cursorChannel.on('broadcast', { event: 'drag' }, ({ payload }) => {
+        const { id: cardId, x, y } = payload;
+        const el = inner.querySelector(`[data-id="${cardId}"]`);
+        if (el) { el.style.left = x + 'px'; el.style.top = y + 'px'; }
+      });
+
+      cursorChannel.subscribe();
+
+      // broadcast cursor
+      let lastCursor = 0;
+      canvas.addEventListener('mousemove', e => {
+        const now = Date.now();
+        if (now - lastCursor < 40) return;
+        lastCursor = now;
+        const rect = canvas.getBoundingClientRect();
+        cursorChannel.send({ type: 'broadcast', event: 'cursor',
+          payload: { id: MY_ID, color: MY_COLOR, x: e.clientX - rect.left, y: e.clientY - rect.top, active: true }
+        });
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        cursorChannel.send({ type: 'broadcast', event: 'cursor',
+          payload: { id: MY_ID, color: MY_COLOR, x: 0, y: 0, active: false }
+        });
+      });
+    }
+
+    // called from card drag loop
+    function broadcastDrag(cardId, x, y) {
+      if (!cursorChannel) return;
+      cursorChannel.send({ type: 'broadcast', event: 'drag', payload: { id: cardId, x, y } });
+    }
     function showStatus(msg) {
       let s = document.getElementById('db-status');
       if (!s) { s = document.createElement('div'); s.id = 'db-status'; s.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-family:DM Mono,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);z-index:200;pointer-events:none'; document.body.appendChild(s); }
@@ -1207,6 +1264,7 @@
         c.y = (e.clientY - panY) / scale - oy;
         el.style.left = c.x + 'px';
         el.style.top  = c.y + 'px';
+        broadcastDrag(c.id, c.x, c.y);
       });
 
       document.addEventListener('mouseup', () => {
@@ -1452,6 +1510,7 @@
 
     // ── INIT ───────────────────────────────────────────
     loadCards(); // async — renders when ready
+    startCursors();
   </script>
 
 </body>
