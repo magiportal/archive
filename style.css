@@ -101,7 +101,12 @@ html, body {
   text-decoration: none;
 }
 
-.nav-link:hover, .nav-link.active { color: var(--black); }
+.nav-link:hover { color: var(--black); }
+
+.nav-link.active {
+  color: var(--white);
+  background: var(--black);
+}
 
 .nav-live   { display: flex; align-items: center; gap: 7px; }
 .nav-dot    { width: 5px; height: 5px; border-radius: 50%; background: var(--black); animation: blink 1.6s ease-in-out infinite; flex-shrink: 0; }
