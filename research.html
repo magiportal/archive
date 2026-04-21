@@ -6,9 +6,40 @@
   <title>Research — MAGI Portal</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400;0,500;1,400&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;1,400&display=swap" />
   <style>
 
-    /* ── SEARCH HERO ─────────────────────────────── */
+    :root { --body-font: 'Teachers', serif; }
+
+    .result-abstract,
+    .result-source { font-family: var(--body-font); }
+
+    .font-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--line);
+      margin-left: auto;
+    }
+
+    .font-toggle-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dim);
+      background: none;
+      border: none;
+      border-right: 1px solid var(--line);
+      padding: 5px 12px 6px;
+      cursor: pointer;
+      transition: color 0.1s, background 0.1s;
+      white-space: nowrap;
+    }
+
+    .font-toggle-btn:last-child { border-right: none; }
+    .font-toggle-btn:hover { color: var(--black); }
+    .font-toggle-btn.active { background: var(--black); color: var(--white); }
 
     .research-hero {
       border-bottom: 1px solid var(--line);
@@ -321,7 +352,6 @@
     }
 
     .result-abstract {
-      font-family: 'Teachers', serif;
       font-size: 15px;
       color: var(--secondary);
       line-height: 1.8;
@@ -547,6 +577,11 @@
           <button class="sort-btn active">Relevance</button>
           <button class="sort-btn">Date</button>
           <button class="sort-btn">Title</button>
+        </div>
+        <div class="font-toggle">
+          <button class="font-toggle-btn active" data-font="'Teachers', serif">Teachers</button>
+          <button class="font-toggle-btn" data-font="'Roboto', sans-serif">Roboto</button>
+          <button class="font-toggle-btn" data-font="'DM Mono', monospace">Mono</button>
         </div>
       </div>
 
@@ -783,6 +818,15 @@
   </footer>
 
   <script>
+    // ── FONT TOGGLE ───────────────────────────────────
+    document.querySelectorAll('.font-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.font-toggle-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.documentElement.style.setProperty('--body-font', this.dataset.font);
+      });
+    });
+
     // ── FILTER CHIPS ──────────────────────────────────
     document.querySelectorAll('.filter-chip').forEach(chip => {
       chip.addEventListener('click', function() {
