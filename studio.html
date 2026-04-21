@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio — MAGI Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    body { overflow: hidden; }
+
+    /* ── STUDIO TOOLBAR ──────────────────────────── */
+
+    .studio-toolbar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      z-index: 100;
+      gap: 0;
+    }
+
+    .toolbar-section {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      border-right: 1px solid var(--line);
+      padding: 0 16px;
+      gap: 8px;
+    }
+
+    .toolbar-label {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── SEARCH ───────────────────────────────────── */
+
+    .toolbar-search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 16px;
+      gap: 10px;
+      border-right: 1px solid var(--line);
+    }
+
+    .toolbar-search-icon {
+      color: var(--dim);
+      flex-shrink: 0;
+    }
+
+    .toolbar-search-input {
+      flex: 1;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--black);
+      background: none;
+      border: none;
+      outline: none;
+      max-width: 320px;
+    }
+
+    .toolbar-search-input::placeholder { color: var(--faint); }
+
+    .search-count {
+      font-size: 10px;
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    /* ── ADD CARD ─────────────────────────────────── */
+
+    .toolbar-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      background: none;
+      border: 1px solid var(--line);
+      padding: 5px 14px 6px;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s, background 0.1s;
+      white-space: nowrap;
+    }
+
+    .toolbar-btn:hover { color: var(--black); border-color: var(--secondary); }
+    .toolbar-btn.primary { background: var(--black); color: var(--white); border-color: var(--black); }
+    .toolbar-btn.primary:hover { background: #333; }
+
+    .type-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px 4px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: none;
+      color: var(--dim);
+      transition: all 0.1s;
+      user-select: none;
+    }
+
+    .type-chip:hover { color: var(--black); }
+    .type-chip.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    .type-chip[data-type="wip"]       { --chip-col: #c8e800; }
+    .type-chip[data-type="technique"] { --chip-col: #1eceff; }
+    .type-chip[data-type="scrap"]     { --chip-col: #ff20c0; }
+    .type-chip[data-type="reference"] { --chip-col: #ff6b1a; }
+
+    .type-chip.active[data-type="wip"]       { background: #4a5200; color: #c8e800; border-color: #4a5200; }
+    .type-chip.active[data-type="technique"] { background: #003a4a; color: #1eceff; border-color: #003a4a; }
+    .type-chip.active[data-type="scrap"]     { background: #7a005e; color: #ff20c0; border-color: #7a005e; }
+    .type-chip.active[data-type="reference"] { background: #7a3200; color: #ff6b1a; border-color: #7a3200; }
+
+    /* ── CANVAS ───────────────────────────────────── */
+
+    .studio-canvas {
+      position: fixed;
+      top: 104px; /* nav + toolbar */
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    /* dot grid background */
+    .studio-canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, #c8c8c8 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .canvas-inner {
+      position: absolute;
+      width: 8000px;
+      height: 8000px;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+    }
+
+    /* ── CARDS ────────────────────────────────────── */
+
+    .studio-card {
+      position: absolute;
+      width: 260px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      cursor: grab;
+      user-select: none;
+      transition: box-shadow 0.15s, opacity 0.25s;
+      z-index: 10;
+    }
+
+    .studio-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 20; }
+    .studio-card.is-dragging { cursor: grabbing; box-shadow: 0 12px 40px rgba(0,0,0,0.15); z-index: 50; }
+    .studio-card.is-dimmed { opacity: 0.18; }
+    .studio-card.is-highlighted { box-shadow: 0 0 0 2px var(--black), 0 8px 24px rgba(0,0,0,0.12); z-index: 30; }
+
+    .card-type-bar {
+      height: 3px;
+      width: 100%;
+    }
+
+    .studio-card[data-type="wip"]       .card-type-bar { background: #c8e800; }
+    .studio-card[data-type="technique"] .card-type-bar { background: #1eceff; }
+    .studio-card[data-type="scrap"]     .card-type-bar { background: #ff20c0; }
+    .studio-card[data-type="reference"] .card-type-bar { background: #ff6b1a; }
+
+    .card-header {
+      padding: 10px 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-type-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .studio-card[data-type="wip"]       .card-type-label { color: #4a5200; }
+    .studio-card[data-type="technique"] .card-type-label { color: #003a4a; }
+    .studio-card[data-type="scrap"]     .card-type-label { color: #7a005e; }
+    .studio-card[data-type="reference"] .card-type-label { color: #7a3200; }
+
+    .card-delete {
+      font-size: 14px;
+      color: var(--faint);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.1s;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .card-delete:hover { color: var(--black); }
+
+    .card-body {
+      padding: 8px 12px 14px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--black);
+      line-height: 1.35;
+      margin-bottom: 5px;
+      word-break: break-word;
+    }
+
+    .card-text {
+      font-size: 11px;
+      color: var(--secondary);
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #f0f0f0;
+      border-top: 1px solid var(--line-mid);
+    }
+
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-footer {
+      padding: 8px 12px;
+      border-top: 1px solid var(--line-mid);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-author { font-size: 10px; color: var(--muted); }
+    .card-date   { font-size: 10px; color: var(--faint); }
+
+    .card-tags {
+      padding: 0 12px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+
+    .card-tag {
+      font-size: 9px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 1px 6px 2px;
+    }
+
+    /* ── ADD MODAL ────────────────────────────────── */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.4);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--white);
+      border: 1px solid var(--line);
+      width: 480px;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(8px);
+      transition: transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+    }
+
+    .modal-overlay.is-open .modal { transform: translateY(0); }
+
+    .modal-header {
+      padding: 20px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--black);
+    }
+
+    .modal-close {
+      font-size: 18px;
+      color: var(--dim);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      transition: color 0.1s;
+    }
+
+    .modal-close:hover { color: var(--black); }
+
+    .modal-body {
+      padding: 20px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .form-input,
+    .form-textarea {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--black);
+      background: none;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      outline: none;
+      transition: border-color 0.1s;
+      resize: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus { border-color: var(--black); }
+
+    .form-textarea { min-height: 80px; }
+
+    .form-type-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .card-thumb-yt { position: relative; }
+
+    .card-yt-badge {
+      position: absolute;
+      bottom: 6px;
+      left: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 2px 7px 3px;
+    }
+
+    /* ── CANVAS HINT ──────────────────────────────── */
+
+    .canvas-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 5;
+    }
+
+    /* ── RESET / ZOOM ─────────────────────────────── */
+
+    .canvas-controls {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .canvas-ctrl-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--dim);
+      transition: color 0.1s, border-color 0.1s;
+    }
+
+    .canvas-ctrl-btn:hover { color: var(--black); border-color: var(--secondary); }
+
+    /* ── ONBOARDING CARD ──────────────────────────── */
+
+    .studio-card.is-onboarding {
+      width: 300px;
+      background: #0a0a0a;
+      border-color: #222;
+    }
+
+    .studio-card.is-onboarding .card-type-bar { background: var(--line); }
+    .studio-card.is-onboarding .card-type-label { color: #666; }
+    .studio-card.is-onboarding .card-title { color: #fff; font-size: 14px; }
+    .studio-card.is-onboarding .card-text { color: #888; white-space: pre-line; line-height: 1.9; }
+    .studio-card.is-onboarding .card-footer { border-top-color: #222; }
+    .studio-card.is-onboarding .card-author { color: #555; }
+    .studio-card.is-onboarding .card-date { color: #444; }
+    .studio-card.is-onboarding .card-tag { border-color: #222; color: #555; }
+    .studio-card.is-onboarding .card-tags { padding-bottom: 12px; }
+    .studio-card.is-onboarding:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+
+    .archive-badge {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--faint);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      background: var(--white);
+      z-index: 100;
+      line-height: 1.5;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-wordmark">
+      <span class="nav-wordmark-magi">MAGI</span>
+      <span class="nav-wordmark-sub">Portal</span>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Archive</a>
+      <a class="nav-link" href="alumni.html">Alumni</a>
+      <a class="nav-link" href="staff.html">Staff</a>
+      <a class="nav-link" href="research.html">Research</a>
+      <a class="nav-link" href="recordings.html">Studio</a>
+      <div class="nav-link"><span class="nav-live"><span class="nav-dot"></span>2026</span></div>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <div class="nav-link">Search</div>
+    </div>
+  </nav>
+
+  <!-- ── TOOLBAR ────────────────────────────────── -->
+  <div class="studio-toolbar">
+
+    <div class="toolbar-section">
+      <span class="toolbar-label">Studio Board</span>
+    </div>
+
+    <div class="toolbar-search">
+      <svg class="toolbar-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="toolbar-search-input" id="board-search" type="text" placeholder="Search cards, keywords, tags…" autocomplete="off" />
+      <span class="search-count" id="search-count"></span>
+    </div>
+
+    <div class="toolbar-section" style="gap:6px">
+      <button class="type-chip active" data-type="all">All</button>
+      <button class="type-chip" data-type="wip">WIP</button>
+      <button class="type-chip" data-type="technique">Technique</button>
+      <button class="type-chip" data-type="scrap">Scrap</button>
+      <button class="type-chip" data-type="reference">Reference</button>
+    </div>
+
+    <div class="toolbar-section">
+      <button class="toolbar-btn primary" id="btn-add-card">+ Pin Work</button>
+    </div>
+
+  </div>
+
+  <!-- ── CANVAS ─────────────────────────────────── -->
+  <div class="studio-canvas" id="studio-canvas">
+    <div class="canvas-inner" id="canvas-inner"></div>
+  </div>
+
+  <div class="canvas-hint" id="canvas-hint">Drag background to pan · Scroll to zoom · Drag cards to reposition</div>
+
+  <!-- ── CANVAS CONTROLS ─────────────────────────── -->
+  <div class="canvas-controls">
+    <button class="canvas-ctrl-btn" id="btn-zoom-in" title="Zoom in">+</button>
+    <button class="canvas-ctrl-btn" id="btn-zoom-out" title="Zoom out">−</button>
+    <button class="canvas-ctrl-btn" id="btn-reset-view" title="Fit all cards">⌖</button>
+  </div>
+
+  <!-- ── ARCHIVE BADGE ──────────────────────────── -->
+  <div class="archive-badge">
+    MAGI Studio Board<br>
+    Internal — Students &amp; Staff Only
+  </div>
+
+  <!-- ── ADD CARD MODAL ─────────────────────────── -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Pin a Work</div>
+        <button class="modal-close" id="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label class="form-label">Type</label>
+          <div class="form-type-row" id="modal-type-row">
+            <button class="type-chip active" data-type="wip">WIP</button>
+            <button class="type-chip" data-type="technique">Technique</button>
+            <button class="type-chip" data-type="scrap">Scrap</button>
+            <button class="type-chip" data-type="reference">Reference</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Title</label>
+          <input class="form-input" id="form-title" type="text" placeholder="What is this?" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="form-desc" placeholder="Notes, context, where it's at…"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Author / Student</label>
+          <input class="form-input" id="form-author" type="text" placeholder="Your name" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Tags <span style="color:var(--faint);font-size:9px">(comma separated)</span></label>
+          <input class="form-input" id="form-tags" type="text" placeholder="unity, threejs, character design…" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Image or YouTube URL <span style="color:var(--faint);font-size:9px">(optional)</span></label>
+          <input class="form-input" id="form-img" type="text" placeholder="https://youtu.be/… or image URL" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="modal-cancel">Cancel</button>
+        <button class="toolbar-btn primary" id="modal-submit">Pin to Board</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── STATE ──────────────────────────────────────────
+    const STORE_KEY = 'magi-studio-cards';
+    let cards = [];
+    let selectedType = 'all';
+    let searchQuery = '';
+    let activeFilter = 'all';
+
+    // ── YOUTUBE HELPER ─────────────────────────────────
+    function getYouTubeId(url) {
+      if (!url) return null;
+      const patterns = [
+        /youtu\.be\/([^?&]+)/,
+        /youtube\.com\/watch\?v=([^&]+)/,
+        /youtube\.com\/embed\/([^?&]+)/,
+        /youtube\.com\/shorts\/([^?&]+)/,
+      ];
+      for (const p of patterns) {
+        const m = url.match(p);
+        if (m) return m[1];
+      }
+      return null;
+    }
+
+    function getThumbHtml(c) {
+      if (!c.img) return '';
+      const ytId = getYouTubeId(c.img);
+      if (ytId) {
+        return `<div class="card-thumb card-thumb-yt">
+          <img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="${c.title}" />
+          <div class="card-yt-badge">▶ YouTube</div>
+        </div>`;
+      }
+      return `<div class="card-thumb"><img src="${c.img}" alt="" /></div>`;
+    }
+
+    // ── PAN + ZOOM STATE ───────────────────────────────
+    const canvas   = document.getElementById('studio-canvas');
+    const inner    = document.getElementById('canvas-inner');
+    let panX = 0, panY = 0;
+    let scale = 1;
+    const SCALE_MIN = 0.3, SCALE_MAX = 2, SCALE_STEP = 0.15;
+    let isPanning = false;
+    let panStartX, panStartY;
+
+    function applyTransform() {
+      inner.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    }
+
+    function zoomAt(delta, cx, cy) {
+      // cx, cy = screen-space centre of zoom
+      const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, scale + delta));
+      if (newScale === scale) return;
+      // adjust pan so zoom centres on cx,cy
+      const ratio = newScale / scale;
+      panX = cx - ratio * (cx - panX);
+      panY = cy - ratio * (cy - panY);
+      scale = newScale;
+      applyTransform();
+    }
+
+    function centreOnCards() {
+      if (!cards.length) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight - 104;
+      const xs = cards.map(c => c.x);
+      const ys = cards.map(c => c.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs) + 280;
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys) + 220;
+      const gw = maxX - minX, gh = maxY - minY;
+      // fit scale
+      scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.min(vw / (gw + 160), vh / (gh + 160))));
+      const midX = (minX + maxX) / 2;
+      const midY = (minY + maxY) / 2;
+      panX = vw / 2 - midX * scale;
+      panY = vh / 2 - midY * scale;
+      applyTransform();
+    }
+
+    // pan on background drag
+    canvas.addEventListener('mousedown', e => {
+      if (e.target !== canvas && !e.target.classList.contains('canvas-inner')) return;
+      isPanning = true;
+      panStartX = e.clientX - panX;
+      panStartY = e.clientY - panY;
+      canvas.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!isPanning) return;
+      panX = e.clientX - panStartX;
+      panY = e.clientY - panStartY;
+      applyTransform();
+    });
+
+    document.addEventListener('mouseup', () => {
+      isPanning = false;
+      canvas.style.cursor = 'default';
+    });
+
+    // scroll to zoom
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
+      zoomAt(delta, e.clientX, e.clientY - 104);
+    }, { passive: false });
+
+    // zoom buttons
+    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+      zoomAt(SCALE_STEP, window.innerWidth / 2, (window.innerHeight - 104) / 2);
+    });
+    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+      zoomAt(-SCALE_STEP, window.innerWidth / 2, (window.innerHeight - 104) / 2);
+    });
+    document.getElementById('btn-reset-view').addEventListener('click', centreOnCards);
+
+    // ── CARD DATA ──────────────────────────────────────
+    const STORE_VER = 'v2';
+    function loadCards() {
+      try {
+        if (localStorage.getItem(STORE_KEY + '-ver') !== STORE_VER) {
+          localStorage.removeItem(STORE_KEY);
+          localStorage.setItem(STORE_KEY + '-ver', STORE_VER);
+        }
+        cards = JSON.parse(localStorage.getItem(STORE_KEY)) || [];
+      } catch { cards = []; }
+      if (cards.length === 0) seedCards();
+    }
+
+    function saveCards() {
+      localStorage.setItem(STORE_KEY, JSON.stringify(cards));
+    }
+
+    function seedCards() {
+      // All card positions relative to canvas centre (4000, 4000)
+      const cx = 4000, cy = 4000;
+      cards = [
+        {
+          id: 'onboarding',
+          type: 'reference',
+          title: '👋 Welcome to the Studio Board',
+          text: 'This is a shared scratchpad for MAGI students and staff. Pin works-in-progress, techniques, scraps, and references.\n\n— Drag cards to reposition them\n— Drag the background to pan\n— Use the toolbar to filter by type or search\n— Hit "+ Pin Work" to add your own\n\nCards are saved in your browser.',
+          author: 'MAGI Portal',
+          date: '2026',
+          tags: ['start here'],
+          x: cx - 160,
+          y: cy - 160,
+          pinned: true
+        },
+        {
+          id: uid(),
+          type: 'wip',
+          title: 'Example — Work in Progress',
+          text: 'Use this type for anything actively being built. Describe where it\'s at, what\'s working, what isn\'t.',
+          author: 'Student Name',
+          date: '21 Apr 2026',
+          tags: ['example', 'wip'],
+          x: cx + 180,
+          y: cy - 160,
+        },
+        {
+          id: uid(),
+          type: 'technique',
+          title: 'Example — Technique',
+          text: 'Found a good way to do something? Pin it here. Code snippets, workflow discoveries, tool setups worth sharing.',
+          author: 'Student Name',
+          date: '21 Apr 2026',
+          tags: ['example', 'technique'],
+          x: cx + 180,
+          y: cy + 100,
+        },
+        {
+          id: uid(),
+          type: 'scrap',
+          title: 'Example — Scrap',
+          text: 'Shelved ideas, dead ends, interesting failures. Useful for the cohort to learn from even if the work went nowhere.',
+          author: 'Student Name',
+          date: '21 Apr 2026',
+          tags: ['example', 'scrap'],
+          x: cx - 160,
+          y: cy + 100,
+        },
+      ];
+      saveCards();
+    }
+
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+    // ── RENDER ─────────────────────────────────────────
+    function renderAll() {
+      inner.innerHTML = '';
+      cards.forEach(c => inner.appendChild(makeCardEl(c)));
+      applyFilters();
+    }
+
+    function makeCardEl(c) {
+      const el = document.createElement('div');
+      el.className = 'studio-card' + (c.id === 'onboarding' ? ' is-onboarding' : '');
+      el.dataset.id   = c.id;
+      el.dataset.type = c.type;
+      el.style.left   = c.x + 'px';
+      el.style.top    = c.y + 'px';
+
+      const typeName = c.id === 'onboarding' ? 'Studio Board' :
+        ({ wip: 'Work in Progress', technique: 'Technique', scrap: 'Scrap', reference: 'Reference' }[c.type] || c.type);
+      const tagsHtml = (c.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('');
+      const imgHtml  = getThumbHtml(c);
+      const deleteBtn = c.id === 'onboarding' ? '' : `<button class="card-delete" data-id="${c.id}">×</button>`;
+
+      el.innerHTML = `
+        <div class="card-type-bar"></div>
+        <div class="card-header">
+          <span class="card-type-label">${typeName}</span>
+          ${deleteBtn}
+        </div>
+        <div class="card-body">
+          <div class="card-title">${c.title}</div>
+          <div class="card-text">${c.text}</div>
+        </div>
+        ${imgHtml}
+        ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
+        <div class="card-footer">
+          <span class="card-author">${c.author}</span>
+          <span class="card-date">${c.date}</span>
+        </div>`;
+
+      // delete — only if button exists
+      const delBtn = el.querySelector('.card-delete');
+      if (delBtn) {
+        delBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          cards = cards.filter(x => x.id !== c.id);
+          saveCards();
+          el.remove();
+        });
+      }
+
+      // drag
+      let dragging = false, ox, oy;
+
+      el.addEventListener('mousedown', e => {
+        if (e.target.classList.contains('card-delete')) return;
+        e.stopPropagation();
+        dragging = true;
+        ox = (e.clientX - panX) / scale - c.x;
+        oy = (e.clientY - panY) / scale - c.y;
+        el.classList.add('is-dragging');
+        el.style.zIndex = 50;
+      });
+
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        c.x = (e.clientX - panX) / scale - ox;
+        c.y = (e.clientY - panY) / scale - oy;
+        el.style.left = c.x + 'px';
+        el.style.top  = c.y + 'px';
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove('is-dragging');
+        el.style.zIndex = '';
+        saveCards();
+      });
+
+      return el;
+    }
+
+    // ── FILTER + SEARCH ────────────────────────────────
+    function applyFilters() {
+      const q    = searchQuery.toLowerCase().trim();
+      const type = activeFilter;
+      const els  = inner.querySelectorAll('.studio-card');
+      let matches = 0;
+
+      els.forEach(el => {
+        const c       = cards.find(x => x.id === el.dataset.id);
+        if (!c) return;
+        const typeOk  = type === 'all' || c.type === type;
+        const text    = [c.title, c.text, c.author, ...(c.tags || [])].join(' ').toLowerCase();
+        const searchOk = !q || text.includes(q);
+        const visible  = typeOk && searchOk;
+
+        el.classList.toggle('is-dimmed',     !visible);
+        el.classList.toggle('is-highlighted', visible && q.length > 0);
+        if (visible) matches++;
+      });
+
+      const countEl = document.getElementById('search-count');
+      countEl.textContent = q ? `${matches} match${matches !== 1 ? 'es' : ''}` : '';
+    }
+
+    // ── TOOLBAR SEARCH ─────────────────────────────────
+    document.getElementById('board-search').addEventListener('input', function() {
+      searchQuery = this.value;
+      applyFilters();
+    });
+
+    // ── TYPE FILTER CHIPS ──────────────────────────────
+    document.querySelectorAll('.studio-toolbar .type-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.studio-toolbar .type-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        activeFilter = this.dataset.type;
+        applyFilters();
+      });
+    });
+
+    // ── MODAL ──────────────────────────────────────────
+    const modal       = document.getElementById('modal');
+    let modalType     = 'wip';
+
+    function openModal() {
+      modal.classList.add('is-open');
+      document.getElementById('form-title').focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      ['form-title','form-desc','form-author','form-tags','form-img'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      modalType = 'wip';
+      document.querySelectorAll('#modal-type-row .type-chip').forEach(c => c.classList.toggle('active', c.dataset.type === 'wip'));
+    }
+
+    document.getElementById('btn-add-card').addEventListener('click', openModal);
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    document.querySelectorAll('#modal-type-row .type-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('#modal-type-row .type-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        modalType = this.dataset.type;
+      });
+    });
+
+    document.getElementById('modal-submit').addEventListener('click', () => {
+      const title  = document.getElementById('form-title').value.trim();
+      const text   = document.getElementById('form-desc').value.trim();
+      const author = document.getElementById('form-author').value.trim() || 'Anonymous';
+      const tagsRaw = document.getElementById('form-tags').value.trim();
+      const img    = document.getElementById('form-img').value.trim();
+
+      if (!title) { document.getElementById('form-title').focus(); return; }
+
+      const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+      const today = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      // place near centre of current view, accounting for scale
+      const vw = window.innerWidth;
+      const vh = window.innerHeight - 104;
+      const cx = (vw / 2 - panX) / scale + (Math.random() - 0.5) * 200;
+      const cy = (vh / 2 - panY) / scale + (Math.random() - 0.5) * 200;
+
+      const card = { id: uid(), type: modalType, title, text, author, date: today, tags, img: img || null, x: cx, y: cy };
+      cards.push(card);
+      saveCards();
+      inner.appendChild(makeCardEl(card));
+      applyFilters();
+      closeModal();
+    });
+
+    // ── HIDE HINT AFTER FIRST PAN ──────────────────────
+    let hintHidden = false;
+    canvas.addEventListener('mousedown', () => {
+      if (!hintHidden) {
+        hintHidden = true;
+        document.getElementById('canvas-hint').style.opacity = '0';
+      }
+    });
+
+    // ── INIT ───────────────────────────────────────────
+    loadCards();
+    renderAll();
+    centreOnCards();
+  </script>
+
+</body>
+</html>
