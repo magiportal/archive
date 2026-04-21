@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research — MAGI Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    /* ── SEARCH HERO ─────────────────────────────── */
+
+    .research-hero {
+      border-bottom: 1px solid var(--line);
+      padding: 64px 48px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      background: var(--white);
+    }
+
+    .research-hero-title {
+      text-align: center;
+    }
+
+    .research-logo {
+      height: 36px;
+      width: auto;
+      display: block;
+      margin: 0 auto 20px;
+      filter: invert(1);
+      opacity: 0.9;
+    }
+
+    .research-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .research-h1 {
+      font-size: 36px;
+      font-weight: 500;
+      color: var(--black);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    /* ── SEARCH BAR ──────────────────────────────── */
+
+    .search-form {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .search-input-wrap {
+      display: flex;
+      border: 1.5px solid var(--black);
+    }
+
+    .search-input {
+      flex: 1;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--black);
+      background: none;
+      border: none;
+      outline: none;
+      padding: 14px 18px;
+    }
+
+    .search-input::placeholder { color: var(--faint); }
+
+    .search-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 0 24px;
+      cursor: pointer;
+      transition: background 0.1s;
+      flex-shrink: 0;
+    }
+
+    .search-btn:hover { background: #333; }
+
+    .search-filters {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .search-filter-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .filter-chip {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dim);
+      border: 1px solid var(--line);
+      padding: 4px 12px 5px;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s, background 0.1s;
+      background: none;
+      user-select: none;
+    }
+
+    .filter-chip:hover { color: var(--black); border-color: var(--secondary); }
+    .filter-chip.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    /* ── RESULTS LAYOUT ──────────────────────────── */
+
+    .research-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 60vh;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────────── */
+
+    .research-sidebar {
+      border-right: 1px solid var(--line);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .sidebar-section-title {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--line-mid);
+      cursor: pointer;
+      transition: color 0.1s;
+      user-select: none;
+    }
+
+    .sidebar-item:last-child { border-bottom: none; }
+
+    .sidebar-item-label {
+      font-size: 12px;
+      color: var(--secondary);
+      transition: color 0.1s;
+    }
+
+    .sidebar-item:hover .sidebar-item-label { color: var(--black); }
+    .sidebar-item.active .sidebar-item-label { color: var(--black); font-weight: 500; }
+
+    .sidebar-item-count {
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    .sidebar-spec-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+
+    .sidebar-item-left {
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── RESULTS AREA ────────────────────────────── */
+
+    .research-results {
+      padding: 0;
+    }
+
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 44px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .results-count {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .results-count strong { color: var(--black); font-weight: 500; }
+
+    .results-sort {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .results-sort-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .sort-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--dim);
+      background: none;
+      border: 1px solid var(--line);
+      padding: 3px 10px 4px;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s;
+    }
+
+    .sort-btn.active, .sort-btn:hover { color: var(--black); border-color: var(--secondary); }
+
+    /* ── RESULT ITEM (Scholar/JSTOR style) ────────── */
+
+    .result-item {
+      padding: 22px 28px 24px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .result-item:hover { background: var(--bg-hover); }
+
+    .result-item:last-child { border-bottom: none; }
+
+    .result-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+
+    .result-type {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 7px 3px;
+    }
+
+    .result-year {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .result-spec {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .result-spec::before { content: '·'; margin-right: 8px; color: var(--faint); }
+
+    .result-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--black);
+      line-height: 1.3;
+      margin-bottom: 4px;
+      transition: color 0.15s;
+    }
+
+    .result-item:hover .result-title { color: #333; }
+
+    .result-authors {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .result-authors a {
+      color: var(--secondary);
+      text-decoration: none;
+      transition: color 0.1s;
+    }
+
+    .result-authors a:hover { color: var(--black); }
+
+    .result-source {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+
+    .result-abstract {
+      font-size: 12px;
+      color: var(--secondary);
+      line-height: 1.8;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .result-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .result-action {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.1s;
+      border: none;
+      background: none;
+      font-family: 'DM Mono', monospace;
+      padding: 0;
+    }
+
+    .result-action:hover { color: var(--black); }
+    .result-action-primary { color: var(--black); font-weight: 500; }
+
+    .result-action-sep {
+      width: 1px;
+      height: 10px;
+      background: var(--line);
+    }
+
+    .result-cited {
+      font-size: 10px;
+      color: var(--faint);
+      margin-left: auto;
+    }
+
+    /* ── PAGINATION ──────────────────────────────── */
+
+    .results-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 24px 28px;
+      border-top: 1px solid var(--line);
+    }
+
+    .page-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--dim);
+      background: none;
+      border: 1px solid var(--line);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color 0.1s, border-color 0.1s, background 0.1s;
+    }
+
+    .page-btn:hover { color: var(--black); border-color: var(--secondary); }
+    .page-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+    .page-btn.wide { width: auto; padding: 0 14px; }
+
+    /* ── SPEC COLOURS ────────────────────────────── */
+
+    .result-type.research     { background: var(--col-research); color: #4a5200; }
+    .result-type.animation    { background: var(--col-animation); color: #fff; }
+    .result-type.games        { background: var(--col-games); color: #003a4a; }
+    .result-type.interactivity{ background: var(--col-interactivity); color: #fff; }
+    .result-type.thesis       { background: var(--black); color: #fff; }
+
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-wordmark">
+      <span class="nav-wordmark-magi">MAGI</span>
+      <span class="nav-wordmark-sub">Portal</span>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Archive</a>
+      <a class="nav-link" href="alumni.html">Alumni</a>
+      <a class="nav-link" href="staff.html">Staff</a>
+      <a class="nav-link active" href="research.html">Research</a>
+      <a class="nav-link" href="recordings.html">Studio</a>
+      <div class="nav-link"><span class="nav-live"><span class="nav-dot"></span>2026</span></div>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <div class="nav-link">Search</div>
+    </div>
+  </nav>
+
+  <!-- ── SEARCH HERO ──────────────────────────────── -->
+  <div class="research-hero">
+    <div class="research-hero-title">
+      <img src="logo/magi-logo-white.png" alt="MAGI" class="research-logo" />
+      <div class="research-eyebrow">RMIT Melbourne — Master of Animation, Games &amp; Interactivity</div>
+      <h1 class="research-h1">Research Database</h1>
+    </div>
+
+    <div class="search-form">
+      <div class="search-input-wrap">
+        <input class="search-input" id="search-input" type="text" placeholder="Search theses, papers, exegeses, practice research…" autocomplete="off" />
+        <button class="search-btn" id="search-btn">Search</button>
+      </div>
+      <div class="search-filters">
+        <span class="search-filter-label">Filter —</span>
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="thesis">Thesis</button>
+        <button class="filter-chip" data-filter="research">Research</button>
+        <button class="filter-chip" data-filter="animation">Animation</button>
+        <button class="filter-chip" data-filter="games">Games</button>
+        <button class="filter-chip" data-filter="interactivity">Interactivity</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS LAYOUT ───────────────────────────── -->
+  <div class="research-layout">
+
+    <!-- ── SIDEBAR ──────────────────────────────────── -->
+    <aside class="research-sidebar">
+
+      <div>
+        <div class="sidebar-section-title">Specialisation</div>
+        <div class="sidebar-item active">
+          <div class="sidebar-item-left">
+            <div class="sidebar-spec-dot" style="background:var(--col-research)"></div>
+            <span class="sidebar-item-label">Research</span>
+          </div>
+          <span class="sidebar-item-count">12</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left">
+            <div class="sidebar-spec-dot" style="background:var(--col-animation)"></div>
+            <span class="sidebar-item-label">Animation</span>
+          </div>
+          <span class="sidebar-item-count">18</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left">
+            <div class="sidebar-spec-dot" style="background:var(--col-games)"></div>
+            <span class="sidebar-item-label">Games</span>
+          </div>
+          <span class="sidebar-item-count">16</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left">
+            <div class="sidebar-spec-dot" style="background:var(--col-interactivity)"></div>
+            <span class="sidebar-item-label">Interactivity</span>
+          </div>
+          <span class="sidebar-item-count">14</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">Document Type</div>
+        <div class="sidebar-item active">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">All Types</span></div>
+          <span class="sidebar-item-count">60</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Master's Thesis</span></div>
+          <span class="sidebar-item-count">24</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Exegesis</span></div>
+          <span class="sidebar-item-count">18</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Practice Research</span></div>
+          <span class="sidebar-item-count">12</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Conference Paper</span></div>
+          <span class="sidebar-item-count">6</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">Year</div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2026</span></div><span class="sidebar-item-count">8</span></div>
+        <div class="sidebar-item active"><div class="sidebar-item-left"><span class="sidebar-item-label">2025</span></div><span class="sidebar-item-count">14</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2024</span></div><span class="sidebar-item-count">16</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2023</span></div><span class="sidebar-item-count">12</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2022</span></div><span class="sidebar-item-count">10</span></div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">Keywords</div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Adversarial Design</span></div><span class="sidebar-item-count">7</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Ambient Play</span></div><span class="sidebar-item-count">5</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Installation Art</span></div><span class="sidebar-item-count">9</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Critical Design</span></div><span class="sidebar-item-count">11</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Surveillance</span></div><span class="sidebar-item-count">4</span></div>
+        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">New Media</span></div><span class="sidebar-item-count">8</span></div>
+      </div>
+
+    </aside>
+
+    <!-- ── RESULTS ───────────────────────────────────── -->
+    <div class="research-results">
+
+      <div class="results-bar">
+        <span class="results-count"><strong>60</strong> results — showing 1–10</span>
+        <div class="results-sort">
+          <span class="results-sort-label">Sort —</span>
+          <button class="sort-btn active">Relevance</button>
+          <button class="sort-btn">Date</button>
+          <button class="sort-btn">Title</button>
+        </div>
+      </div>
+
+      <!-- Result 01 -->
+      <div class="result-item" data-type="interactivity">
+        <div class="result-meta-top">
+          <span class="result-type interactivity">Interactivity</span>
+          <span class="result-year">2026</span>
+          <span class="result-spec">Exegesis</span>
+        </div>
+        <div class="result-title">TAMAC1DE: Anti-Extractive UX and the Gacha Machine — A Practice-Led Critical Design Installation</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2026</div>
+        <div class="result-abstract">This exegesis documents the development of TAMAC1DE, an interactive installation that critiques predatory UX design through the lens of adversarial design theory. Drawing on DiSalvo's framework of agonistic design, Schüll's empirical research on machine-zone addiction mechanics, and Hjorth and Richardson's ambient play theory, the work positions familiar digital gestures — the swipe, the pull-to-reveal, the card flip — as sites of critique rather than compliance. The installation pairs a mobile web-based gacha interface with a Unity HDRP environment in which tamagotchi-inspired creatures accumulate weight and eventually die from player interaction.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 0</span>
+        </div>
+      </div>
+
+      <!-- Result 02 -->
+      <div class="result-item" data-type="animation">
+        <div class="result-meta-top">
+          <span class="result-type animation">Animation</span>
+          <span class="result-year">2025</span>
+          <span class="result-spec">Master's Thesis</span>
+        </div>
+        <div class="result-title">Kinetic Empathy: Embodied Emotion in 2D Character Animation Through Motion Principles</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">Master of Animation, Games &amp; Interactivity, RMIT University, Melbourne, 2025</div>
+        <div class="result-abstract">This research investigates how the twelve principles of animation can be redeployed as an affective toolkit — a system for encoding and transmitting emotion through motion rather than expression. Through a series of iterative animated studies, the thesis develops a practice-based methodology for producing empathetic response in viewers without relying on facial legibility or narrative context.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 2</span>
+        </div>
+      </div>
+
+      <!-- Result 03 -->
+      <div class="result-item" data-type="games">
+        <div class="result-meta-top">
+          <span class="result-type games">Games</span>
+          <span class="result-year">2025</span>
+          <span class="result-spec">Practice Research</span>
+        </div>
+        <div class="result-title">Weight as Mechanic: Physical Computing and the Phenomenology of Play in Alt-Controller Game Design</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2025</div>
+        <div class="result-abstract">This research examines how physical weight and haptic resistance can function as game mechanics rather than peripheral affordances. Through the design and exhibition of a series of alt-controller works, the research argues that somatic engagement reframes the player's relationship to consequence — making failure felt rather than merely seen. The work contributes to emerging literature on embodied play and tangible interface design.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 1</span>
+        </div>
+      </div>
+
+      <!-- Result 04 -->
+      <div class="result-item" data-type="research">
+        <div class="result-meta-top">
+          <span class="result-type research">Research</span>
+          <span class="result-year">2025</span>
+          <span class="result-spec">Conference Paper</span>
+        </div>
+        <div class="result-title">Seamful Encounters: Exposing Platform Infrastructure in New Media Installation Practice</div>
+        <div class="result-authors"><a href="#">Staff Name</a>, <a href="#">Student Name</a></div>
+        <div class="result-source">ISEA International Symposium on Electronic Art, 2025</div>
+        <div class="result-abstract">This paper revisits Chris Speed's concept of seamful design as a critical framework for new media installation practice. Where seamless design conceals infrastructure to produce effortless consumption, seamful design renders the seams visible — making legible the labour, logistics, and politics embedded in digital systems. We examine three student works from the MAGI program that exemplify this strategy.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 4</span>
+        </div>
+      </div>
+
+      <!-- Result 05 -->
+      <div class="result-item" data-type="interactivity">
+        <div class="result-meta-top">
+          <span class="result-type interactivity">Interactivity</span>
+          <span class="result-year">2024</span>
+          <span class="result-spec">Exegesis</span>
+        </div>
+        <div class="result-title">Held, Instantaneously: Adversarial Interface Design and the Choreography of Digital Loneliness</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2024</div>
+        <div class="result-abstract">This exegesis documents Held, Instantaneously — a satirical installation that uses the gestural vocabulary of dating applications to expose the dehumanising logic of swipe-culture. By redeploying the Hinge interface aesthetic in an installation context, the work literalises the relationship between user gesture and NPC spawning, making legible the extractive architecture that digital platforms render invisible.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 3</span>
+        </div>
+      </div>
+
+      <!-- Result 06 -->
+      <div class="result-item" data-type="animation">
+        <div class="result-meta-top">
+          <span class="result-type animation">Animation</span>
+          <span class="result-year">2024</span>
+          <span class="result-spec">Master's Thesis</span>
+        </div>
+        <div class="result-title">Narrative Ecology: Non-Linear Storytelling Structures in Short-Form 3D Animation</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">Master of Animation, Games &amp; Interactivity, RMIT University, Melbourne, 2024</div>
+        <div class="result-abstract">This thesis investigates structural alternatives to linear narrative in short-form animated work, drawing on ecology as a conceptual model — where story events are interdependent rather than sequential. Through four experimental animated shorts, the research develops a vocabulary for non-causal narrative architecture that allows meaning to emerge from the accumulation of image rather than the progression of plot.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 5</span>
+        </div>
+      </div>
+
+      <!-- Result 07 -->
+      <div class="result-item" data-type="games">
+        <div class="result-meta-top">
+          <span class="result-type games">Games</span>
+          <span class="result-year">2024</span>
+          <span class="result-spec">Practice Research</span>
+        </div>
+        <div class="result-title">Critical Play and the Complicit Player: Designing for Discomfort in Indie Game Contexts</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2024</div>
+        <div class="result-abstract">This research extends Mary Flanagan's framework of critical play into contemporary indie game design, examining how designers can produce games that position the player as complicit in the systems they inhabit. Drawing on examples from Molleindustria and Zach Gage, the research proposes a set of design principles for games that critique without moralising.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 6</span>
+        </div>
+      </div>
+
+      <!-- Result 08 -->
+      <div class="result-item" data-type="research">
+        <div class="result-meta-top">
+          <span class="result-type research">Research</span>
+          <span class="result-year">2023</span>
+          <span class="result-spec">Master's Thesis</span>
+        </div>
+        <div class="result-title">Boid Ecologies: Generative Systems and the Aesthetics of Emergence in Real-Time Installation</div>
+        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
+        <div class="result-source">Master of Animation, Games &amp; Interactivity, RMIT University, Melbourne, 2023</div>
+        <div class="result-abstract">This thesis investigates the aesthetic and conceptual potential of flocking algorithms (boids) as a medium for installation art. Rather than treating emergence as a technical phenomenon, the research positions it as an expressive vocabulary — one capable of producing work that is simultaneously legible and unpredictable. The research includes three major installations exhibited across Melbourne venues.</div>
+        <div class="result-actions">
+          <a class="result-action result-action-primary" href="#">↓ Full PDF</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Abstract</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Cite</a>
+          <div class="result-action-sep"></div>
+          <a class="result-action" href="#">Related Works</a>
+          <span class="result-cited">Cited by 8</span>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="results-pagination">
+        <button class="page-btn wide">← Prev</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">4</button>
+        <button class="page-btn">5</button>
+        <button class="page-btn">6</button>
+        <button class="page-btn wide">Next →</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="logo/magi-logo-white.png" alt="MAGI" class="footer-magi" />
+          <span class="footer-logos-divider">/</span>
+          <img src="logo/RMIT_Black 000.avif" alt="RMIT University" class="footer-rmit" />
+        </div>
+        <div class="footer-brand-sub">MAGI Portal — Master of Animation, Games &amp; Interactivity</div>
+      </div>
+      <div class="footer-info">
+        <div class="footer-info-title">RMIT University</div>
+        <div class="footer-info-line">School of Design</div>
+        <div class="footer-info-line">Melbourne, Australia</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-apply-row">
+          <a class="footer-apply" href="#">Apply</a>
+          <span class="footer-follow">Follow Us —</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="#" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg></a>
+          <a class="footer-social" href="#" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">Copyright © 2026 MAGI Portal — RMIT Melbourne</div>
+      <a class="footer-email" href="mailto:magi@rmit.edu.au">magi@rmit.edu.au</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── FILTER CHIPS ──────────────────────────────────
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.result-item').forEach(item => {
+          item.style.display = (filter === 'all' || item.dataset.type === filter) ? '' : 'none';
+        });
+      });
+    });
+
+    // ── SIDEBAR ITEMS ─────────────────────────────────
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', function() {
+        this.closest('.research-sidebar').querySelectorAll('.sidebar-item').forEach(i => {
+          if (i.parentElement === this.parentElement) i.classList.remove('active');
+        });
+        this.classList.add('active');
+      });
+    });
+
+    // ── SORT BUTTONS ──────────────────────────────────
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // ── PAGINATION ────────────────────────────────────
+    document.querySelectorAll('.page-btn:not(.wide)').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.page-btn:not(.wide)').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // ── SEARCH ────────────────────────────────────────
+    const searchInput = document.getElementById('search-input');
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) return;
+      document.querySelectorAll('.result-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('search-btn').click();
+    });
+  </script>
+
+</body>
+</html>

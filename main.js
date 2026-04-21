@@ -197,7 +197,7 @@ function spawnTittle() {
   // always start from the I when hidden (first spawn or after retract)
   if (isFirstSpawn || tittle.style.display === 'none') {
     const iRect = letterI.getBoundingClientRect();
-    tittleX = iRect.left + iRect.width * 0.3;
+    tittleX = iRect.left + iRect.width * 0;
     tittleY = iRect.top  - 10;
     tittle.style.left = tittleX + 'px';
     tittle.style.top  = tittleY + 'px';
@@ -336,6 +336,106 @@ iContainer.addEventListener('click', e => {
 // keep hover/spec activation on the img itself
 letterI.addEventListener('mouseenter', () => activate('interactivity'));
 letterI.addEventListener('mouseleave', deactivate);
+
+// ── GALLERY RANDOMISE ─────────────────────────────
+
+const galleryPool = [
+  { src: 'media/4178055-saros.webp',                              label: 'Research',     title: 'Saros',                              student: 'Student Name — 2025' },
+  { src: 'media/s3588979-days-days.webp',                         label: 'Animation',    title: 'Days Days',                          student: 'Student Name — 2025' },
+  { src: 'media/s3606172-edwin-earstwhile-medical-examiner.webp', label: 'Animation',    title: 'Edwin Earnswhile, Medical Examiner', student: 'Student Name — 2025' },
+  { src: 'media/s3634079-remnants-of-our-days.webp',              label: 'Games',        title: 'Remnants of Our Days',               student: 'Student Name — 2026' },
+  { src: 'media/s3836345-bleaching.webp',                         label: 'Animation',    title: 'Bleaching',                          student: 'Student Name — 2025' },
+  { src: 'media/s3836345-no-glisten.webp',                        label: 'Animation',    title: 'No Glisten',                         student: 'Student Name — 2025' },
+  { src: 'media/S3902619-planet-body.webp',                       label: 'Interactivity',title: 'Planet Body',                        student: 'Student Name — 2025' },
+  { src: 'media/s4017090-love-in-the-form-of-an-egg.webp',        label: 'Animation',    title: 'Love in the Form of an Egg',         student: 'Student Name — 2025' },
+  { src: 'media/S4078320-tethered-thoughts.webp',                 label: 'Interactivity',title: 'Tethered Thoughts',                  student: 'Student Name — 2025' },
+  { src: 'media/s4120309-te-hkoi.webp',                           label: 'Animation',    title: 'Te Hkoi',                            student: 'Student Name — 2025' },
+  { src: 'media/S4125361-bunny-flip.webp',                        label: 'Animation',    title: 'Bunny Flip',                         student: 'Student Name — 2025' },
+  { src: 'media/s4148098-a-late-bloomer.webp',                    label: 'Animation',    title: 'A Late Bloomer',                     student: 'Student Name — 2025' },
+  { src: 'media/s4148098-hidden-joy.webp',                        label: 'Animation',    title: 'Hidden Joy',                         student: 'Student Name — 2025' },
+  { src: 'media/s4148738-mind-tilt.webp',                         label: 'Games',        title: 'Mind Tilt',                          student: 'Student Name — 2025' },
+  { src: 'media/s4155379-sleep-paralysis.webp',                   label: 'Animation',    title: 'Sleep Paralysis',                    student: 'Student Name — 2025' },
+  { src: 'media/s4160763-other-names-for-zombies-art-book.webp',  label: 'Animation',    title: 'Other Names for Zombies',            student: 'Student Name — 2025' },
+  { src: 'media/s4160763-thick-hands.webp',                       label: 'Interactivity',title: 'Thick Hands',                        student: 'Student Name — 2025' },
+  { src: 'media/S4160839-heyyou.webp',                            label: 'Interactivity',title: 'Hey You',                            student: 'Student Name — 2025' },
+  { src: 'media/s4174970-notrealpizza.webp',                      label: 'Games',        title: 'Not Real Pizza',                     student: 'Student Name — 2025' },
+  { src: 'media/S4183453-state-of-mind.webp',                     label: 'Animation',    title: 'State of Mind',                      student: 'Student Name — 2025' },
+  { src: 'media/s4210724-natures-influence.webp',                 label: 'Research',     title: "Nature's Influence",                 student: 'Student Name — 2025' },
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+(function buildGallery() {
+  const grid = document.getElementById('gallery-grid');
+  if (!grid) return;
+  const picked = shuffle(galleryPool).slice(0, 8);
+  picked.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'gallery-item' + (i === 7 ? ' gallery-item-full' : '');
+    el.innerHTML = `
+      <img src="${item.src}" alt="${item.title}" />
+      <div class="gallery-overlay">
+        <div class="gallery-item-label">${item.label}</div>
+        <div class="gallery-item-title">${item.title}</div>
+        <div class="gallery-item-student">${item.student}</div>
+      </div>`;
+    grid.appendChild(el);
+  });
+
+  // track which images are currently shown
+  const shown = new Set(picked.map(i => i.src));
+
+  function swapRandomItem() {
+    const items = grid.querySelectorAll('.gallery-item');
+    // pick a random non-full-width slot to swap
+    const candidates = Array.from(items).filter(el => !el.classList.contains('gallery-item-full'));
+    const target = candidates[Math.floor(Math.random() * candidates.length)];
+
+    // pick a random image not currently shown
+    const available = galleryPool.filter(i => !shown.has(i.src));
+    if (!available.length) return;
+    const next = available[Math.floor(Math.random() * available.length)];
+
+    // fade out
+    target.style.transition = 'opacity 0.8s ease';
+    target.style.opacity = '0';
+
+    setTimeout(() => {
+      // update shown set
+      const oldSrc = target.querySelector('img').src.split('/').pop();
+      shown.delete(target.querySelector('img').getAttribute('src'));
+
+      // swap content
+      target.querySelector('img').src = next.src;
+      target.querySelector('img').alt = next.title;
+      target.querySelector('.gallery-item-label').textContent = next.label;
+      target.querySelector('.gallery-item-title').textContent = next.title;
+      target.querySelector('.gallery-item-student').textContent = next.student;
+      shown.add(next.src);
+
+      // fade back in
+      target.style.opacity = '1';
+
+      // schedule next swap — between 8 and 18 seconds
+      scheduleSwap();
+    }, 800);
+  }
+
+  function scheduleSwap() {
+    const delay = 8000 + Math.random() * 10000;
+    setTimeout(swapRandomItem, delay);
+  }
+
+  // kick off the first swap after an initial delay
+  scheduleSwap();
+})();
 
 const viewGrid = document.getElementById('view-grid');
 const viewList = document.getElementById('view-list');
