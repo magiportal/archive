@@ -1278,8 +1278,8 @@
     }
 
     // ── PRESENCE PANEL ─────────────────────────────────
-    const MY_ID    = uid();
-    const MY_COLOR = `hsl(${Math.floor(Math.random()*360)},70%,55%)`;
+    const MY_ID    = localStorage.getItem('magi-cursor-id') || (() => { const id = uid(); localStorage.setItem('magi-cursor-id', id); return id; })();
+    const MY_COLOR = localStorage.getItem('magi-cursor-color') || (() => { const c = `hsl(${Math.floor(Math.random()*360)},70%,55%)`; localStorage.setItem('magi-cursor-color', c); return c; })();
 
     const presenceDot   = document.getElementById('presence-dot');
     const presenceInput = document.getElementById('presence-name');
@@ -1321,7 +1321,7 @@
       presenceOthers.innerHTML = others.map(u =>
         `<div class="presence-other-row">
           <svg width="10" height="12" viewBox="0 0 18 22" fill="none"><path d="M1 1L1 16L5 12L13 12L1 1Z" fill="${u.color}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span class="presence-other-name">${u.name || 'Anonymous'}</span>
+          <span class="presence-other-name">${u.name || 'User'}</span>
         </div>`
       ).join('');
     }
@@ -1620,7 +1620,7 @@
     document.getElementById('modal-submit').addEventListener('click', async () => {
       const title   = document.getElementById('form-title').value.trim();
       const text    = document.getElementById('form-desc').value.trim();
-      const author  = document.getElementById('form-author').value.trim() || 'Anonymous';
+      const author  = document.getElementById('form-author').value.trim() || 'User';
       const tagsRaw = document.getElementById('form-tags').value.trim();
       const img     = document.getElementById('form-img').value.trim();
 
