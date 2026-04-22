@@ -1115,6 +1115,19 @@
 
     function applyTransform() {
       inner.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      reprojectCursors();
+    }
+
+    // canvas-space positions of remote cursors
+    const cursorPositions = {};
+
+    function reprojectCursors() {
+      for (const [id, el] of Object.entries(cursorEls)) {
+        const pos = cursorPositions[id];
+        if (!pos) continue;
+        el.style.left = (pos.x * scale + panX) + 'px';
+        el.style.top  = (pos.y * scale + panY) + 'px';
+      }
     }
 
     function zoomAt(delta, cx, cy) {
@@ -1330,6 +1343,7 @@
 
         if (!active) {
           if (cursorEls[id]) { cursorEls[id].remove(); delete cursorEls[id]; }
+          delete cursorPositions[id];
           delete onlineUsers[id];
           updatePresenceList();
           return;
@@ -1356,6 +1370,9 @@
           if (!lbl) { lbl = document.createElement('div'); lbl.className = 'live-cursor-name'; lbl.style.background = color; cursorEls[id].appendChild(lbl); }
           lbl.textContent = name;
         }
+
+        // store canvas-space position for reprojection on pan/zoom
+        cursorPositions[id] = { x, y };
 
         // convert canvas space → screen space for this client's current pan/zoom
         const sx = x * scale + panX;
