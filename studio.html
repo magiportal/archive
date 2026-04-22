@@ -677,6 +677,44 @@
       margin-top: 14px;
     }
 
+    /* ── DARK MODE ────────────────────────────────── */
+
+    .studio-canvas::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #2a2a2a;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+    }
+
+    body.canvas-dark .studio-canvas::after {
+      opacity: 1;
+    }
+
+    body.canvas-dark .studio-canvas::before {
+      background-image: radial-gradient(circle, #3d3d3d 1px, transparent 1px);
+    }
+
+    /* cards stay above the dark overlay and keep their light appearance */
+    body.canvas-dark .canvas-inner {
+      z-index: 2;
+      position: relative;
+    }
+
+    body.canvas-dark .studio-canvas {
+      background: #2a2a2a;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .studio-canvas {
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.canvas-dark #btn-dark-mode { background: #222; color: #ccc; border-color: #444; }
+
     /* ── PROMINENT PIN BUTTON ─────────────────────── */
 
     .pin-btn {
@@ -913,6 +951,7 @@
     <button class="canvas-ctrl-btn" id="btn-zoom-in" title="Zoom in">+</button>
     <button class="canvas-ctrl-btn" id="btn-zoom-out" title="Zoom out">−</button>
     <button class="canvas-ctrl-btn" id="btn-reset-view" title="Fit all cards">⌖</button>
+    <button class="canvas-ctrl-btn" id="btn-dark-mode" title="Toggle dark mode">◑</button>
   </div>
 
   <!-- ── PRESENCE PANEL ────────────────────────── -->
@@ -1198,6 +1237,14 @@
       zoomAt(-SCALE_STEP, window.innerWidth / 2, (window.innerHeight - 104) / 2);
     });
     document.getElementById('btn-reset-view').addEventListener('click', centreOnCards);
+
+    // ── DARK MODE ──────────────────────────────────────
+    const darkBtn = document.getElementById('btn-dark-mode');
+    if (localStorage.getItem('magi-dark') === '1') document.body.classList.add('canvas-dark');
+    darkBtn.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('canvas-dark');
+      localStorage.setItem('magi-dark', isDark ? '1' : '0');
+    });
 
     // ── SUPABASE CLIENT ────────────────────────────────
     const SUPA_URL = 'https://hzzhuikzvdfcizkuelte.supabase.co';
