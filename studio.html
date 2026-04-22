@@ -655,15 +655,26 @@
       position: absolute;
       pointer-events: none;
       z-index: 999;
-      transform: translate(-5px, -5px);
+      transform: translate(-2px, -2px);
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
     }
 
-    .live-cursor-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-      border: 2px solid rgba(255,255,255,0.6);
+    .live-cursor svg {
+      flex-shrink: 0;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.25));
+    }
+
+    .live-cursor-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #fff;
+      padding: 2px 6px 3px;
+      white-space: nowrap;
+      margin-top: 14px;
     }
 
     /* ── PROMINENT PIN BUTTON ─────────────────────── */
@@ -697,19 +708,146 @@
 
     .pin-btn:active { transform: translateX(-50%) translateY(0); }
 
-    .archive-badge {
+    /* ── PRESENCE PANEL ───────────────────────────── */
+
+    .presence-panel {
       position: fixed;
       bottom: 24px;
       left: 24px;
+      width: 180px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      z-index: 100;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .presence-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .presence-panel-label {
       font-size: 9px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--faint);
+      color: var(--muted);
+    }
+
+    .presence-toggle {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.1s;
+    }
+
+    .presence-toggle:hover { color: var(--black); }
+
+    .presence-panel-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .presence-cursor-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .presence-dot {
+      width: 14px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .presence-name-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .presence-name-input {
+      flex: 1;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--black);
+      background: none;
       border: 1px solid var(--line);
-      padding: 6px 12px;
-      background: var(--white);
-      z-index: 100;
-      line-height: 1.5;
+      padding: 5px 8px;
+      outline: none;
+      transition: border-color 0.1s;
+      min-width: 0;
+    }
+
+    .presence-name-input:focus { border-color: var(--black); }
+
+    .presence-name-save {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 0 10px;
+      cursor: pointer;
+      transition: background 0.1s;
+      flex-shrink: 0;
+    }
+
+    .presence-name-save:hover { background: #333; }
+
+    .presence-hint {
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.06em;
+    }
+
+    .presence-divider {
+      height: 1px;
+      background: var(--line);
+      margin: 2px 0;
+    }
+
+    .presence-others {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 16px;
+    }
+
+    .presence-other-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .presence-other-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .presence-other-name {
+      font-size: 10px;
+      color: var(--secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .presence-empty {
+      font-size: 10px;
+      color: var(--faint);
     }
 
   </style>
@@ -777,10 +915,27 @@
     <button class="canvas-ctrl-btn" id="btn-reset-view" title="Fit all cards">⌖</button>
   </div>
 
-  <!-- ── ARCHIVE BADGE ──────────────────────────── -->
-  <div class="archive-badge">
-    MAGI Community Board<br>
-    MAGI Community — Students &amp; Staff
+  <!-- ── PRESENCE PANEL ────────────────────────── -->
+  <div class="presence-panel" id="presence-panel">
+    <div class="presence-panel-header">
+      <span class="presence-panel-label">You</span>
+      <button class="presence-toggle" id="presence-toggle">−</button>
+    </div>
+    <div class="presence-panel-body" id="presence-body">
+      <div class="presence-cursor-preview" id="presence-cursor-preview">
+        <svg class="presence-dot" id="presence-dot" width="14" height="17" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1L1 16L5 12L13 12L1 1Z" fill="#000" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="presence-name-row">
+        <input class="presence-name-input" id="presence-name" type="text" placeholder="Anonymous" maxlength="24" />
+        <button class="presence-name-save" id="presence-name-save">Set</button>
+      </div>
+      <div class="presence-hint">Optional — shown on your cursor</div>
+      <div class="presence-divider"></div>
+      <div class="presence-panel-label" style="margin-bottom:6px">Online</div>
+      <div class="presence-others" id="presence-others"></div>
+    </div>
   </div>
 
   <!-- ── CONFIRM DIALOG ──────────────────────────── -->
@@ -1109,34 +1264,106 @@
         .subscribe();
     }
 
-    // ── LIVE CURSORS + DRAG SYNC ──────────────────────
+    // ── PRESENCE PANEL ─────────────────────────────────
     const MY_ID    = uid();
     const MY_COLOR = `hsl(${Math.floor(Math.random()*360)},70%,55%)`;
+
+    const presenceDot   = document.getElementById('presence-dot');
+    const presenceInput = document.getElementById('presence-name');
+    const presenceSave  = document.getElementById('presence-name-save');
+    const presenceOthers = document.getElementById('presence-others');
+    const presenceToggle = document.getElementById('presence-toggle');
+    const presenceBody   = document.getElementById('presence-panel-body') || document.getElementById('presence-body');
+
+    presenceDot.querySelector('path').setAttribute('fill', MY_COLOR);
+    presenceInput.value = localStorage.getItem('magi-cursor-name') || '';
+
+    presenceSave.addEventListener('click', () => {
+      const n = presenceInput.value.trim();
+      localStorage.setItem('magi-cursor-name', n);
+      presenceSave.textContent = '✓';
+      setTimeout(() => presenceSave.textContent = 'Set', 1200);
+    });
+
+    presenceInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') presenceSave.click();
+    });
+
+    let panelOpen = true;
+    presenceToggle.addEventListener('click', () => {
+      panelOpen = !panelOpen;
+      presenceBody.style.display = panelOpen ? '' : 'none';
+      presenceToggle.textContent = panelOpen ? '−' : '+';
+    });
+
+    // track other online users
+    const onlineUsers = {};
+
+    function updatePresenceList() {
+      const others = Object.values(onlineUsers);
+      if (!others.length) {
+        presenceOthers.innerHTML = '<div class="presence-empty">Just you</div>';
+        return;
+      }
+      presenceOthers.innerHTML = others.map(u =>
+        `<div class="presence-other-row">
+          <svg width="10" height="12" viewBox="0 0 18 22" fill="none"><path d="M1 1L1 16L5 12L13 12L1 1Z" fill="${u.color}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span class="presence-other-name">${u.name || 'Anonymous'}</span>
+        </div>`
+      ).join('');
+    }
+
+    updatePresenceList();
+
+    // ── LIVE CURSORS + DRAG SYNC ──────────────────────
     const cursorEls = {};
     let cursorChannel = null;
+
+    function getMyName() { return localStorage.getItem('magi-cursor-name') || ''; }
 
     function startCursors() {
       cursorChannel = db.channel('presence', { config: { broadcast: { self: false } } });
 
       cursorChannel.on('broadcast', { event: 'cursor' }, ({ payload }) => {
-        const { id, color, x, y, active } = payload;
+        const { id, color, name, x, y, active } = payload;
         if (id === MY_ID) return;
+
         if (!active) {
           if (cursorEls[id]) { cursorEls[id].remove(); delete cursorEls[id]; }
+          delete onlineUsers[id];
+          updatePresenceList();
           return;
         }
+
+        // track online
+        onlineUsers[id] = { color, name };
+        updatePresenceList();
+
         if (!cursorEls[id]) {
           const el = document.createElement('div');
           el.className = 'live-cursor';
-          el.innerHTML = `<div class="live-cursor-dot" style="background:${color}"></div>`;
+          el.innerHTML = `
+            <svg width="18" height="22" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L1 16L5 12L13 12L1 1Z" fill="${color}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            ${name ? `<div class="live-cursor-name" style="background:${color}">${name}</div>` : ''}
+          `;
           document.getElementById('studio-canvas').appendChild(el);
           cursorEls[id] = el;
+        } else if (name) {
+          // update name if changed
+          let lbl = cursorEls[id].querySelector('.live-cursor-name');
+          if (!lbl) { lbl = document.createElement('div'); lbl.className = 'live-cursor-name'; lbl.style.background = color; cursorEls[id].appendChild(lbl); }
+          lbl.textContent = name;
         }
-        cursorEls[id].style.left = x + 'px';
-        cursorEls[id].style.top  = y + 'px';
+
+        // convert canvas space → screen space for this client's current pan/zoom
+        const sx = x * scale + panX;
+        const sy = y * scale + panY;
+        cursorEls[id].style.left = sx + 'px';
+        cursorEls[id].style.top  = sy + 'px';
       });
 
-      // live card drag sync from others
       cursorChannel.on('broadcast', { event: 'drag' }, ({ payload }) => {
         const { id: cardId, x, y } = payload;
         const el = inner.querySelector(`[data-id="${cardId}"]`);
@@ -1145,26 +1372,27 @@
 
       cursorChannel.subscribe();
 
-      // broadcast cursor
       let lastCursor = 0;
       canvas.addEventListener('mousemove', e => {
         const now = Date.now();
         if (now - lastCursor < 40) return;
         lastCursor = now;
         const rect = canvas.getBoundingClientRect();
+        // convert screen → canvas space so other clients can reconstruct correctly
+        const cx = (e.clientX - rect.left - panX) / scale;
+        const cy = (e.clientY - rect.top  - panY) / scale;
         cursorChannel.send({ type: 'broadcast', event: 'cursor',
-          payload: { id: MY_ID, color: MY_COLOR, x: e.clientX - rect.left, y: e.clientY - rect.top, active: true }
+          payload: { id: MY_ID, color: MY_COLOR, name: getMyName(), x: cx, y: cy, active: true }
         });
       });
 
       canvas.addEventListener('mouseleave', () => {
         cursorChannel.send({ type: 'broadcast', event: 'cursor',
-          payload: { id: MY_ID, color: MY_COLOR, x: 0, y: 0, active: false }
+          payload: { id: MY_ID, color: MY_COLOR, name: getMyName(), x: 0, y: 0, active: false }
         });
       });
     }
 
-    // called from card drag loop
     function broadcastDrag(cardId, x, y) {
       if (!cursorChannel) return;
       cursorChannel.send({ type: 'broadcast', event: 'drag', payload: { id: cardId, x, y } });
