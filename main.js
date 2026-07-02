@@ -5,7 +5,7 @@ const letters   = logoWrap.querySelectorAll('.logo-letter');
 const letterM   = document.getElementById('letter-m');
 const letterG   = document.getElementById('letter-g');
 const panels    = document.querySelectorAll('.spec-panel');
-const cards     = document.querySelectorAll('.work-card:not(.ghost)');
+const cards     = document.querySelectorAll('.sel-card, .work-card:not(.ghost)');
 const listRows  = document.querySelectorAll('#view-list .list-row:not(.head)');
 
 function activate(spec) {
@@ -35,6 +35,171 @@ letters.forEach(letter => {
   letter.addEventListener('mouseenter', () => activate(letter.dataset.spec));
   letter.addEventListener('mouseleave', deactivate);
 });
+
+// ── M — ORIGAMI PAPER FOLD-OUT ────────────────────
+
+const mStage = document.getElementById('m-stage');
+const mFold  = document.getElementById('m-fold');
+
+// The M-logo is a 4-column × 3-row grid. Only 10 cells contain logo
+// (the bottom-middle is the empty gap between the legs). We unfold one
+// panel at a time, each hinged to the previous along this snake path.
+// Coords are [col, row], 0-indexed, row 0 = top.
+const M_PATH = [
+  [0, 2],  // col1 row3 — bottom-left (anchor)
+  [0, 1],  // col1 row2  ↑
+  [0, 0],  // col1 row1  ↑
+  [1, 0],  // col2 row1  →
+  [1, 1],  // col2 row2  ↓
+  [2, 1],  // col3 row2  →
+  [2, 0],  // col3 row1  ↑
+  [3, 0],  // col4 row1  →
+  [3, 1],  // col4 row2  ↓
+  [3, 2],  // col4 row3  ↓  end (bottom-right)
+];
+
+const M_COLS  = 4;
+const M_ROWS  = 3;
+const M_STEP  = 150;   // ms between each panel flipping
+const M_DUR   = 340;   // ms each flip takes (matches CSS transition)
+
+let mPanels = [];      // nested chain, index matches M_PATH order
+
+// (re)build the nested, hinged panel chain sized to the rendered M
+function buildMFold() {
+  if (!mStage || !mFold || !letterM) return;
+  const w = letterM.clientWidth;
+  const h = letterM.clientHeight;
+  if (!w || !h) return;
+
+  const cellW = w / M_COLS;
+  const cellH = h / M_ROWS;
+
+  mFold.innerHTML = '';
+  mPanels = [];
+
+  let parent = mFold;
+
+  M_PATH.forEach(([col, row], i) => {
+    const el = document.createElement('div');
+    el.className = 'm-panel';
+
+    el.style.width  = cellW + 'px';
+    el.style.height = cellH + 'px';
+
+    const bgX = -col * cellW;
+    const bgY = -row * cellH;
+    el.style.backgroundSize     = `${w}px ${h}px`;
+    el.style.backgroundPosition = `${bgX}px ${bgY}px`;
+
+    // silhouette mask so the crease shading follows the curves
+    el.style.setProperty('--m-bg-w', `${w}px`);
+    el.style.setProperty('--m-bg-h', `${h}px`);
+    el.style.setProperty('--m-bg-x', `${bgX}px`);
+    el.style.setProperty('--m-bg-y', `${bgY}px`);
+
+    if (i === 0) {
+      // anchor — placed at its real cell inside the fold layer
+      el.style.left = (col * cellW) + 'px';
+      el.style.top  = (row * cellH) + 'px';
+      el.style.transform = 'none';
+    } else {
+      const [pCol, pRow] = M_PATH[i - 1];
+      const dCol = col - pCol;
+      const dRow = row - pRow;
+
+      // position relative to the parent panel (the previous cell)
+      el.style.left = (dCol * cellW) + 'px';
+      el.style.top  = (dRow * cellH) + 'px';
+
+      // hinge on the edge shared with the parent + the folded-up transform
+      if (dCol === 1) {                 // child is to the RIGHT of parent
+        el.style.transformOrigin = `0px ${cellH / 2}px`;
+        el.dataset.fold = 'rotateY(-180deg)';
+      } else if (dCol === -1) {         // LEFT
+        el.style.transformOrigin = `${cellW}px ${cellH / 2}px`;
+        el.dataset.fold = 'rotateY(180deg)';
+      } else if (dRow === 1) {          // BELOW
+        el.style.transformOrigin = `${cellW / 2}px 0px`;
+        el.dataset.fold = 'rotateX(180deg)';
+      } else {                          // ABOVE (dRow === -1)
+        el.style.transformOrigin = `${cellW / 2}px ${cellH}px`;
+        el.dataset.fold = 'rotateX(-180deg)';
+      }
+      el.style.transform = 'none';      // start flat (full M at rest)
+    }
+
+    parent.appendChild(el);
+    mPanels.push(el);
+    parent = el;                        // nest the next panel inside this one
+  });
+}
+
+let mTimers = [];
+let mFolding = false;
+
+function clearMTimers() {
+  mTimers.forEach(clearTimeout);
+  mTimers = [];
+}
+
+function playMFold() {
+  if (!mPanels.length) buildMFold();
+  if (!mPanels.length || mFolding) return;
+  mFolding = true;
+  clearMTimers();
+
+  // swap the resting <img> for the panel layer for the duration of the fold
+  mStage.classList.add('folding');
+
+  const last = mPanels.length - 1;
+
+  // PHASE A — fold up into the bottom-left, deepest panel first
+  for (let i = last; i >= 1; i--) {
+    const el = mPanels[i];
+    const order = last - i;               // 0,1,2… in fold-in sequence
+    mTimers.push(setTimeout(() => {
+      el.classList.add('is-creasing');
+      el.style.transform = el.dataset.fold;
+    }, order * M_STEP));
+    mTimers.push(setTimeout(() => el.classList.remove('is-creasing'),
+                            order * M_STEP + M_DUR));
+  }
+
+  const foldInTime = (last - 1) * M_STEP + M_DUR + 120;  // +gap before unfolding
+
+  // PHASE B — unfold one by one along the path, anchor outward
+  for (let i = 1; i <= last; i++) {
+    const el = mPanels[i];
+    const order = i - 1;
+    mTimers.push(setTimeout(() => {
+      el.classList.add('is-creasing');
+      el.style.transform = 'none';
+    }, foldInTime + order * M_STEP));
+    mTimers.push(setTimeout(() => el.classList.remove('is-creasing'),
+                            foldInTime + order * M_STEP + M_DUR));
+  }
+
+  const total = foldInTime + (last - 1) * M_STEP + M_DUR + 40;
+  mTimers.push(setTimeout(() => {
+    mFolding = false;
+    mStage.classList.remove('folding');   // back to the crisp resting <img>
+  }, total));
+}
+
+if (mStage) {
+  if (letterM.complete) buildMFold();
+  else letterM.addEventListener('load', buildMFold);
+
+  let mResize;
+  window.addEventListener('resize', () => {
+    if (mFolding) return;               // don't rebuild mid-animation
+    clearTimeout(mResize);
+    mResize = setTimeout(buildMFold, 150);
+  });
+
+  mStage.addEventListener('click', playMFold);
+}
 
 // ── G — DRAGGABLE WITH PHYSICS ────────────────────
 
@@ -337,6 +502,99 @@ iContainer.addEventListener('click', e => {
 letterI.addEventListener('mouseenter', () => activate('interactivity'));
 letterI.addEventListener('mouseleave', deactivate);
 
+// ── LOGO INTERACTION HINTS ────────────────────────
+// subtle "click me" / "drag me" nudges so users discover each letter's trick
+
+const hintConfig = [
+  { el: letterM,                              text: 'click me!' },
+  { el: document.getElementById('letter-a'),  text: 'hover me!' },
+  { el: letterG,                              text: 'drag me!'  },
+  { el: letterI,                              text: 'click me!' },
+].filter(item => item.el);
+
+let hintsStopped  = false;
+let hintTimeoutId = null;
+const hintEls     = new Map();   // wrap -> { el, timer }
+
+function getHintEl(wrap) {
+  let entry = hintEls.get(wrap);
+  if (!entry) {
+    const el = document.createElement('div');
+    el.className = 'logo-hint';
+    wrap.appendChild(el);
+    entry = { el, timer: null };
+    hintEls.set(wrap, entry);
+  }
+  return entry;
+}
+
+function showHint(item, duration = 2800) {
+  if (hintsStopped || !item.el) return;
+  const wrap = item.el.closest('.letter-wrap');
+  if (!wrap) return;
+  const entry = getHintEl(wrap);
+  entry.el.textContent = item.text;
+  entry.el.classList.remove('show');
+  void entry.el.offsetWidth;          // restart the pop/bob
+  entry.el.classList.add('show');
+  clearTimeout(entry.timer);
+  entry.timer = setTimeout(() => entry.el.classList.remove('show'), duration);
+}
+
+function stopHints() {
+  if (hintsStopped) return;
+  hintsStopped = true;
+  clearTimeout(hintTimeoutId);
+  hintEls.forEach(entry => {
+    clearTimeout(entry.timer);
+    entry.el.classList.remove('show');
+  });
+}
+
+// the moment the user engages the logo, they've got it — stop nudging
+logoWrap.addEventListener('pointerdown', stopHints);
+hintConfig.forEach(item => {
+  // hide a letter's own hint as soon as it's hovered
+  item.el.addEventListener('mouseenter', () => {
+    const wrap = item.el.closest('.letter-wrap');
+    const entry = wrap && hintEls.get(wrap);
+    if (entry) { clearTimeout(entry.timer); entry.el.classList.remove('show'); }
+  });
+});
+
+// gentle recurring nudge on a random letter, every now and then
+function scheduleNextHint(delay) {
+  hintTimeoutId = setTimeout(() => {
+    if (hintsStopped) return;
+    if (!document.hidden) {
+      const item = hintConfig[Math.floor(Math.random() * hintConfig.length)];
+      showHint(item);
+    }
+    scheduleNextHint(11000 + Math.random() * 9000);   // ~11–20s apart
+  }, delay);
+}
+
+// first-time visitors get a one-by-one intro across the letters
+function introHints() {
+  hintConfig.forEach((item, i) => {
+    setTimeout(() => showHint(item, 3200), 1400 + i * 1700);
+  });
+}
+
+(function initHints() {
+  if (!hintConfig.length) return;
+  let firstTime = true;
+  try { firstTime = !localStorage.getItem('magi_logo_hinted'); } catch (e) {}
+
+  if (firstTime) {
+    introHints();
+    try { localStorage.setItem('magi_logo_hinted', '1'); } catch (e) {}
+    scheduleNextHint(1400 + hintConfig.length * 1700 + 6000);
+  } else {
+    scheduleNextHint(7000);
+  }
+})();
+
 // ── GALLERY RANDOMISE ─────────────────────────────
 
 const galleryPool = [
@@ -436,28 +694,6 @@ function shuffle(arr) {
   // kick off the first swap after an initial delay
   scheduleSwap();
 })();
-
-const viewGrid = document.getElementById('view-grid');
-const viewList = document.getElementById('view-list');
-const btnGrid  = document.getElementById('btn-grid');
-const btnList  = document.getElementById('btn-list');
-
-function setView(v) {
-  if (v === 'grid') {
-    viewGrid.style.display = '';
-    viewList.style.display = 'none';
-    btnGrid.classList.add('active');
-    btnList.classList.remove('active');
-  } else {
-    viewGrid.style.display = 'none';
-    viewList.style.display = '';
-    btnGrid.classList.remove('active');
-    btnList.classList.add('active');
-  }
-}
-
-btnGrid.addEventListener('click', () => setView('grid'));
-btnList.addEventListener('click', () => setView('list'));
 
 // ── FILTER TABS ───────────────────────────────────
 

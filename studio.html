@@ -60,7 +60,7 @@
 
     .toolbar-search-input {
       flex: 1;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 12px;
       color: var(--black);
       background: none;
@@ -80,7 +80,7 @@
     /* ── ADD CARD ─────────────────────────────────── */
 
     .toolbar-btn {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.1em;
@@ -99,7 +99,7 @@
     .toolbar-btn.primary:hover { background: #333; }
 
     .type-chip {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 9px;
       font-weight: 500;
       letter-spacing: 0.1em;
@@ -220,7 +220,7 @@
       background: none;
       border: 1px solid var(--line);
       padding: 1px 7px 2px;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       transition: color 0.1s, border-color 0.1s;
     }
 
@@ -399,7 +399,7 @@
 
     .form-input,
     .form-textarea {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 12px;
       color: var(--black);
       background: none;
@@ -438,7 +438,7 @@
     }
 
     .form-upload-btn {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 10px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -469,7 +469,7 @@
       position: absolute;
       top: 6px;
       right: 6px;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 9px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -532,7 +532,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 14px;
       color: var(--dim);
       transition: color 0.1s, border-color 0.1s;
@@ -667,7 +667,7 @@
     }
 
     .live-cursor-name {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 9px;
       font-weight: 500;
       letter-spacing: 0.06em;
@@ -723,7 +723,7 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.14em;
@@ -756,7 +756,7 @@
       background: var(--white);
       border: 1px solid var(--line);
       z-index: 100;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
     }
 
     .presence-panel-header {
@@ -775,7 +775,7 @@
     }
 
     .presence-toggle {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 14px;
       color: var(--dim);
       background: none;
@@ -814,7 +814,7 @@
 
     .presence-name-input {
       flex: 1;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 11px;
       color: var(--black);
       background: none;
@@ -828,7 +828,7 @@
     .presence-name-input:focus { border-color: var(--black); }
 
     .presence-name-save {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 9px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -944,7 +944,7 @@
 
     .gate-input {
       flex: 1;
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 13px;
       color: var(--black);
       background: none;
@@ -960,7 +960,7 @@
     .gate-input.is-error { border-color: #c0392b; animation: gate-shake 0.3s ease; }
 
     .gate-submit {
-      font-family: 'DM Mono', monospace;
+      font-family: 'Satoshi', sans-serif;
       font-size: 16px;
       line-height: 1;
       background: var(--black);
@@ -1025,9 +1025,10 @@
       <a class="nav-link" href="index.html">Home</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="research.html">Research</a>
       <a class="nav-link" href="recordings.html">Archive</a>
-      <a class="nav-link active" href="studio.html">Studio</a>
+      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="research.html">Research</a>
+      <a class="nav-link active" href="studio.html">Board</a>
     </div>
     <div class="nav-right">
       <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
@@ -1619,7 +1620,7 @@
     }
     function showStatus(msg) {
       let s = document.getElementById('db-status');
-      if (!s) { s = document.createElement('div'); s.id = 'db-status'; s.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-family:DM Mono,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);z-index:200;pointer-events:none'; document.body.appendChild(s); }
+      if (!s) { s = document.createElement('div'); s.id = 'db-status'; s.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-family:Satoshi,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);z-index:200;pointer-events:none'; document.body.appendChild(s); }
       s.textContent = msg;
     }
     function hideStatus() { const s = document.getElementById('db-status'); if (s) s.textContent = ''; }

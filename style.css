@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500;700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -33,11 +33,45 @@
 html, body {
   background: var(--white);
   color: var(--black);
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   font-size: 15px;
   font-weight: 400;
   line-height: 1.6;
   min-height: 100vh;
+}
+
+/* ── PAGE TRANSITIONS ────────────────────────────── */
+
+/* Cross-document fade in supporting browsers (Chromium) */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
+}
+
+/* Keep the header constant across page navigations (not part of the fade) */
+.nav { view-transition-name: site-header; }
+
+/* Universal fallback — subtle fade-in of page content on load (nav excluded) */
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* fade page content, but never elements that manage their own visibility
+   (e.g. fixed modal/dialog overlays that default to opacity:0) */
+body > :not(.nav):not(.modal-overlay) {
+  animation: pageFadeIn 0.4s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body > :not(.nav):not(.modal-overlay) { animation: none; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
 }
 
 /* ── NAV ─────────────────────────────────────────── */
@@ -51,6 +85,29 @@ html, body {
   top: 0;
   background: var(--white);
   z-index: 100;
+}
+
+/* green header line — doubles as a page-load progress bar */
+.nav::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: #c8e800;
+  transform-origin: left center;
+  animation: navLoadBar 0.9s cubic-bezier(0.4, 0, 0.2, 1) both;
+  z-index: 101;
+}
+
+@keyframes navLoadBar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav::after { animation: none; }
 }
 
 .nav-wordmark {
@@ -85,7 +142,7 @@ html, body {
 .nav-link {
   padding: 0 18px;
   font-size: 11px;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   font-weight: 300;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -147,7 +204,7 @@ html, body {
 
 .hero-tagline-wrap {
   position: absolute;
-  bottom: 40px;
+  bottom: 96px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -158,20 +215,46 @@ html, body {
   gap: 20px;
 }
 
-.hero-tagline-wrap .strip-eyebrow {
-  font-size: 9px;
-  letter-spacing: 0.12em;
+.hero-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-tagline-wrap .hero-badge {
+  display: inline-block;
+  color: var(--black);
+  font-family: "museo", "Satoshi", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.hero-tagline-wrap .hero-rmit {
+  height: 50px;
+  width: auto;
+  display: block;
+  opacity: 0.5;
 }
 
 .hero-tagline-wrap .strip-tagline {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--secondary);
   line-height: 1.5;
   white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .hero-tagline-wrap .hero-badge {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    white-space: normal;
+  }
+  .hero-tagline-wrap .strip-tagline { white-space: normal; }
 }
 
 .hero-bottom-row {
@@ -216,7 +299,7 @@ html, body {
 }
 
 .strip-btn {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   font-size: 10px;
   font-weight: 300;
   letter-spacing: 0.1em;
@@ -278,7 +361,7 @@ html, body {
 }
 
 .upload-btn {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -516,7 +599,7 @@ html, body {
   transform: translateX(-50%) translateY(100%);
   background: var(--label-color);
   color: var(--label-text);
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -534,9 +617,55 @@ html, body {
   transform: translateX(-50%) translateY(calc(100% + 8px));
 }
 
+/* ── INTERACTION HINTS ("click me" / "drag me") ──── */
+
+.logo-hint {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  background: var(--black);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 6px 11px;
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 40;
+  transform: translateX(-50%) translateY(6px) scale(0.94);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.logo-hint::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--black);
+}
+
+.logo-hint.show {
+  opacity: 1;
+  animation: hintBob 1.6s ease-in-out infinite;
+}
+
+@keyframes hintBob {
+  0%, 100% { transform: translateX(-50%) translateY(0)    scale(1); }
+  50%      { transform: translateX(-50%) translateY(-5px) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-hint.show { animation: none; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
 .logo-letter {
   display: block;
-  height: min(220px, 18vw);
+  height: min(280px, 23vw);
   width: auto;
   flex: 0 0 auto;
   user-select: none;
@@ -547,11 +676,100 @@ html, body {
 
 /* ── Per-letter hover animations ─────────────────── */
 
-#letter-m {
-  transition: filter 0.25s ease, opacity 0.25s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ── M — ORIGAMI PAPER FOLD-OUT ───────────────────── */
+
+.m-stage {
+  position: relative;
+  display: inline-block;
+  perspective: 1400px;
+  perspective-origin: 50% 45%;
+  cursor: pointer;
 }
-#letter-m:hover {
+
+/* the real <img> IS the resting M (same shading as the other letters);
+   the panel layer only appears while folding */
+.m-stage #letter-m {
+  display: block;
+  opacity: 1;
+  cursor: pointer;
+  transition: filter 0.25s ease, opacity 0.25s ease,
+              transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.m-stage:hover #letter-m {
   transform: translateY(-6px);
+}
+
+/* panel layer — hidden at rest, shown only during the fold */
+.m-fold {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+/* swap img → panels while folding */
+#m-stage.folding .m-fold   { opacity: 1; }
+#m-stage.folding #letter-m { opacity: 0; }
+
+.m-panel {
+  position: absolute;
+  background-image: url('M-logo.png');
+  background-repeat: no-repeat;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  filter: grayscale(1) brightness(0.13);
+  transition: transform 0.34s cubic-bezier(0.45, 0.02, 0.2, 1),
+              filter 0.25s ease,
+              opacity 0.25s ease;
+  will-change: transform;
+}
+
+/* soft crease shading that deepens mid-fold for a paper feel —
+   masked to the logo silhouette so it follows the curves, not the tile box */
+.m-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+              rgba(0,0,0,0.40) 0%,
+              rgba(0,0,0,0)    22%,
+              rgba(0,0,0,0)    80%,
+              rgba(255,255,255,0.16) 100%);
+  -webkit-mask-image: url('M-logo.png');
+          mask-image: url('M-logo.png');
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-size: var(--m-bg-w) var(--m-bg-h);
+          mask-size: var(--m-bg-w) var(--m-bg-h);
+  -webkit-mask-position: var(--m-bg-x) var(--m-bg-y);
+          mask-position: var(--m-bg-x) var(--m-bg-y);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+/* The M deliberately does NOT dim when another logo is hovered — it only
+   reacts to its own click (the fold). So we hold it at its resting look
+   even while the wordmark has another spec active. */
+.logo-wrap[data-active] #letter-m,
+.logo-wrap[data-active] .m-fold .m-panel {
+  filter: grayscale(1) brightness(0.13);
+  opacity: 1;
+}
+/* …but light it up full-colour when the M itself is the active spec */
+.logo-wrap[data-active] #letter-m.is-active,
+.logo-wrap[data-active] .m-stage:has(#letter-m.is-active) .m-fold .m-panel {
+  filter: grayscale(0) brightness(1);
+  opacity: 1;
+}
+/* hidden img must stay hidden mid-fold even if the M is the active spec */
+#m-stage.folding #letter-m,
+#m-stage.folding #letter-m.is-active { opacity: 0; }
+
+/* crease shading lights up while a panel is mid-flip */
+.m-panel.is-creasing::after {
+  opacity: 1;
 }
 
 #letter-a {
@@ -582,7 +800,7 @@ html, body {
   left: calc(100% + 10px);
   font-size: 11px;
   font-weight: 500;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   letter-spacing: 0.08em;
   color: #ff6b1a;
   opacity: 0;
@@ -689,7 +907,7 @@ html, body {
 }
 
 .spec-header-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Satoshi', sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -740,7 +958,38 @@ html, body {
   font-size: 13px;
   color: var(--secondary);
   line-height: 1.8;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+}
+
+.spec-courses {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+.spec-course {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line-mid);
+}
+
+.spec-course:last-child { border-bottom: 1px solid var(--line-mid); }
+
+.spec-course-title {
+  font-size: 12px;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+.spec-course-code {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--faint);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .spec-count {
@@ -946,6 +1195,99 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .card-student { font-size: 11px; color: var(--secondary); margin-bottom: 10px; padding: 0 14px; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 3px; padding: 0 14px 14px; }
 .tag { font-size: 9px; color: var(--muted); border: 1px solid var(--line); padding: 2px 6px; }
+
+/* Staff tags — larger, coloured to each member's category */
+.staff-tags .tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+}
+
+.staff-card[data-cat="research"]      .staff-tags .tag { background: var(--tint-research);      border-color: var(--col-research);      color: #5a6200; }
+.staff-card[data-cat="animation"]     .staff-tags .tag { background: var(--tint-animation);     border-color: var(--col-animation);     color: #a0007a; }
+.staff-card[data-cat="games"]         .staff-tags .tag { background: var(--tint-games);         border-color: var(--col-games);         color: #007fa0; }
+.staff-card[data-cat="interactivity"] .staff-tags .tag { background: var(--tint-interactivity); border-color: var(--col-interactivity); color: #b04400; }
+
+/* ── SELECTED WORKS (framed cards) ───────────────── */
+
+.sel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  padding: 36px 48px 44px;
+}
+
+.sel-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sel-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 5px solid var(--frame, var(--black));
+  background: #f0f0f0;
+  overflow: hidden;
+  transition: transform 0.25s ease;
+}
+
+.sel-card:hover .sel-thumb { transform: translateY(-4px); }
+
+.sel-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sel-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--frame, var(--black));
+  color: var(--frame-text, #fff);
+  font-size: clamp(13px, 1.1vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  padding: 3px 13px 5px;
+  z-index: 2;
+}
+
+.sel-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 16px 14px 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0) 55%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sel-card:hover .sel-overlay { opacity: 1; }
+
+.sel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.sel-student {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.8);
+}
+
+.sel-card.dimmed { opacity: 0.15; pointer-events: none; }
+
+@media (max-width: 880px) {
+  .sel-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 28px 24px 32px; }
+}
 
 /* ── WORKS LIST ──────────────────────────────────── */
 
@@ -1172,9 +1514,9 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .staff-card {
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding: 28px;
+  padding: 44px;
   display: flex;
-  gap: 20px;
+  gap: 36px;
   cursor: pointer;
   transition: background 0.1s;
 }
@@ -1182,11 +1524,12 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .staff-card:hover { background: var(--bg-hover); }
 
 .staff-initials {
-  width: 52px;
-  height: 52px;
+  align-self: stretch;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
   background: var(--black);
   color: var(--white);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   letter-spacing: 0.08em;
   display: flex;
@@ -1200,6 +1543,18 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+}
+
+.staff-photo {
+  align-self: stretch;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  flex-shrink: 0;
+  display: block;
+  filter: grayscale(1);
 }
 
 .staff-name {
@@ -1217,6 +1572,13 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   font-size: 11px;
   color: var(--muted);
   margin-bottom: 8px;
+}
+
+.staff-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 8px 0 12px;
 }
 
 .staff-tags {

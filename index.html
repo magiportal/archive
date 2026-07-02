@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MAGI Portal — RMIT Melbourne</title>
+  <!-- Adobe Fonts (Museo) -->
+  <link rel="stylesheet" href="https://use.typekit.net/tso2iib.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -18,24 +20,27 @@
       <a class="nav-link active" href="index.html">Home</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="research.html">Research</a>
       <a class="nav-link" href="recordings.html">Archive</a>
-      <a class="nav-link" href="studio.html">Studio</a>
+      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="research.html">Research</a>
+      <a class="nav-link" href="studio.html">Board</a>
     </div>
     <div class="nav-right">
-      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <a class="nav-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
       <div class="nav-link">Search</div>
     </div>
   </nav>
 
   <!-- ── HERO ──────────────────────────────────────── -->
   <section class="hero">
-    <div class="hero-rule"></div>
 
     <div class="hero-logo">
       <div class="logo-wrap" id="logo-wrap">
-        <div class="letter-wrap">
-          <img class="logo-letter" id="letter-m" data-spec="research" src="M-logo.png" alt="M" draggable="false" />
+        <div class="letter-wrap" id="letter-m-wrap">
+          <div class="m-stage" id="m-stage">
+            <img class="logo-letter" id="letter-m" data-spec="research" src="M-logo.png" alt="M" draggable="false" />
+            <div class="m-fold" id="m-fold" aria-hidden="true"></div>
+          </div>
           <div class="letter-label" style="--label-color:#c8e800;--label-text:#4a5200">Research</div>
         </div>
         <div class="letter-wrap">
@@ -58,14 +63,11 @@
     </div>
 
     <div class="hero-tagline-wrap">
-      <div class="strip-eyebrow">RMIT Melbourne — Master of Animation, Games &amp; Interactivity</div>
-      <p class="strip-tagline">A living archive of student works, research, and practice-led inquiry.</p>
-      <div class="hero-strip-stats">
-        <div class="strip-stat"><div class="strip-n">48</div><div class="strip-label">Students</div></div>
-        <div class="strip-stat"><div class="strip-n">214</div><div class="strip-label">Works</div></div>
-        <div class="strip-stat"><div class="strip-n">6</div><div class="strip-label">Cohorts</div></div>
-        <div class="strip-stat"><div class="strip-n">∞</div><div class="strip-label">Archive</div></div>
+      <div class="hero-title-group">
+        <div class="hero-badge">Master of Animation, Games &amp; Interactivity</div>
+        <img class="hero-rmit" src="logo/rmit-logo-black.png" alt="RMIT University" />
       </div>
+      <p class="strip-tagline">A living archive of student works, research, and practice-led inquiry.</p>
     </div>
 
   </section>
@@ -80,13 +82,11 @@
         <div class="spec-header-label">Research</div>
       </div>
       <div class="spec-inner">
-        <div class="spec-desc">Practice-led and theoretical inquiry spanning critical design, new media, and emerging technologies.</div>
-        <div class="spec-count"><span class="spec-n">12</span><span class="spec-unit">Students</span></div>
-        <div class="spec-works">
-          <div class="spec-work-row"><span class="spec-work-title">Adversarial Design Frameworks</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2025</span></div>
-          <div class="spec-work-row"><span class="spec-work-title">Surveillance Capitalism & Play</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2025</span></div>
-          <div class="spec-work-row ghost"><span class="spec-work-title">— Add work —</span><span class="spec-work-student"></span><span class="spec-work-year"></span></div>
-        </div>
+        <div class="spec-desc">Practice-led and theoretical inquiry — research methods, critical writing, and a major independent project.</div>
+        <ul class="spec-courses">
+          <li class="spec-course"><span class="spec-course-title">Research Methods for Design &amp; Digital Media</span><span class="spec-course-code">GRAP2627</span></li>
+          <li class="spec-course"><span class="spec-course-title">Professional Research Project (AGI)</span><span class="spec-course-code">COMM2785</span></li>
+        </ul>
         <a class="spec-link" href="research.html">View all Research works ›</a>
       </div>
     </div>
@@ -98,13 +98,12 @@
         <div class="spec-header-label">Animation</div>
       </div>
       <div class="spec-inner">
-        <div class="spec-desc">Narrative, motion, and character-driven practice spanning 2D, 3D, and experimental forms.</div>
-        <div class="spec-count"><span class="spec-n">18</span><span class="spec-unit">Students</span></div>
-        <div class="spec-works">
-          <div class="spec-work-row"><span class="spec-work-title">Kinetic Type Study</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2025</span></div>
-          <div class="spec-work-row"><span class="spec-work-title">Frame by Frame</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2025</span></div>
-          <div class="spec-work-row ghost"><span class="spec-work-title">— Add work —</span><span class="spec-work-student"></span><span class="spec-work-year"></span></div>
-        </div>
+        <div class="spec-desc">Narrative, motion, and character craft across 2D, 3D, and experimental forms.</div>
+        <ul class="spec-courses">
+          <li class="spec-course"><span class="spec-course-title">Animated Narratives</span><span class="spec-course-code">COMM2601</span></li>
+          <li class="spec-course"><span class="spec-course-title">The Illusion of Life</span><span class="spec-course-code">VART3580</span></li>
+          <li class="spec-course"><span class="spec-course-title">Character, Place and Simulation</span><span class="spec-course-code">GRAP2583</span></li>
+        </ul>
         <a class="spec-link" href="alumni.html">View all Animation works ›</a>
       </div>
     </div>
@@ -116,13 +115,11 @@
         <div class="spec-header-label">Games</div>
       </div>
       <div class="spec-inner">
-        <div class="spec-desc">Play, systems, and world-building — from indie games to critical play and alt-controllers.</div>
-        <div class="spec-count"><span class="spec-n">16</span><span class="spec-unit">Students</span></div>
-        <div class="spec-works">
-          <div class="spec-work-row"><span class="spec-work-title">TAMAC1DE</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2026</span></div>
-          <div class="spec-work-row"><span class="spec-work-title">Held, Instantaneously</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2024</span></div>
-          <div class="spec-work-row ghost"><span class="spec-work-title">— Add work —</span><span class="spec-work-student"></span><span class="spec-work-year"></span></div>
-        </div>
+        <div class="spec-desc">Play, systems, and world-building — from preproduction through to advanced play design.</div>
+        <ul class="spec-courses">
+          <li class="spec-course"><span class="spec-course-title">Advanced Play Design</span><span class="spec-course-code">GRAP2580</span></li>
+          <li class="spec-course"><span class="spec-course-title">Professional Preproduction</span><span class="spec-course-code">GRAP2582</span></li>
+        </ul>
         <a class="spec-link" href="alumni.html">View all Games works ›</a>
       </div>
     </div>
@@ -134,13 +131,13 @@
         <div class="spec-header-label">Interactivity</div>
       </div>
       <div class="spec-inner">
-        <div class="spec-desc">Installation, physical computing, live performance tech, and networked experience design.</div>
-        <div class="spec-count"><span class="spec-n">14</span><span class="spec-unit">Students</span></div>
-        <div class="spec-works">
-          <div class="spec-work-row"><span class="spec-work-title">Luminous Festival — Boids</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2025</span></div>
-          <div class="spec-work-row"><span class="spec-work-title">CCTV / PORTALS</span><span class="spec-work-student">Student Name</span><span class="spec-work-year">2025</span></div>
-          <div class="spec-work-row ghost"><span class="spec-work-title">— Add work —</span><span class="spec-work-student"></span><span class="spec-work-year"></span></div>
-        </div>
+        <div class="spec-desc">Installation, physical computing, and networked experience, integrated through the shared studio sequence.</div>
+        <ul class="spec-courses">
+          <li class="spec-course"><span class="spec-course-title">AGI Studio 1</span><span class="spec-course-code">GRAP2579</span></li>
+          <li class="spec-course"><span class="spec-course-title">AGI Studio 2</span><span class="spec-course-code">GRAP2581</span></li>
+          <li class="spec-course"><span class="spec-course-title">AGI Studio 3</span><span class="spec-course-code">GRAP2592</span></li>
+          <li class="spec-course"><span class="spec-course-title">AGI Industry Portfolio</span><span class="spec-course-code">COMM2604</span></li>
+        </ul>
         <a class="spec-link" href="alumni.html">View all Interactivity works ›</a>
       </div>
     </div>
@@ -206,167 +203,59 @@
   <section id="archive">
 
     <div class="bar">
-      <a class="bar-title bar-title-link" href="alumni.html">All Works</a>
-      <div class="bar-right">
-        <div class="view-btn active" id="btn-grid">Grid</div>
-        <div class="view-btn" id="btn-list">List</div>
-        <div class="bar-link">View All ›</div>
-      </div>
+      <a class="bar-title bar-title-link" href="alumni.html">Selected Works</a>
+      <div class="bar-right"><a class="bar-link" href="alumni.html">View All ›</a></div>
     </div>
 
-    <div class="filters">
-      <div class="filter-btn active" data-filter="all">All</div>
-      <div class="filter-btn" data-filter="research">Research</div>
-      <div class="filter-btn" data-filter="animation">Animation</div>
-      <div class="filter-btn" data-filter="games">Games</div>
-      <div class="filter-btn" data-filter="interactivity">Interactivity</div>
-    </div>
+    <div class="sel-grid">
 
-    <div id="view-grid">
-
-      <div class="work-card" data-spec="games" data-tags="Unity HDRP WebSocket Critical Design">
-        <div class="card-thumb">
+      <a class="sel-card" data-spec="games" href="alumni.html" style="--frame:var(--col-games);--frame-text:#003a4a">
+        <div class="sel-thumb">
+          <span class="sel-badge">Games</span>
           <img src="media/s3634079-remnants-of-our-days.webp" alt="Remnants of Our Days" />
+          <div class="sel-overlay">
+            <span class="sel-title">Remnants of Our Days</span>
+            <span class="sel-student">Student Name · 2026</span>
+          </div>
         </div>
-        <div class="card-meta"><span>2026</span><span>Games</span></div>
-        <div class="card-title">Remnants of Our Days</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Unity HDRP</span><span class="tag">WebSocket</span><span class="tag">Critical Design</span></div>
-      </div>
+      </a>
 
-      <div class="work-card" data-spec="animation" data-tags="Animation 2D Experimental">
-        <div class="card-thumb">
+      <a class="sel-card" data-spec="animation" href="alumni.html" style="--frame:var(--col-animation);--frame-text:#fff">
+        <div class="sel-thumb">
+          <span class="sel-badge">Animation</span>
           <img src="media/s4017090-love-in-the-form-of-an-egg.webp" alt="Love in the Form of an Egg" />
+          <div class="sel-overlay">
+            <span class="sel-title">Love in the Form of an Egg</span>
+            <span class="sel-student">Student Name · 2025</span>
+          </div>
         </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">Love in the Form of an Egg</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">2D</span><span class="tag">Experimental</span></div>
-      </div>
+      </a>
 
-      <div class="work-card" data-spec="animation" data-tags="Animation Character 3D">
-        <div class="card-thumb">
-          <img src="media/s4120309-te-hkoi.webp" alt="Te Hkoi" />
+      <a class="sel-card" data-spec="interactivity" href="alumni.html" style="--frame:var(--col-interactivity);--frame-text:#fff">
+        <div class="sel-thumb">
+          <span class="sel-badge">Interactivity</span>
+          <img src="media/S4078320-tethered-thoughts.webp" alt="Tethered Thoughts" />
+          <div class="sel-overlay">
+            <span class="sel-title">Tethered Thoughts</span>
+            <span class="sel-student">Student Name · 2025</span>
+          </div>
         </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">Te Hkoi</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">Character</span><span class="tag">3D</span></div>
-      </div>
+      </a>
 
-      <div class="work-card" data-spec="animation" data-tags="Animation Motion">
-        <div class="card-thumb">
-          <img src="media/S4125361-bunny-flip.webp" alt="Bunny Flip" />
-        </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">Bunny Flip</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">Motion</span></div>
-      </div>
-
-      <div class="work-card" data-spec="animation" data-tags="Animation Narrative">
-        <div class="card-thumb">
-          <img src="media/s4148098-a-late-bloomer.webp" alt="A Late Bloomer" />
-        </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">A Late Bloomer</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">Narrative</span></div>
-      </div>
-
-      <div class="work-card" data-spec="animation" data-tags="Animation Experimental">
-        <div class="card-thumb">
-          <img src="media/s4148098-hidden-joy.webp" alt="Hidden Joy" />
-        </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">Hidden Joy</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">Experimental</span></div>
-      </div>
-
-      <div class="work-card" data-spec="games" data-tags="Games Unity Interactive">
-        <div class="card-thumb">
-          <img src="media/s4148738-mind-tilt.webp" alt="Mind Tilt" />
-        </div>
-        <div class="card-meta"><span>2025</span><span>Games</span></div>
-        <div class="card-title">Mind Tilt</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Games</span><span class="tag">Unity</span></div>
-      </div>
-
-      <div class="work-card" data-spec="animation" data-tags="Animation 2D">
-        <div class="card-thumb">
-          <img src="media/s4155379-sleep-paralysis.webp" alt="Sleep Paralysis" />
-        </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">Sleep Paralysis</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">2D</span></div>
-      </div>
-
-      <div class="work-card" data-spec="animation" data-tags="Animation Narrative 2D">
-        <div class="card-thumb">
-          <img src="media/S4183453-state-of-mind.webp" alt="State of Mind" />
-        </div>
-        <div class="card-meta"><span>2025</span><span>Animation</span></div>
-        <div class="card-title">State of Mind</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Animation</span><span class="tag">Narrative</span></div>
-      </div>
-
-      <div class="work-card" data-spec="research" data-tags="Research New Media">
-        <div class="card-thumb">
+      <a class="sel-card" data-spec="research" href="alumni.html" style="--frame:var(--col-research);--frame-text:#4a5200">
+        <div class="sel-thumb">
+          <span class="sel-badge">Research</span>
           <img src="media/s4210724-natures-influence.webp" alt="Nature's Influence" />
+          <div class="sel-overlay">
+            <span class="sel-title">Nature's Influence</span>
+            <span class="sel-student">Student Name · 2025</span>
+          </div>
         </div>
-        <div class="card-meta"><span>2025</span><span>Research</span></div>
-        <div class="card-title">Nature's Influence</div>
-        <div class="card-student">Student Name</div>
-        <div class="card-tags"><span class="tag">Research</span><span class="tag">New Media</span></div>
-      </div>
+      </a>
 
-    </div>
-
-    <div id="view-list">
-      <div class="list-row head">
-        <div class="col-head">#</div>
-        <div class="col-head">Title</div>
-        <div class="col-head">Student</div>
-        <div class="col-head">Specialisation</div>
-        <div class="col-head">Tags</div>
-        <div class="col-head" style="text-align:right">Year</div>
-      </div>
-      <div class="list-row" data-spec="games"><div class="col-n">01</div><div class="col-title">TAMAC1DE — Gacha Installation</div><div class="col-student">Student Name</div><div class="col-type">Games</div><div class="col-tags"><span class="list-tag">Unity HDRP</span><span class="list-tag">Critical Design</span></div><div class="col-year">2026</div></div>
-      <div class="list-row" data-spec="interactivity"><div class="col-n">02</div><div class="col-title">MAGI EXPO — Orbital Exhibition Site</div><div class="col-student">Student Name</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">React Three Fiber</span></div><div class="col-year">2025</div></div>
-      <div class="list-row" data-spec="interactivity"><div class="col-n">03</div><div class="col-title">Luminous Festival — Hand Tracking Boids</div><div class="col-student">Student Name</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">MediaPipe</span><span class="list-tag">GLSL</span></div><div class="col-year">2025</div></div>
-      <div class="list-row" data-spec="interactivity"><div class="col-n">04</div><div class="col-title">CCTV / PORTALS — NDI Camera Network</div><div class="col-student">Student Name</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">NDI</span><span class="list-tag">Network</span></div><div class="col-year">2025</div></div>
-      <div class="list-row" data-spec="games"><div class="col-n">05</div><div class="col-title">Held, Instantaneously</div><div class="col-student">Student Name</div><div class="col-type">Games</div><div class="col-tags"><span class="list-tag">Unity</span><span class="list-tag">WebSocket</span></div><div class="col-year">2024</div></div>
-      <div class="list-row" data-spec="interactivity"><div class="col-n">06</div><div class="col-title">ArchiveGram — TikTok Cam Navigator</div><div class="col-student">Student Name</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">WebSocket</span><span class="list-tag">Unity</span></div><div class="col-year">2024</div></div>
-      <div class="list-row" data-spec="animation"><div class="col-n">07</div><div class="col-title">Friday Blender Workshop Series</div><div class="col-student">Student Name</div><div class="col-type">Animation</div><div class="col-tags"><span class="list-tag">Blender</span><span class="list-tag">Workshop</span></div><div class="col-year">2024</div></div>
-      <div class="list-row" data-spec="interactivity"><div class="col-n">08</div><div class="col-title">End the Boring Internet — Three.js Workshop</div><div class="col-student">Student Name</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">Three.js</span><span class="list-tag">Web</span></div><div class="col-year">2024</div></div>
-      <div class="list-row" data-spec="interactivity"><div class="col-n">09</div><div class="col-title">Fortune Teller — Dwell Detection</div><div class="col-student">Student Name</div><div class="col-type">Interactivity</div><div class="col-tags"><span class="list-tag">TouchDesigner</span><span class="list-tag">GLSL</span></div><div class="col-year">2023</div></div>
     </div>
 
   </section>
-
-  <!-- ── STUDENTS ───────────────────────────────────── -->
-  <div class="bar">
-    <a class="bar-title bar-title-link" href="alumni.html">Alumni — 2026 Cohort</a>
-    <div class="bar-right"><div class="bar-link">All Cohorts ›</div></div>
-  </div>
-
-  <div class="students-grid">
-    <div class="student-card" data-spec="interactivity">
-      <div class="student-initials">AF</div>
-      <div class="student-name">Student Name</div>
-      <div class="student-stream">Interactivity</div>
-      <div class="student-count">9 works <em>/ Studio 3</em></div>
-    </div>
-    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Animation</div><div class="student-count">0 works</div></div>
-    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Games</div><div class="student-count">0 works</div></div>
-    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Animation</div><div class="student-count">0 works</div></div>
-    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Interactivity</div><div class="student-count">0 works</div></div>
-    <div class="student-card ghost"><div class="student-initials">—</div><div class="student-name">Student Name</div><div class="student-stream">Games</div><div class="student-count">0 works</div></div>
-  </div>
 
   <!-- ── RECENT RECORDINGS ─────────────────────────── -->
   <section id="recent-recordings">
