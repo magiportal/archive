@@ -36,6 +36,134 @@ letters.forEach(letter => {
   letter.addEventListener('mouseleave', deactivate);
 });
 
+// ── A — SHATTER INTO A 3×3 JENGA STACK ───────────
+const letterA = document.getElementById('letter-a');
+let aShattered = false;
+
+if (letterA) {
+  letterA.style.cursor = 'pointer';
+  letterA.addEventListener('click', shatterA);
+}
+
+function shatterA() {
+  if (aShattered) return;
+  if (typeof Matter === 'undefined') return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  aShattered = true;
+
+  const { Engine, Runner, Bodies, Body, Composite, Mouse, MouseConstraint } = Matter;
+
+  const heroRect = hero.getBoundingClientRect();
+  const aRect    = letterA.getBoundingClientRect();
+  const W  = heroRect.width;
+  const Hh = heroRect.height;
+  const pieceW = aRect.width / 3;
+  const pieceH = aRect.height / 3;
+  const ax = aRect.left - heroRect.left;
+  const ay = aRect.top  - heroRect.top;
+
+  // land on the same floor the I-logo ball drops to (the hero's bottom edge)
+  const groundY = Hh;
+
+  // playground layer inside the hero
+  const layer = document.createElement('div');
+  layer.className = 'a-shatter-layer';
+  hero.appendChild(layer);
+
+  // hide the original A but keep its slot in the wordmark
+  letterA.style.opacity = '0';
+
+  const engine = Engine.create();
+  engine.gravity.y = 1;
+
+  const pieces = [];
+  const bodies = [];
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      if (r === 1 && c === 1) continue; // center tile is empty in the A
+      const cx = ax + c * pieceW + pieceW / 2;
+      const cy = ay + r * pieceH + pieceH / 2;
+
+      const piece = document.createElement('div');
+      piece.className = 'a-piece';
+      piece.style.width  = pieceW + 'px';
+      piece.style.height = pieceH + 'px';
+      piece.style.backgroundImage = "url('A-logo.png')";
+      piece.style.backgroundSize  = aRect.width + 'px ' + aRect.height + 'px';
+      piece.style.backgroundPosition = (-c * pieceW) + 'px ' + (-r * pieceH) + 'px';
+      layer.appendChild(piece);
+      pieces.push(piece);
+
+      const body = Bodies.rectangle(cx, cy, pieceW, pieceH, {
+        restitution: 0.2,
+        friction: 0.8,
+        frictionStatic: 3,
+        density: 0.002
+      });
+      // little outward "break" impulse
+      Body.setVelocity(body, { x: (c - 1) * 1.8 + (Math.random() - 0.5), y: -2 - Math.random() * 2 });
+      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.14);
+      bodies.push(body);
+    }
+  }
+
+  const wall = { isStatic: true };
+  const ground = Bodies.rectangle(W / 2, groundY + 30, W * 2, 60, wall);
+  const leftW  = Bodies.rectangle(-30, Hh / 2, 60, Hh * 3, wall);
+  const rightW = Bodies.rectangle(W + 30, Hh / 2, 60, Hh * 3, wall);
+  Composite.add(engine.world, [...bodies, ground, leftW, rightW]);
+
+  // drag-to-stack
+  const mouse = Mouse.create(layer);
+  const mc = MouseConstraint.create(engine, {
+    mouse,
+    constraint: { stiffness: 0.2, render: { visible: false } }
+  });
+  Composite.add(engine.world, mc);
+  // let the page keep scrolling over the hero
+  if (mouse.mousewheel) {
+    layer.removeEventListener('wheel', mouse.mousewheel);
+    layer.removeEventListener('mousewheel', mouse.mousewheel);
+    layer.removeEventListener('DOMMouseScroll', mouse.mousewheel);
+  }
+
+  // reset hotspot where the A used to be
+  const hotspot = document.createElement('div');
+  hotspot.className = 'a-reset-hotspot';
+  hotspot.style.left   = ax + 'px';
+  hotspot.style.top    = ay + 'px';
+  hotspot.style.width  = aRect.width + 'px';
+  hotspot.style.height = aRect.height + 'px';
+  hotspot.innerHTML = '<span>↺</span>';
+  hotspot.title = 'Put the A back';
+  layer.appendChild(hotspot);
+
+  const runner = Runner.create();
+  Runner.run(runner, engine);
+
+  let rafId;
+  (function sync() {
+    for (let i = 0; i < bodies.length; i++) {
+      const b = bodies[i];
+      pieces[i].style.transform =
+        'translate(' + (b.position.x - pieceW / 2) + 'px,' + (b.position.y - pieceH / 2) + 'px) rotate(' + b.angle + 'rad)';
+    }
+    rafId = requestAnimationFrame(sync);
+  })();
+
+  hotspot.addEventListener('click', () => {
+    cancelAnimationFrame(rafId);
+    Runner.stop(runner);
+    Composite.clear(engine.world, false);
+    Engine.clear(engine);
+    layer.remove();
+    letterA.style.opacity = '';
+    aShattered = false;
+  });
+}
+
 // ── M — ORIGAMI PAPER FOLD-OUT ────────────────────
 
 const mStage = document.getElementById('m-stage');
@@ -507,7 +635,7 @@ letterI.addEventListener('mouseleave', deactivate);
 
 const hintConfig = [
   { el: letterM,                              text: 'click me!' },
-  { el: document.getElementById('letter-a'),  text: 'hover me!' },
+  { el: letterA,                              text: 'click me!' },
   { el: letterG,                              text: 'drag me!'  },
   { el: letterI,                              text: 'click me!' },
 ].filter(item => item.el);

@@ -257,79 +257,6 @@ body > :not(.nav):not(.modal-overlay) {
   .hero-tagline-wrap .strip-tagline { white-space: normal; }
 }
 
-.hero-bottom-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.hero-strip-stats {
-  display: flex;
-  border: 1px solid var(--line);
-}
-
-.strip-stat {
-  padding: 16px 28px;
-  border-right: 1px solid var(--line);
-  text-align: center;
-}
-
-.strip-stat:last-child { border-right: none; }
-
-.strip-n {
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--black);
-  line-height: 1;
-}
-
-.strip-label {
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.hero-strip-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 0;
-}
-
-.strip-btn {
-  font-family: 'Satoshi', sans-serif;
-  font-size: 10px;
-  font-weight: 300;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--black);
-  border: 1px solid var(--line);
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: border-color 0.1s, background 0.1s, color 0.1s;
-  white-space: nowrap;
-  margin-right: -1px;
-  display: block;
-}
-
-.strip-btn:hover { border-color: var(--black); background: var(--bg-hover); }
-
-.strip-btn-primary {
-  background: var(--black);
-  color: var(--white);
-  border-color: var(--black);
-  font-weight: 400;
-}
-
-.strip-btn-primary:hover {
-  background: #333;
-  border-color: #333;
-  color: var(--white);
-}
-
 /* ── UPLOAD CTA ──────────────────────────────────── */
 
 .upload-cta {
@@ -749,13 +676,11 @@ body > :not(.nav):not(.modal-overlay) {
   pointer-events: none;
 }
 
-/* The M deliberately does NOT dim when another logo is hovered — it only
-   reacts to its own click (the fold). So we hold it at its resting look
-   even while the wordmark has another spec active. */
+/* When another letter is active, the M greys out like the rest of the wordmark. */
 .logo-wrap[data-active] #letter-m,
 .logo-wrap[data-active] .m-fold .m-panel {
-  filter: grayscale(1) brightness(0.13);
-  opacity: 1;
+  filter: grayscale(1) brightness(0.08);
+  opacity: 0.3;
 }
 /* …but light it up full-colour when the M itself is the active spec */
 .logo-wrap[data-active] #letter-m.is-active,
@@ -770,6 +695,45 @@ body > :not(.nav):not(.modal-overlay) {
 /* crease shading lights up while a panel is mid-flip */
 .m-panel.is-creasing::after {
   opacity: 1;
+}
+
+/* ── A — SHATTER / JENGA PLAYGROUND ──────────────── */
+
+.a-shatter-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.a-piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  cursor: grab;
+  will-change: transform;
+}
+
+.a-piece:active { cursor: grabbing; }
+
+.a-reset-hotspot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(10, 10, 10, 0.28);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.a-reset-hotspot:hover {
+  color: rgba(10, 10, 10, 0.7);
+  transform: scale(1.12);
 }
 
 #letter-a {
@@ -1897,7 +1861,12 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .rec-compact-badge.workshop { background: var(--col-research); color: #4a5200; }
 .rec-compact-badge.talk     { background: var(--col-games);    color: #003a4a; }
 .rec-compact-badge.panel    { background: var(--col-animation); color: #fff; }
-.rec-compact-badge.lecture  { background: var(--col-interactivity); color: #fff; }
+/* media types — matched to the Archive badge colours */
+.rec-compact-badge.recording { background: var(--col-games);        color: #003a4a; }
+.rec-compact-badge.lecture   { background: var(--col-research);     color: #4a5200; }
+.rec-compact-badge.video     { background: var(--col-animation);    color: #fff; }
+.rec-compact-badge.audio     { background: var(--col-interactivity);color: #fff; }
+.rec-compact-badge.document  { background: #0a0a0a;                 color: #fff; }
 
 .rec-compact-dur {
   font-size: 11px;

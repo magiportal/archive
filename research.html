@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Research — MAGI Portal</title>
+  <title>Archive — MAGI Portal</title>
+  <link rel="icon" type="image/png" href="logo/MAGI_favicon.png" />
+  <link rel="apple-touch-icon" href="logo/MAGI_favicon.png" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" />
   <style>
@@ -422,6 +424,243 @@
       background: var(--line);
     }
 
+    /* ── EXPANDABLE PLAYER ─────────────────────────── */
+    .result-item.is-open { background: var(--bg-hover); }
+
+    .result-item.is-open .result-abstract {
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+      overflow: visible;
+      max-width: 720px;
+    }
+
+    .result-player-wrap {
+      grid-column: 1;
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .result-item.is-open > .result-player-wrap { grid-template-rows: 1fr; }
+
+    .result-player {
+      overflow: hidden;
+      min-height: 0;
+      padding-top: 18px;
+      opacity: 0;
+      transition: opacity 0.26s ease 0.06s;
+    }
+
+    .result-item.is-open > .result-player-wrap > .result-player { opacity: 1; }
+    .rp { max-width: 720px; }
+
+    /* video */
+    .rp-screen {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: radial-gradient(circle at 50% 42%, #2c2c2c, #101010);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rp-play-lg {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.94);
+      color: #111;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 3px;
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .rp-play-lg:hover { transform: scale(1.07); background: #fff; }
+
+    .rp-screen-tag {
+      position: absolute;
+      left: 13px;
+      bottom: 11px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .rp-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #111;
+      padding: 11px 14px;
+    }
+
+    .rp-play-sm {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 0;
+      width: 18px;
+      text-align: left;
+    }
+
+    .rp-scrub {
+      flex: 1;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.22);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .rp-scrub-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0%;
+      background: #fff;
+    }
+
+    .rp.started .rp-scrub-fill { animation: rpProgress 24s linear forwards; animation-play-state: paused; }
+    .rp.started.playing .rp-scrub-fill { animation-play-state: running; }
+    @keyframes rpProgress { from { width: 0%; } to { width: 100%; } }
+
+    .rp-t {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+
+    .rp-ic { color: rgba(255, 255, 255, 0.7); font-size: 12px; cursor: pointer; }
+
+    /* audio */
+    .rp-audio {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #111;
+      padding: 16px 18px;
+    }
+
+    .rp-audio .rp-play-lg { width: 44px; height: 44px; font-size: 14px; flex-shrink: 0; }
+
+    .rp-wave {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 42px;
+      overflow: hidden;
+    }
+
+    .rp-wave span {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.3);
+      min-width: 2px;
+      border-radius: 1px;
+      transition: background 0.2s;
+    }
+
+    .rp-audio.playing .rp-wave span { background: rgba(255, 255, 255, 0.6); }
+
+    /* pdf */
+    .rp-pdf { border: 1px solid var(--line); background: #ececea; }
+
+    .rp-pdf-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #2b2b2b;
+      color: #fff;
+      padding: 9px 14px;
+    }
+
+    .rp-pdf-name {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .rp-pdf-nav { display: flex; align-items: center; gap: 10px; font-size: 11px; flex-shrink: 0; }
+
+    .rp-pdf-nav button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 15px;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    .rp-pdf-dl {
+      color: #fff;
+      text-decoration: none;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .rp-pdf-page {
+      background: #fff;
+      margin: 18px auto;
+      padding: 40px 44px 46px;
+      max-width: 520px;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .rp-pdf-h { font-size: 17px; font-weight: 600; color: #111; line-height: 1.3; margin-bottom: 8px; }
+
+    .rp-pdf-sub {
+      font-family: 'Teachers', serif;
+      font-style: italic;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .rp-pdf-page p { font-size: 12.5px; line-height: 1.7; color: #333; text-align: justify; }
+
+    /* generic fallback */
+    .rp-generic-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 20px;
+      background: #f2f2f0;
+      border: 1px solid var(--line);
+    }
+
+    .rp-generic-box span { font-size: 12px; color: var(--muted); }
+
+    .rp-generic-box a {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      padding: 8px 14px;
+    }
+
     .result-cited {
       font-size: 10px;
       color: var(--faint);
@@ -466,6 +705,116 @@
     .result-type.interactivity{ background: var(--col-interactivity); color: #fff; }
     .result-type.thesis       { background: var(--black); color: #fff; }
 
+    /* ── MEDIA-TYPE BADGES ───────────────────────── */
+    .result-type.recording { background: var(--col-games); color: #003a4a; }
+    .result-type.lecture   { background: var(--col-research); color: #4a5200; }
+    .result-type.video     { background: var(--col-animation); color: #fff; }
+    .result-type.audio     { background: var(--col-interactivity); color: #fff; }
+    .result-type.document  { background: var(--black); color: #fff; }
+    .result-type.image     { background: #7c5cff; color: #fff; }
+
+    /* ── HERO SUB + UPLOAD BUTTON ────────────────── */
+    .research-sub {
+      max-width: 520px;
+      margin: 14px auto 0;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .up-open-btn {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      padding: 13px 26px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .up-open-btn:hover { background: #333; }
+
+    /* ── UPLOAD MODAL ────────────────────────────── */
+    .up-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.45);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .up-overlay.is-open { opacity: 1; pointer-events: auto; }
+    .up-modal {
+      background: var(--white);
+      border: 1px solid var(--line);
+      width: 460px;
+      max-width: calc(100vw - 40px);
+      max-height: 86vh;
+      overflow-y: auto;
+      transform: translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.34,1.3,0.64,1);
+    }
+    .up-overlay.is-open .up-modal { transform: translateY(0); }
+    .up-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .up-title { font-size: 15px; font-weight: 500; color: var(--black); }
+    .up-close {
+      background: none; border: none; font-size: 22px; line-height: 1;
+      color: var(--dim); cursor: pointer;
+    }
+    .up-close:hover { color: var(--black); }
+    .up-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .up-drop {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; text-align: center;
+      border: 1px dashed var(--line); background: #fafafa;
+      padding: 28px 20px; cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .up-drop.dragover { border-color: var(--black); background: #f2f2f2; }
+    .up-drop-icon { font-size: 22px; color: var(--dim); }
+    .up-drop-text { font-size: 13px; color: var(--secondary); }
+    .up-drop-text span { text-decoration: underline; }
+    .up-drop-hint { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .up-file-name { font-size: 12px; color: var(--black); margin-top: 4px; font-weight: 500; }
+    .up-field { display: flex; flex-direction: column; gap: 6px; }
+    .up-field label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .up-field input, .up-field select {
+      font-family: 'Satoshi', sans-serif; font-size: 13px;
+      padding: 9px 10px; border: 1px solid var(--line); background: var(--white); color: var(--black);
+    }
+    .up-field input:focus, .up-field select:focus { outline: none; border-color: var(--black); }
+    .up-foot {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding: 16px 24px; border-top: 1px solid var(--line);
+    }
+    .up-btn {
+      font-family: 'Satoshi', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 11px 18px; border: 1px solid var(--line); background: var(--white); color: var(--black); cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .up-btn:hover { background: #f2f2f2; }
+    .up-btn.primary { background: var(--black); color: var(--white); border-color: var(--black); }
+    .up-btn.primary:hover { background: #333; }
+
+    .result-item.just-added { animation: upFlash 1.4s ease; }
+    @keyframes upFlash {
+      from { background: #f7fcd0; }
+      to   { background: transparent; }
+    }
+
   </style>
 </head>
 <body>
@@ -479,9 +828,8 @@
       <a class="nav-link" href="index.html">Home</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="recordings.html">Archive</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
-      <a class="nav-link active" href="research.html">Research</a>
+      <a class="nav-link active" href="research.html">Archive</a>
       <a class="nav-link" href="studio.html">Board</a>
     </div>
     <div class="nav-right">
@@ -494,25 +842,29 @@
   <div class="research-hero">
     <div class="research-hero-title">
       <img src="logo/magi-logo-white.png" alt="MAGI" class="research-logo" />
-      <div class="research-eyebrow">RMIT Melbourne — Master of Animation, Games &amp; Interactivity</div>
-      <h1 class="research-h1">Research Database</h1>
+      
+      <h1 class="research-h1">Media Database</h1>
+      <p class="research-sub">Recordings, lectures, video, audio, documents and images — an open, growing library that students and staff contribute to.</p>
     </div>
 
     <div class="search-form">
       <div class="search-input-wrap">
-        <input class="search-input" id="search-input" type="text" placeholder="Search theses, papers, exegeses, practice research…" autocomplete="off" />
+        <input class="search-input" id="search-input" type="text" placeholder="Search recordings, lectures, videos, papers, media…" autocomplete="off" />
         <button class="search-btn" id="search-btn">Search</button>
       </div>
       <div class="search-filters">
         <span class="search-filter-label">Filter —</span>
         <button class="filter-chip active" data-filter="all">All</button>
-        <button class="filter-chip" data-filter="thesis">Thesis</button>
-        <button class="filter-chip" data-filter="research">Research</button>
-        <button class="filter-chip" data-filter="animation">Animation</button>
-        <button class="filter-chip" data-filter="games">Games</button>
-        <button class="filter-chip" data-filter="interactivity">Interactivity</button>
+        <button class="filter-chip" data-filter="recording">Recording</button>
+        <button class="filter-chip" data-filter="lecture">Lecture</button>
+        <button class="filter-chip" data-filter="video">Video</button>
+        <button class="filter-chip" data-filter="audio">Audio</button>
+        <button class="filter-chip" data-filter="document">Document</button>
+        <button class="filter-chip" data-filter="image">Image</button>
       </div>
     </div>
+
+    <button class="up-open-btn" id="up-open">＋ Upload to the Archive</button>
   </div>
 
   <!-- ── RESULTS LAYOUT ───────────────────────────── -->
@@ -554,26 +906,34 @@
       </div>
 
       <div>
-        <div class="sidebar-section-title">Document Type</div>
+        <div class="sidebar-section-title">Media Type</div>
         <div class="sidebar-item active">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">All Types</span></div>
-          <span class="sidebar-item-count">60</span>
+          <div class="sidebar-item-left"><span class="sidebar-item-label">All Media</span></div>
+          <span class="sidebar-item-count">64</span>
         </div>
         <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Master's Thesis</span></div>
-          <span class="sidebar-item-count">24</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Exegesis</span></div>
-          <span class="sidebar-item-count">18</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Practice Research</span></div>
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Recordings</span></div>
           <span class="sidebar-item-count">12</span>
         </div>
         <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Conference Paper</span></div>
-          <span class="sidebar-item-count">6</span>
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Lectures</span></div>
+          <span class="sidebar-item-count">9</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Video</span></div>
+          <span class="sidebar-item-count">11</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Audio</span></div>
+          <span class="sidebar-item-count">7</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Documents</span></div>
+          <span class="sidebar-item-count">18</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="sidebar-item-left"><span class="sidebar-item-label">Images</span></div>
+          <span class="sidebar-item-count">7</span>
         </div>
       </div>
 
@@ -602,7 +962,7 @@
     <div class="research-results">
 
       <div class="results-bar">
-        <span class="results-count"><strong>60</strong> results — showing 1–10</span>
+        <span class="results-count"><strong>64</strong> items in the archive</span>
         <div class="results-sort">
           <span class="results-sort-label">Sort —</span>
           <button class="sort-btn active">Relevance</button>
@@ -611,8 +971,68 @@
         </div>
       </div>
 
+      <!-- Recording -->
+      <div class="result-item" data-type="recording">
+        <div class="result-meta-top"><span class="result-type recording">Recording</span><span class="result-year">2026</span><span class="result-spec">Workshop</span></div>
+        <div class="result-title">End the Boring Internet — Three.js Intensive (Full Session)</div>
+        <div class="result-authors">Recorded session — <a href="#">MAGI Studio</a></div>
+        <div class="result-source">Workshop recording · 1h 48m · RMIT Melbourne, 2026</div>
+        <div class="result-abstract">Full capture of the hands-on Three.js workshop covering interactive web graphics, GitHub Pages deployment, and creative coding fundamentals. Includes live-coding segments and a closing Q&amp;A.</div>
+        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a><div class="result-action-sep"></div><a class="result-action" href="#">Transcript</a></div>
+        <div class="result-aside">
+          <a class="result-aside-link primary" href="#">▶ Play</a>
+          <a class="result-aside-link" href="#">Save</a>
+          <span class="result-aside-cited">1h 48m</span>
+        </div>
+      </div>
+
+      <!-- Lecture -->
+      <div class="result-item" data-type="lecture">
+        <div class="result-meta-top"><span class="result-type lecture">Lecture</span><span class="result-year">2025</span><span class="result-spec">Guest Talk</span></div>
+        <div class="result-title">On Play &amp; Place — Guest Lecture with Dr Matthew Riley</div>
+        <div class="result-authors"><a href="#">Dr Matthew Riley</a></div>
+        <div class="result-source">Guest lecture · 52m · Master of Animation, Games &amp; Interactivity, 2025</div>
+        <div class="result-abstract">A lecture on urban play, creative placemaking and the YomeciPlay collective — exploring how interactive installation connects digital, physical and social space.</div>
+        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Slides</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
+        <div class="result-aside">
+          <a class="result-aside-link primary" href="#">▶ Play</a>
+          <a class="result-aside-link" href="#">Save</a>
+          <span class="result-aside-cited">52m</span>
+        </div>
+      </div>
+
+      <!-- Video -->
+      <div class="result-item" data-type="video">
+        <div class="result-meta-top"><span class="result-type video">Video</span><span class="result-year">2025</span><span class="result-spec">Showreel</span></div>
+        <div class="result-title">MAGI EXPO 2025 — Exhibition Showreel</div>
+        <div class="result-authors">Compiled by <a href="#">MAGI Studio</a></div>
+        <div class="result-source">Video · 4m 20s · Melbourne, 2025</div>
+        <div class="result-abstract">A short showreel documenting the 2025 end-of-year exhibition — student installations, games and interactive works across the cohort.</div>
+        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
+        <div class="result-aside">
+          <a class="result-aside-link primary" href="#">▶ Play</a>
+          <a class="result-aside-link" href="#">Save</a>
+          <span class="result-aside-cited">4m 20s</span>
+        </div>
+      </div>
+
+      <!-- Audio -->
+      <div class="result-item" data-type="audio">
+        <div class="result-meta-top"><span class="result-type audio">Audio</span><span class="result-year">2024</span><span class="result-spec">Panel</span></div>
+        <div class="result-title">Careers in Games — Alumni Panel (Audio)</div>
+        <div class="result-authors"><a href="#">MAGI Alumni</a></div>
+        <div class="result-source">Audio recording · 1h 06m · RMIT Melbourne, 2024</div>
+        <div class="result-abstract">Audio from the alumni panel on breaking into the games and interactive industries — studio pathways, portfolios and freelance practice.</div>
+        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Listen</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
+        <div class="result-aside">
+          <a class="result-aside-link primary" href="#">▶ Play</a>
+          <a class="result-aside-link" href="#">Save</a>
+          <span class="result-aside-cited">1h 06m</span>
+        </div>
+      </div>
+
       <!-- Result 01 -->
-      <div class="result-item" data-type="interactivity">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type interactivity">Interactivity</span><span class="result-year">2026</span><span class="result-spec">Exegesis</span></div>
         <div class="result-title">TAMAC1DE: Anti-Extractive UX and the Gacha Machine — A Practice-Led Critical Design Installation</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -628,7 +1048,7 @@
       </div>
 
       <!-- Result 02 -->
-      <div class="result-item" data-type="animation">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type animation">Animation</span><span class="result-year">2025</span><span class="result-spec">Master's Thesis</span></div>
         <div class="result-title">Kinetic Empathy: Embodied Emotion in 2D Character Animation Through Motion Principles</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -644,7 +1064,7 @@
       </div>
 
       <!-- Result 03 -->
-      <div class="result-item" data-type="games">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type games">Games</span><span class="result-year">2025</span><span class="result-spec">Practice Research</span></div>
         <div class="result-title">Weight as Mechanic: Physical Computing and the Phenomenology of Play in Alt-Controller Game Design</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -660,7 +1080,7 @@
       </div>
 
       <!-- Result 04 -->
-      <div class="result-item" data-type="research">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type research">Research</span><span class="result-year">2025</span><span class="result-spec">Conference Paper</span></div>
         <div class="result-title">Seamful Encounters: Exposing Platform Infrastructure in New Media Installation Practice</div>
         <div class="result-authors"><a href="#">Staff Name</a>, <a href="#">Student Name</a></div>
@@ -676,7 +1096,7 @@
       </div>
 
       <!-- Result 05 -->
-      <div class="result-item" data-type="interactivity">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type interactivity">Interactivity</span><span class="result-year">2024</span><span class="result-spec">Exegesis</span></div>
         <div class="result-title">Held, Instantaneously: Adversarial Interface Design and the Choreography of Digital Loneliness</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -692,7 +1112,7 @@
       </div>
 
       <!-- Result 06 -->
-      <div class="result-item" data-type="animation">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type animation">Animation</span><span class="result-year">2024</span><span class="result-spec">Master's Thesis</span></div>
         <div class="result-title">Narrative Ecology: Non-Linear Storytelling Structures in Short-Form 3D Animation</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -708,7 +1128,7 @@
       </div>
 
       <!-- Result 07 -->
-      <div class="result-item" data-type="games">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type games">Games</span><span class="result-year">2024</span><span class="result-spec">Practice Research</span></div>
         <div class="result-title">Critical Play and the Complicit Player: Designing for Discomfort in Indie Game Contexts</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -724,7 +1144,7 @@
       </div>
 
       <!-- Result 08 -->
-      <div class="result-item" data-type="research">
+      <div class="result-item" data-type="document">
         <div class="result-meta-top"><span class="result-type research">Research</span><span class="result-year">2023</span><span class="result-spec">Master's Thesis</span></div>
         <div class="result-title">Boid Ecologies: Generative Systems and the Aesthetics of Emergence in Real-Time Installation</div>
         <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
@@ -754,6 +1174,48 @@
 
     </div>
 
+  </div>
+
+  <!-- ── UPLOAD MODAL ─────────────────────────────── -->
+  <div class="up-overlay modal-overlay" id="up-overlay">
+    <div class="up-modal">
+      <div class="up-head">
+        <div class="up-title">Upload to the Archive</div>
+        <button class="up-close" id="up-close" aria-label="Close">×</button>
+      </div>
+      <div class="up-body">
+        <label class="up-drop" id="up-drop">
+          <input type="file" id="up-file" hidden />
+          <div class="up-drop-icon">↑</div>
+          <div class="up-drop-text">Drag a file here or <span>browse</span></div>
+          <div class="up-drop-hint">Recordings · Lectures · Video · Audio · Documents · Images</div>
+          <div class="up-file-name" id="up-file-name"></div>
+        </label>
+        <div class="up-field">
+          <label for="up-title-in">Title</label>
+          <input type="text" id="up-title-in" placeholder="Give it a title" />
+        </div>
+        <div class="up-field">
+          <label for="up-type">Type</label>
+          <select id="up-type">
+            <option value="recording">Recording</option>
+            <option value="lecture">Lecture</option>
+            <option value="video">Video</option>
+            <option value="audio">Audio</option>
+            <option value="document">Document</option>
+            <option value="image">Image</option>
+          </select>
+        </div>
+        <div class="up-field">
+          <label for="up-author">Uploaded by</label>
+          <input type="text" id="up-author" placeholder="Your name" />
+        </div>
+      </div>
+      <div class="up-foot">
+        <button class="up-btn" id="up-cancel">Cancel</button>
+        <button class="up-btn primary" id="up-submit">Add to Archive</button>
+      </div>
+    </div>
   </div>
 
   <footer class="footer">
@@ -841,6 +1303,215 @@
     searchInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('search-btn').click();
     });
+
+    // ── EXPANDABLE PLAYERS ────────────────────────────
+    (function () {
+      const results = document.querySelector('.research-results');
+      if (!results) return;
+
+      const esc  = (s) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'document';
+
+      const kindOf = (item) => {
+        const primary = (item.querySelector('.result-action-primary')?.textContent || '').toLowerCase();
+        const type = item.dataset.type;
+        if (/watch/.test(primary) || ['video', 'recording', 'lecture'].includes(type)) return 'video';
+        if (/listen/.test(primary) || type === 'audio') return 'audio';
+        if (/pdf/.test(primary) || type === 'document') return 'pdf';
+        return 'generic';
+      };
+
+      const buildPlayer = (item) => {
+        const kind     = kindOf(item);
+        const title    = (item.querySelector('.result-title')?.textContent || 'Untitled').trim();
+        const source   = (item.querySelector('.result-source')?.textContent || '').trim();
+        const abstract = (item.querySelector('.result-abstract')?.textContent || '').trim();
+        const cited    = (item.querySelector('.result-aside-cited')?.textContent || '').trim();
+        const dur      = (/\d/.test(cited) && !/cited/i.test(cited)) ? cited : '0:00';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'result-player-wrap';
+        const rp = document.createElement('div');
+
+        if (kind === 'video') {
+          rp.className = 'rp rp-video';
+          rp.innerHTML =
+            '<div class="rp-screen"><button class="rp-play-lg" aria-label="Play">▶</button>' +
+            '<span class="rp-screen-tag">MAGI Archive · Video</span></div>' +
+            '<div class="rp-controls"><button class="rp-play-sm">▶</button>' +
+            '<div class="rp-scrub"><div class="rp-scrub-fill"></div></div>' +
+            '<span class="rp-t">0:00 / ' + esc(dur) + '</span><span class="rp-ic">⤢</span></div>';
+        } else if (kind === 'audio') {
+          let bars = '';
+          for (let i = 0; i < 64; i++) {
+            const h = 16 + Math.round((Math.abs(Math.sin(i * 0.7)) * 0.6 + Math.abs(Math.sin(i * 1.9)) * 0.4) * 74);
+            bars += '<span style="height:' + h + '%"></span>';
+          }
+          rp.className = 'rp rp-audio';
+          rp.innerHTML =
+            '<button class="rp-play-lg" aria-label="Play">▶</button>' +
+            '<div class="rp-wave">' + bars + '</div>' +
+            '<span class="rp-t">0:00 / ' + esc(dur) + '</span>';
+        } else if (kind === 'pdf') {
+          rp.className = 'rp rp-pdf';
+          rp.innerHTML =
+            '<div class="rp-pdf-bar"><span class="rp-pdf-name">' + esc(slug(title)) + '.pdf</span>' +
+            '<div class="rp-pdf-nav"><button aria-label="Previous page">‹</button><span>1 / 24</span>' +
+            '<button aria-label="Next page">›</button></div>' +
+            '<a class="rp-pdf-dl" href="#">↓ Download</a></div>' +
+            '<div class="rp-pdf-page"><div class="rp-pdf-h">' + esc(title) + '</div>' +
+            '<div class="rp-pdf-sub">' + esc(source) + '</div><p>' + esc(abstract) + '</p></div>';
+        } else {
+          rp.className = 'rp rp-generic';
+          rp.innerHTML = '<div class="rp-generic-box"><span>Preview unavailable for this file type.</span>' +
+            '<a href="#">↓ Download file</a></div>';
+        }
+
+        const inner = document.createElement('div');
+        inner.className = 'result-player';
+        inner.appendChild(rp);
+        wrap.appendChild(inner);
+        item.appendChild(wrap);
+
+        rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(btn => {
+          btn.addEventListener('click', () => {
+            rp.classList.add('started');
+            const on = rp.classList.toggle('playing');
+            rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.textContent = on ? '❚❚' : '▶'; });
+          });
+        });
+      };
+
+      const ensure = (item) => {
+        if (item.querySelector('.result-player-wrap')) return;
+        buildPlayer(item);
+        // Commit the collapsed (0fr) state to layout before the caller expands the row,
+        // so the very first open animates smoothly instead of snapping open.
+        void item.querySelector('.result-player-wrap').offsetHeight;
+      };
+
+      // Pause playback but keep the media where it was, so reopening resumes from that spot.
+      const pauseMedia = (item) => {
+        const rp = item.querySelector('.rp');
+        if (!rp) return;
+        rp.classList.remove('playing');
+        rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.textContent = '▶'; });
+      };
+
+      const setOpen = (item, open) => {
+        if (open) { item.classList.add('is-open'); }
+        else { item.classList.remove('is-open'); pauseMedia(item); }
+      };
+
+      results.addEventListener('click', (e) => {
+        const item = e.target.closest('.result-item');
+        if (!item) return;
+
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.getAttribute('href') === '#') e.preventDefault();
+
+        // Interactive player controls operate normally and never collapse the row.
+        if (e.target.closest('.rp-play-lg, .rp-play-sm, .rp-scrub, .rp-ic, .rp-pdf-nav, .rp-pdf-dl')) return;
+
+        if (anchor) {
+          // "Watch / Listen / PDF / Play" links open the player; utility links do nothing.
+          if (/watch|listen|pdf|play|open|view/.test(anchor.textContent.toLowerCase())) {
+            ensure(item);
+            setOpen(item, true);
+          }
+          return;
+        }
+
+        // Clicking the row (or the player's non-control area) toggles it open/closed.
+        ensure(item);
+        setOpen(item, !item.classList.contains('is-open'));
+      });
+    })();
+
+    // ── UPLOAD ────────────────────────────────────────
+    (function () {
+      const openBtn = document.getElementById('up-open');
+      const overlay = document.getElementById('up-overlay');
+      if (!openBtn || !overlay) return;
+
+      const drop     = document.getElementById('up-drop');
+      const fileIn   = document.getElementById('up-file');
+      const fileName = document.getElementById('up-file-name');
+      const titleIn  = document.getElementById('up-title-in');
+      const typeSel  = document.getElementById('up-type');
+      const authorIn = document.getElementById('up-author');
+      const list     = document.querySelector('.research-results');
+      const anchor   = list.querySelector('.result-item');
+      const LABELS   = { recording:'Recording', lecture:'Lecture', video:'Video', audio:'Audio', document:'Document', image:'Image' };
+      let picked = null;
+
+      const escapeHtml = (s) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+      const typeFromFile = (f) => {
+        const t = (f.type || '').toLowerCase();
+        if (t.startsWith('video/')) return 'video';
+        if (t.startsWith('audio/')) return 'audio';
+        if (t.startsWith('image/')) return 'image';
+        return 'document';
+      };
+
+      const open  = () => overlay.classList.add('is-open');
+      const close = () => overlay.classList.remove('is-open');
+      const reset = () => {
+        picked = null; fileIn.value = ''; fileName.textContent = '';
+        titleIn.value = ''; authorIn.value = ''; typeSel.value = 'recording';
+      };
+
+      const handleFile = (f) => {
+        picked = f;
+        fileName.textContent = f.name;
+        if (!titleIn.value) titleIn.value = f.name.replace(/\.[^.]+$/, '');
+        typeSel.value = typeFromFile(f);
+      };
+
+      openBtn.addEventListener('click', open);
+      document.getElementById('up-close').addEventListener('click', close);
+      document.getElementById('up-cancel').addEventListener('click', close);
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+      fileIn.addEventListener('change', () => { if (fileIn.files[0]) handleFile(fileIn.files[0]); });
+      ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('dragover'); }));
+      ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragover'); }));
+      drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+
+      document.getElementById('up-submit').addEventListener('click', () => {
+        const type   = typeSel.value;
+        const title  = titleIn.value.trim() || (picked ? picked.name : 'Untitled upload');
+        const author = authorIn.value.trim() || 'You';
+        const year   = new Date().getFullYear();
+
+        const item = document.createElement('div');
+        item.className = 'result-item just-added';
+        item.dataset.type = type;
+        item.innerHTML =
+          '<div class="result-meta-top"><span class="result-type ' + type + '">' + LABELS[type] + '</span>' +
+          '<span class="result-year">' + year + '</span><span class="result-spec">Uploaded</span></div>' +
+          '<div class="result-title">' + escapeHtml(title) + '</div>' +
+          '<div class="result-authors">Uploaded by <a href="#">' + escapeHtml(author) + '</a></div>' +
+          '<div class="result-source">' + (picked ? escapeHtml(picked.name) : 'File') + ' · added just now</div>' +
+          '<div class="result-abstract">Newly added to the MAGI Archive.</div>' +
+          '<div class="result-actions"><a class="result-action result-action-primary" href="#">Open</a>' +
+          '<div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>' +
+          '<div class="result-aside"><a class="result-aside-link primary" href="#">Open</a>' +
+          '<a class="result-aside-link" href="#">Save</a></div>';
+
+        list.insertBefore(item, anchor || null);
+        close();
+        reset();
+        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      // Open automatically when linked to with #upload (e.g. the home "Submit Your Work" button)
+      const maybeOpenFromHash = () => { if (location.hash === '#upload') open(); };
+      maybeOpenFromHash();
+      window.addEventListener('hashchange', maybeOpenFromHash);
+    })();
   </script>
 
 </body>
