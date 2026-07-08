@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sound Collab | MAGI Portal</title>
+  <link rel="icon" type="image/png" href="logo/MAGI_favicon.png" />
+  <link rel="apple-touch-icon" href="logo/MAGI_favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" />
+  <style>
+
+    /* ── TWO-HALF LAYOUT ───────────────────────────── */
+    .sc-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+    /* When the access gate is up, blur just the listings — not the whole page. */
+    .sc-wrap.is-gated { filter: blur(3px) brightness(0.97); pointer-events: none; user-select: none; transition: filter 0.2s ease; }
+
+    .sc-col { border-right: 1px solid var(--line); }
+    .sc-col:last-child { border-right: none; }
+
+    .sc-col-top {
+      position: sticky;
+      top: 56px;
+      background: var(--white);
+      z-index: 20;
+    }
+
+    .sc-col-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 22px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .sc-col-title { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--black); }
+    .sc-col-stat {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+    .sc-col-stat b { font-weight: 700; letter-spacing: normal; }
+
+    /* Post CTA sits directly on top of the grid, per side */
+    .sc-post-bar {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 22px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .sc-post-bar:hover { background: #333; }
+
+    .sc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      padding: 32px;
+      background: var(--bg-hover);
+      align-items: start;
+    }
+
+    .sc-empty {
+      grid-column: 1 / -1;
+      padding: 60px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    /* ── PAMPHLET (shared) ─────────────────────────── */
+    /* Postcard ratio (2:3 vertical) on both sides — reads as a real card, not a table row. */
+    .pamphlet {
+      border: 1px solid var(--line);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      aspect-ratio: 2 / 3;
+      height: auto;
+      background: var(--white);
+      animation: pamIn 0.4s ease both;
+      overflow: hidden;
+    }
+    @keyframes pamIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .pam-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 9px; flex: 1; min-height: 0; overflow-y: auto; }
+    .pam-title { font-size: 15px; font-weight: 600; color: var(--black); line-height: 1.25; }
+    .pam-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .pam-foot {
+      margin-top: auto;
+      padding-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .pam-contact { font-size: 11px; color: var(--dim); word-break: break-all; }
+
+    .pam-owner-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .pam-owner-btn {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .pam-owner-btn:hover { color: var(--black); }
+    .pam-owner-btn.danger:hover { color: #c0392b; }
+    .pam-manage-btn {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      color: var(--faint);
+      cursor: pointer;
+      padding: 0;
+      opacity: 0.7;
+    }
+    .pam-manage-btn:hover { color: var(--dim); opacity: 1; }
+
+    /* ── PROJECT PAMPHLET ──────────────────────────── */
+    .pam-poster {
+      position: relative;
+      flex: 0 0 42%;
+      background: #ececea;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+    }
+    .pam-poster.is-placeholder { background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 10px, transparent 10px 20px); }
+
+    .pam-type {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      color: #fff;
+      background: var(--black);
+    }
+    [data-spec="animation"]     .pam-type { background: var(--col-animation); color: #fff; }
+    [data-spec="games"]         .pam-type { background: var(--col-games); color: #003a4a; }
+    [data-spec="interactivity"] .pam-type { background: var(--col-interactivity); color: #fff; }
+    [data-spec="research"]      .pam-type { background: var(--col-research); color: #4a5200; }
+
+    .pam-a4 {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.9);
+      color: var(--black);
+      padding: 4px 8px;
+      text-decoration: none;
+      border: 1px solid var(--line);
+    }
+
+    .pam-sounds { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pam-sound-tag {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      border: 1px solid var(--line);
+      padding: 3px 7px;
+    }
+
+    .pam-assigned-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin-bottom: 5px; }
+    .pam-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pam-chip {
+      font-size: 11px;
+      color: var(--secondary);
+      background: var(--bg-hover);
+      border: 1px solid var(--line);
+      padding: 3px 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .pam-chip.is-open { color: var(--dim); background: none; border-style: dashed; }
+    .pam-chip-avatar {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--black);
+      color: var(--white);
+      font-size: 8px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .pam-slots { font-size: 10px; letter-spacing: 0.06em; color: var(--dim); }
+
+    .pam-claim {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--black);
+      color: var(--black);
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+    .pam-claim:hover { background: var(--black); color: var(--white); }
+    .pam-claim.is-filled { border-color: var(--line); color: var(--faint); cursor: default; }
+    .pam-claim.is-filled:hover { background: none; color: var(--faint); }
+
+    /* ── DESIGNER PAMPHLET ─────────────────────────── */
+    /* Same fixed height as .pam-poster so a designer card reads as the same size as a project card. */
+    .pam-d-head {
+      flex: 0 0 42%;
+      background: linear-gradient(160deg, #1a1a1a, #0a0a0a);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .pam-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 600;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .pam-d-head .pam-title { color: var(--white); }
+    .pam-web { font-size: 11px; color: rgba(255,255,255,0.6); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.25); }
+    .pam-web:hover { color: var(--white); }
+
+    .pam-samples { display: flex; flex-direction: column; gap: 7px; }
+    .pam-sample { display: flex; flex-direction: column; gap: 3px; }
+    .pam-sample-name { font-size: 10px; color: var(--dim); letter-spacing: 0.04em; }
+    .pam-audio { width: 100%; height: 34px; }
+
+    /* ── MODALS ────────────────────────────────────── */
+    .sc-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.5);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 20px;
+    }
+    .sc-overlay.is-open { opacity: 1; pointer-events: auto; }
+    .sc-modal {
+      background: var(--white);
+      border: 1px solid var(--line);
+      width: 460px;
+      max-width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      transform: translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.34,1.3,0.64,1);
+    }
+    .sc-overlay.is-open .sc-modal { transform: none; }
+
+    /* Access gate — floats over the (blurred) grid, page stays clear */
+    .sc-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 320;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      pointer-events: none;
+    }
+    .sc-gate.is-open { display: flex; }
+    .sc-gate .sc-modal { pointer-events: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.28); }
+    .sc-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+    .sc-modal-title { font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
+    .sc-modal-close { background: none; border: none; font-size: 20px; line-height: 1; color: var(--faint); cursor: pointer; }
+    .sc-modal-close:hover { color: var(--black); }
+    .sc-modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+    .sc-field { display: flex; flex-direction: column; gap: 6px; }
+    .sc-field label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .sc-field input[type=text], .sc-field input[type=url], .sc-field input[type=email], .sc-field textarea, .sc-field select {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 13px;
+      color: var(--black);
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      outline: none;
+      background: var(--white);
+      transition: border-color 0.15s;
+    }
+    .sc-field input:focus, .sc-field textarea:focus, .sc-field select:focus { border-color: var(--black); }
+    .sc-field textarea { resize: vertical; min-height: 64px; }
+    .sc-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sc-check { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--secondary); border: 1px solid var(--line); padding: 6px 11px; cursor: pointer; user-select: none; }
+    .sc-check.on { background: var(--black); color: var(--white); border-color: var(--black); }
+    .sc-file { font-size: 12px; color: var(--muted); }
+    .sc-hint { font-size: 10px; color: var(--faint); letter-spacing: 0.02em; }
+    .sc-modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 22px; border-top: 1px solid var(--line); }
+    .sc-btn { font-family: 'Satoshi', sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; border: 1px solid var(--line); background: none; color: var(--muted); }
+    .sc-btn.primary { background: var(--black); color: var(--white); border-color: var(--black); }
+    .sc-btn.primary:hover { background: #333; }
+    .sc-btn.primary[disabled] { opacity: 0.5; cursor: default; }
+
+    /* claim picker */
+    .sc-claim-list { display: flex; flex-direction: column; gap: 8px; }
+    .sc-claim-opt { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); padding: 10px 14px; cursor: pointer; transition: border-color 0.12s; }
+    .sc-claim-opt:hover { border-color: var(--black); }
+    .sc-claim-opt-name { font-size: 13px; font-weight: 500; color: var(--black); }
+
+    /* gate */
+    .sc-gate-box { text-align: center; }
+    .sc-gate-row { display: flex; }
+    .sc-gate-row input { flex: 1; border: 1px solid var(--line); border-right: none; padding: 10px 14px; font-family: 'Satoshi', sans-serif; font-size: 13px; outline: none; letter-spacing: 0.06em; }
+    .sc-gate-row input:focus { border-color: var(--black); }
+    .sc-gate-row input.is-error { border-color: #c0392b; animation: scShake 0.3s ease; }
+    .sc-gate-row button { background: var(--black); color: var(--white); border: 1px solid var(--black); padding: 0 18px; font-size: 16px; cursor: pointer; }
+    .sc-gate-err { font-size: 10px; color: #c0392b; min-height: 14px; margin-top: 8px; text-align: left; }
+    @keyframes scShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} 80%{transform:translateX(-3px)} }
+
+    .sc-status { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--black); color: var(--white); font-size: 11px; letter-spacing: 0.06em; padding: 9px 16px; z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .sc-status.show { opacity: 1; }
+
+    @media (max-width: 820px) {
+      .sc-wrap { grid-template-columns: 1fr; }
+      .sc-col { border-right: none; border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 480px) {
+      .sc-grid { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-wordmark">
+      <span class="nav-wordmark-magi">MAGI</span>
+      <span class="nav-wordmark-sub">Portal</span>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="alumni.html">Alumni</a>
+      <a class="nav-link" href="staff.html">Staff</a>
+      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link active" href="soundcollab.html">Sound Collab</a>
+      <a class="nav-link" href="research.html">Archive</a>
+      <a class="nav-link" href="studio.html">Board</a>
+      <div class="nav-link">Search</div>
+    </div>
+  </nav>
+
+  <!-- ── PAGE HEADER ───────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <h1 class="page-title">Sound Collab</h1>
+      <p class="page-desc">A looking-for-group board pairing MAGI makers with sound designers. Post a project that needs sound, or list yourself as a sound designer — designers claim the projects they take on, and both sides stay in sync.</p>
+    </div>
+  </div>
+
+  <!-- ── TWO HALVES ────────────────────────────────── -->
+  <div class="sc-wrap" id="sc-wrap">
+
+    <div class="sc-col">
+      <div class="sc-col-top">
+        <div class="sc-col-head">
+          <span class="sc-col-title">Projects Seeking Sound</span>
+          <span class="sc-col-stat"><b id="stat-open">0</b> open</span>
+        </div>
+        <button class="sc-post-bar" data-post="project">+ Post a Project</button>
+      </div>
+      <div class="sc-grid" id="grid-projects">
+        <div class="sc-empty">Loading…</div>
+      </div>
+    </div>
+
+    <div class="sc-col">
+      <div class="sc-col-top">
+        <div class="sc-col-head">
+          <span class="sc-col-title">Sound Designers Available</span>
+          <span class="sc-col-stat"><b id="stat-designers">0</b> listed</span>
+        </div>
+        <button class="sc-post-bar" data-post="designer">+ List Yourself</button>
+      </div>
+      <div class="sc-grid" id="grid-designers">
+        <div class="sc-empty">Loading…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="logo/magi-logo-white.png" alt="MAGI" class="footer-magi" />
+          <span class="footer-logos-divider">/</span>
+          <img src="logo/RMIT_Black 000.avif" alt="RMIT University" class="footer-rmit" />
+        </div>
+        <div class="footer-brand-sub">MAGI Portal — Master of Animation, Games &amp; Interactivity</div>
+      </div>
+      <div class="footer-info">
+        <div class="footer-info-title">RMIT University</div>
+        <div class="footer-info-line">School of Design</div>
+        <div class="footer-info-line">Melbourne, Australia</div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">Copyright © 2026 MAGI Portal — RMIT Melbourne</div>
+      <a class="footer-email" href="mailto:magi@rmit.edu.au">magi@rmit.edu.au</a>
+    </div>
+  </footer>
+
+  <!-- ── PROJECT MODAL ─────────────────────────────── -->
+  <div class="sc-overlay modal-overlay" id="modal-project">
+    <div class="sc-modal">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title">Post a Project</div>
+        <button class="sc-modal-close" data-close>×</button>
+      </div>
+      <div class="sc-modal-body">
+        <div class="sc-field"><label>Project title</label><input type="text" id="p-title" placeholder="e.g. Remnants of Our Days" /></div>
+        <div class="sc-field"><label>Your name</label><input type="text" id="p-author" placeholder="Who to credit / contact" /></div>
+        <div class="sc-field">
+          <label>Project type</label>
+          <select id="p-type">
+            <option value="animation">Animation</option>
+            <option value="games">Game</option>
+            <option value="interactivity">Interaction</option>
+            <option value="research">Research</option>
+          </select>
+        </div>
+        <div class="sc-field">
+          <label>Sounds needed</label>
+          <div class="sc-checks" id="p-sounds">
+            <span class="sc-check" data-val="Soundscape">Soundscape</span>
+            <span class="sc-check" data-val="Ambient">Ambient</span>
+            <span class="sc-check" data-val="SFX">SFX</span>
+            <span class="sc-check" data-val="Foley">Foley</span>
+            <span class="sc-check" data-val="Music">Music</span>
+            <span class="sc-check" data-val="Dialogue">Dialogue</span>
+          </div>
+        </div>
+        <div class="sc-field"><label>Short description</label><textarea id="p-desc" placeholder="What the project is and what you're after."></textarea></div>
+        <div class="sc-field"><label>Sound designers needed</label><input type="text" id="p-slots" value="1" /></div>
+        <div class="sc-field"><label>Contact (email / Discord)</label><input type="text" id="p-contact" placeholder="How designers reach you" /></div>
+        <div class="sc-field"><label>Project image (optional)</label><input type="file" id="p-image" accept="image/*" class="sc-file" /></div>
+        <div class="sc-field"><label>Or upload your A4 poster (optional)</label><input type="file" id="p-poster" accept="image/*,application/pdf" class="sc-file" /><span class="sc-hint">The printed version students post outside — shown as-is.</span></div>
+      </div>
+      <div class="sc-modal-foot">
+        <button class="sc-btn" data-close>Cancel</button>
+        <button class="sc-btn primary" id="p-submit">Post project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DESIGNER MODAL ────────────────────────────── -->
+  <div class="sc-overlay modal-overlay" id="modal-designer">
+    <div class="sc-modal">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title">List Yourself as a Sound Designer</div>
+        <button class="sc-modal-close" data-close>×</button>
+      </div>
+      <div class="sc-modal-body">
+        <div class="sc-field"><label>Name</label><input type="text" id="d-name" placeholder="Your name / handle" /></div>
+        <div class="sc-field"><label>Website / portfolio (optional)</label><input type="url" id="d-website" placeholder="https://" /></div>
+        <div class="sc-field"><label>About your sound practice</label><textarea id="d-bio" placeholder="What you do, your style, software, availability."></textarea></div>
+        <div class="sc-field"><label>Contact (email / Discord)</label><input type="text" id="d-contact" placeholder="How makers reach you" /></div>
+        <div class="sc-field"><label>Profile photo (optional)</label><input type="file" id="d-avatar" accept="image/*" class="sc-file" /></div>
+        <div class="sc-field"><label>Sound bites (optional, up to 3)</label><input type="file" id="d-samples" accept="audio/*" multiple class="sc-file" /><span class="sc-hint">MP3 / WAV — plays inline on your pamphlet.</span></div>
+      </div>
+      <div class="sc-modal-foot">
+        <button class="sc-btn" data-close>Cancel</button>
+        <button class="sc-btn primary" id="d-submit">Add listing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLAIM MODAL ───────────────────────────────── -->
+  <div class="sc-overlay modal-overlay" id="modal-claim">
+    <div class="sc-modal">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title">Claim this project</div>
+        <button class="sc-modal-close" data-close>×</button>
+      </div>
+      <div class="sc-modal-body">
+        <p class="sc-hint" id="claim-for"></p>
+        <div class="sc-field"><label>Claim as which designer listing?</label></div>
+        <div class="sc-claim-list" id="claim-list"></div>
+        <p class="sc-hint">Not listed yet? Close this and hit “List Yourself” first.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MANAGE (email unlock) MODAL ───────────────── -->
+  <div class="sc-overlay modal-overlay" id="modal-manage">
+    <div class="sc-modal" style="width:380px">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title">Manage this listing</div>
+        <button class="sc-modal-close" data-close>×</button>
+      </div>
+      <div class="sc-modal-body">
+        <p class="sc-hint">Editing and deleting is limited to whoever posted this. Type the contact email/handle this listing was posted with to unlock edit &amp; delete on this device.</p>
+        <div class="sc-field"><label>Posting contact</label><input type="text" id="mg-contact" placeholder="Same email / Discord it was posted with" autocomplete="off" /></div>
+        <div class="sc-gate-err" id="mg-err"></div>
+      </div>
+      <div class="sc-modal-foot">
+        <button class="sc-btn" data-close>Cancel</button>
+        <button class="sc-btn primary" id="mg-submit">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACCESS GATE (blurs only the grid) ─────────── -->
+  <div class="sc-gate modal-overlay" id="sc-gate">
+    <div class="sc-modal" style="width:360px">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title">Student &amp; staff access</div>
+        <button class="sc-modal-close" id="gate-close">×</button>
+      </div>
+      <div class="sc-modal-body sc-gate-box">
+        <p class="sc-hint" style="text-align:center">Posting and claiming is for MAGI students &amp; staff. Enter the password to continue — you'll only need to do this once.</p>
+        <div class="sc-gate-row">
+          <input type="password" id="gate-in" placeholder="Enter password" autocomplete="off" />
+          <button id="gate-go">→</button>
+        </div>
+        <div class="sc-gate-err" id="gate-err"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sc-status modal-overlay" id="sc-status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+  (function () {
+    // ── SUPABASE (same project as the Community Board) ──
+    const SUPA_URL = 'https://hzzhuikzvdfcizkuelte.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
+    const BUCKET   = 'sound-collab';
+    const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+    const GATE_KEY = 'magi-studio-auth';   // shared with the Board & Archive
+    const PASSWORD = 'magistu2026';
+    const isUnlocked = () => sessionStorage.getItem(GATE_KEY) === '1';
+
+    let projects = [], designers = [], assignments = [];
+
+    // ── HELPERS ─────────────────────────────────────
+    const $  = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    const esc = (s) => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8));
+    const host = (u) => { try { return new URL(u).host.replace(/^www\./, ''); } catch (e) { return u; } };
+    const status = (msg) => { const el = $('#sc-status'); el.textContent = msg; el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2200); };
+
+    // ── OWNERSHIP (trust-based: no logins/passwords stored) ──
+    // When you post, we generate a random token, save it on the row, and cache it in
+    // *your* browser's localStorage. Edit/Delete only show automatically here, in the
+    // browser that posted it. On any other device, typing the matching contact email
+    // unlocks the same controls (see the "Manage this listing" modal) — the row's own
+    // token is compared, never a password. Since the tables use open RLS like the rest
+    // of the site, this is a convenience gate for the cohort, not real access control.
+    const tokenKey = (kind, id) => 'sc-own-' + kind + '-' + id;
+    const getLocalToken = (kind, id) => { try { return localStorage.getItem(tokenKey(kind, id)); } catch (e) { return null; } };
+    const setLocalToken = (kind, id, token) => { try { localStorage.setItem(tokenKey(kind, id), token); } catch (e) {} };
+    const isOwner = (kind, item) => !!item.owner_token && getLocalToken(kind, item.id) === item.owner_token;
+
+    const forProject  = (pid) => assignments.filter(a => a.project_id === pid);
+    const forDesigner = (did) => assignments.filter(a => a.designer_id === did);
+    const designerById = (did) => designers.find(d => d.id === did);
+    const designerName = (did) => (designerById(did) || {}).name || 'Unknown';
+    const projectTitle = (pid) => (projects.find(p => p.id === pid) || {}).title || 'a project';
+
+    // Circular avatar (photo or initials) + name, used in the "Sound by" chips.
+    const designerChip = (did) => {
+      const d = designerById(did);
+      const name = d ? d.name : 'Unknown';
+      const initials = (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      const avatar = d && d.avatar_url
+        ? '<span class="pam-chip-avatar" style="background-image:url(' + esc(d.avatar_url) + ')"></span>'
+        : '<span class="pam-chip-avatar">' + esc(initials) + '</span>';
+      return '<span class="pam-chip">' + avatar + esc(name) + '</span>';
+    };
+
+    // Edit/Delete for the browser that posted it; a subtle "Manage" unlock link for everyone else.
+    const ownerControls = (kind, item) => isOwner(kind, item)
+      ? '<div class="pam-owner-row">' +
+          '<button class="pam-owner-btn" data-edit="' + kind + ':' + item.id + '">Edit</button>' +
+          '<button class="pam-owner-btn danger" data-delete="' + kind + ':' + item.id + '">Delete</button>' +
+        '</div>'
+      : '<button class="pam-manage-btn" data-manage="' + kind + ':' + item.id + '">Manage listing</button>';
+
+    async function uploadFile(file, folder) {
+      if (!file) return null;
+      const ext = (file.name.split('.').pop() || 'bin').toLowerCase();
+      const path = folder + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+      const { error } = await db.storage.from(BUCKET).upload(path, file, { upsert: false });
+      if (error) { console.error('upload:', error); status('Upload failed — check the storage bucket.'); return null; }
+      return db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+
+    // ── LOAD ────────────────────────────────────────
+    async function loadAll() {
+      const [p, d, a] = await Promise.all([
+        db.from('sound_projects').select('*').order('created_at', { ascending: false }),
+        db.from('sound_designers').select('*').order('created_at', { ascending: false }),
+        db.from('sound_assignments').select('*'),
+      ]);
+      if (p.error || d.error || a.error) {
+        console.error(p.error || d.error || a.error);
+        $('#grid-projects').innerHTML = '<div class="sc-empty">Couldn\'t reach the database. The Supabase tables may not be set up yet — see the setup notes.</div>';
+        $('#grid-designers').innerHTML = '';
+        return;
+      }
+      projects = p.data || []; designers = d.data || []; assignments = a.data || [];
+      render();
+    }
+
+    function render() {
+      renderProjects();
+      renderDesigners();
+      const open = projects.filter(p => (p.slots || 1) > forProject(p.id).length).length;
+      $('#stat-open').textContent = open;
+      $('#stat-designers').textContent = designers.length;
+    }
+
+    function renderProjects() {
+      const grid = $('#grid-projects');
+      if (!projects.length) { grid.innerHTML = '<div class="sc-empty">No projects yet — be the first to post one.</div>'; return; }
+      grid.innerHTML = projects.map(p => {
+        const claimed = forProject(p.id);
+        const slots = p.slots || 1;
+        const left = Math.max(0, slots - claimed.length);
+        const sounds = (p.sounds_needed || '').split(',').filter(Boolean);
+        const poster = p.image_url || p.poster_url;
+        const chips = claimed.length
+          ? claimed.map(a => designerChip(a.designer_id)).join('')
+          : '<span class="pam-chip is-open">Open</span>';
+        return (
+          '<div class="pamphlet pam-project" data-spec="' + esc(p.project_type) + '">' +
+            '<div class="pam-poster' + (poster ? '' : ' is-placeholder') + '"' + (poster ? ' style="background-image:url(' + esc(poster) + ')"' : '') + '>' +
+              '<span class="pam-type">' + esc(p.project_type) + '</span>' +
+              (p.poster_url ? '<a class="pam-a4" href="' + esc(p.poster_url) + '" target="_blank" rel="noopener">⤢ A4</a>' : '') +
+            '</div>' +
+            '<div class="pam-body">' +
+              '<div class="pam-title">' + esc(p.title) + '</div>' +
+              (sounds.length ? '<div class="pam-sounds">' + sounds.map(s => '<span class="pam-sound-tag">' + esc(s) + '</span>').join('') + '</div>' : '') +
+              (p.description ? '<div class="pam-desc">' + esc(p.description) + '</div>' : '') +
+              '<div><div class="pam-assigned-label">Sound by' + (left ? ' · <span class="pam-slots">' + left + ' of ' + slots + ' open</span>' : ' · <span class="pam-slots">full</span>') + '</div><div class="pam-chips">' + chips + '</div></div>' +
+              '<div class="pam-foot">' +
+                '<span class="pam-contact">' + (p.author ? esc(p.author) : '') + '</span>' +
+                (left
+                  ? '<button class="pam-claim" data-claim="' + p.id + '">Claim ›</button>'
+                  : '<button class="pam-claim is-filled" disabled>Filled</button>') +
+              '</div>' +
+              ownerControls('project', p) +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    function renderDesigners() {
+      const grid = $('#grid-designers');
+      if (!designers.length) { grid.innerHTML = '<div class="sc-empty">No designers listed yet — add yourself.</div>'; return; }
+      grid.innerHTML = designers.map(d => {
+        const chosen = forDesigner(d.id);
+        const initials = (d.name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        const samples = (d.sample_urls || '').split(',').filter(Boolean);
+        const chips = chosen.length
+          ? chosen.map(a => '<span class="pam-chip">' + esc(projectTitle(a.project_id)) + '</span>').join('')
+          : '<span class="pam-chip is-open">Available</span>';
+        return (
+          '<div class="pamphlet pam-designer">' +
+            '<div class="pam-d-head">' +
+              '<div class="pam-avatar"' + (d.avatar_url ? ' style="background-image:url(' + esc(d.avatar_url) + ');color:transparent"' : '') + '>' + esc(initials) + '</div>' +
+              '<div class="pam-title">' + esc(d.name) + '</div>' +
+              (d.website ? '<a class="pam-web" href="' + esc(d.website) + '" target="_blank" rel="noopener">' + esc(host(d.website)) + '</a>' : '') +
+            '</div>' +
+            '<div class="pam-body">' +
+              (d.bio ? '<div class="pam-desc">' + esc(d.bio) + '</div>' : '') +
+              (samples.length ? '<div class="pam-samples">' + samples.map((s, i) => '<div class="pam-sample"><span class="pam-sample-name">Sample ' + (i + 1) + '</span><audio class="pam-audio" controls preload="none" src="' + esc(s) + '"></audio></div>').join('') + '</div>' : '') +
+              '<div><div class="pam-assigned-label">Working on</div><div class="pam-chips">' + chips + '</div></div>' +
+              '<div class="pam-foot"><span class="pam-contact">' + (d.contact ? esc(d.contact) : '') + '</span></div>' +
+              ownerControls('designer', d) +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    // ── MODALS ──────────────────────────────────────
+    const openModal  = (id) => $('#' + id).classList.add('is-open');
+    const closeModal = (el) => el.classList.remove('is-open');
+    $$('.sc-overlay').forEach(ov => {
+      ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('[data-close]')) closeModal(ov); });
+    });
+
+    // ── ACCESS GATE (blurs only the grid; shared session) ──
+    const wrapEl = $('#sc-wrap');
+    const gateEl = $('#sc-gate');
+    let pendingAction = null;
+    function openGate() {
+      wrapEl.classList.add('is-gated');
+      gateEl.classList.add('is-open');
+      setTimeout(() => $('#gate-in').focus(), 60);
+    }
+    function closeGate() {
+      wrapEl.classList.remove('is-gated');
+      gateEl.classList.remove('is-open');
+      $('#gate-in').value = ''; $('#gate-err').textContent = '';
+      pendingAction = null;
+    }
+    function requireAuth(action) {
+      if (isUnlocked()) { action(); return; }
+      pendingAction = action;
+      openGate();
+    }
+    $('#gate-go').addEventListener('click', gateTry);
+    $('#gate-close').addEventListener('click', closeGate);
+    $('#gate-in').addEventListener('keydown', e => { if (e.key === 'Enter') gateTry(); });
+    $('#gate-in').addEventListener('input', () => { $('#gate-err').textContent = ''; });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      if (gateEl.classList.contains('is-open')) closeGate();
+      $$('.sc-overlay.is-open').forEach(closeModal);
+    });
+    function gateTry() {
+      const input = $('#gate-in');
+      if (input.value === PASSWORD) {
+        sessionStorage.setItem(GATE_KEY, '1');
+        const a = pendingAction;
+        closeGate();
+        if (a) a();
+      } else {
+        $('#gate-err').textContent = 'Incorrect password.';
+        input.classList.remove('is-error'); void input.offsetWidth; input.classList.add('is-error');
+        input.value = ''; setTimeout(() => input.classList.remove('is-error'), 400);
+      }
+    }
+
+    // ── POST BUTTONS ────────────────────────────────
+    let editingProjectId = null, editingDesignerId = null;
+
+    function resetProjectForm() {
+      editingProjectId = null;
+      $('#modal-project .sc-modal-title').textContent = 'Post a Project';
+      $('#p-submit').textContent = 'Post project';
+      ['#p-title','#p-author','#p-desc','#p-contact'].forEach(s => $(s).value = '');
+      $('#p-slots').value = '1'; $('#p-type').value = 'animation';
+      $$('#p-sounds .sc-check').forEach(c => c.classList.remove('on'));
+      $('#p-image').value = ''; $('#p-poster').value = '';
+    }
+    function resetDesignerForm() {
+      editingDesignerId = null;
+      $('#modal-designer .sc-modal-title').textContent = 'List Yourself as a Sound Designer';
+      $('#d-submit').textContent = 'Add listing';
+      ['#d-name','#d-website','#d-bio','#d-contact'].forEach(s => $(s).value = '');
+      $('#d-avatar').value = ''; $('#d-samples').value = '';
+    }
+
+    $$('.sc-post-bar').forEach(btn => btn.addEventListener('click', () => {
+      const kind = btn.dataset.post;
+      requireAuth(() => {
+        if (kind === 'project') resetProjectForm(); else resetDesignerForm();
+        openModal(kind === 'project' ? 'modal-project' : 'modal-designer');
+      });
+    }));
+
+    // sound-need toggles
+    $$('#p-sounds .sc-check').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+
+    // ── SUBMIT PROJECT (create or edit) ──────────────
+    $('#p-submit').addEventListener('click', async () => {
+      const title = $('#p-title').value.trim();
+      if (!title) { $('#p-title').focus(); return; }
+      const editing = editingProjectId ? projects.find(p => p.id === editingProjectId) : null;
+      const btn = $('#p-submit'); btn.disabled = true; btn.textContent = editing ? 'Saving…' : 'Posting…';
+      const newImage  = await uploadFile($('#p-image').files[0], 'projects');
+      const newPoster = await uploadFile($('#p-poster').files[0], 'posters');
+      const row = {
+        title,
+        project_type: $('#p-type').value,
+        sounds_needed: $$('#p-sounds .sc-check.on').map(c => c.dataset.val).join(','),
+        description: $('#p-desc').value.trim(),
+        image_url: newImage || (editing ? editing.image_url : null),
+        poster_url: newPoster || (editing ? editing.poster_url : null),
+        contact: $('#p-contact').value.trim(),
+        author: $('#p-author').value.trim(),
+        slots: Math.max(1, parseInt($('#p-slots').value, 10) || 1),
+      };
+      let error, newId, ownerToken;
+      if (editing) {
+        ({ error } = await db.from('sound_projects').update(row).eq('id', editing.id));
+      } else {
+        newId = uid(); ownerToken = uid();
+        ({ error } = await db.from('sound_projects').insert({ id: newId, status: 'open', owner_token: ownerToken, ...row }));
+      }
+      btn.disabled = false; btn.textContent = editing ? 'Save changes' : 'Post project';
+      if (error) { console.error(error); status('Could not save — see console.'); return; }
+      if (!editing) setLocalToken('project', newId, ownerToken);
+      closeModal($('#modal-project'));
+      resetProjectForm();
+      status(editing ? 'Project updated.' : 'Project posted.');
+    });
+
+    // ── SUBMIT DESIGNER (create or edit) ─────────────
+    $('#d-submit').addEventListener('click', async () => {
+      const name = $('#d-name').value.trim();
+      if (!name) { $('#d-name').focus(); return; }
+      const editing = editingDesignerId ? designers.find(d => d.id === editingDesignerId) : null;
+      const btn = $('#d-submit'); btn.disabled = true; btn.textContent = editing ? 'Saving…' : 'Adding…';
+      const newAvatar = await uploadFile($('#d-avatar').files[0], 'designers');
+      const files = [...$('#d-samples').files].slice(0, 3);
+      const newUrls = [];
+      for (const f of files) { const u = await uploadFile(f, 'samples'); if (u) newUrls.push(u); }
+      const row = {
+        name,
+        website: $('#d-website').value.trim(),
+        bio: $('#d-bio').value.trim(),
+        contact: $('#d-contact').value.trim(),
+        avatar_url: newAvatar || (editing ? editing.avatar_url : null),
+        sample_urls: newUrls.length ? newUrls.join(',') : (editing ? editing.sample_urls : ''),
+      };
+      let error, newId, ownerToken;
+      if (editing) {
+        ({ error } = await db.from('sound_designers').update(row).eq('id', editing.id));
+      } else {
+        newId = uid(); ownerToken = uid();
+        ({ error } = await db.from('sound_designers').insert({ id: newId, owner_token: ownerToken, ...row }));
+      }
+      btn.disabled = false; btn.textContent = editing ? 'Save changes' : 'Add listing';
+      if (error) { console.error(error); status('Could not save — see console.'); return; }
+      if (!editing) setLocalToken('designer', newId, ownerToken);
+      closeModal($('#modal-designer'));
+      resetDesignerForm();
+      status(editing ? 'Listing updated.' : 'You\'re listed.');
+    });
+
+    // ── CLAIM ───────────────────────────────────────
+    let claimProjectId = null;
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-claim]');
+      if (!btn) return;
+      requireAuth(() => openClaim(btn.dataset.claim));
+    });
+
+    function openClaim(pid) {
+      claimProjectId = pid;
+      $('#claim-for').textContent = 'Claiming: ' + projectTitle(pid);
+      const already = forProject(pid).map(a => a.designer_id);
+      const options = designers.filter(d => !already.includes(d.id));
+      const list = $('#claim-list');
+      if (!designers.length) {
+        list.innerHTML = '<p class="sc-hint">No designer listings exist yet. Add yourself first.</p>';
+      } else if (!options.length) {
+        list.innerHTML = '<p class="sc-hint">Every listed designer is already on this project.</p>';
+      } else {
+        list.innerHTML = options.map(d => '<div class="sc-claim-opt" data-did="' + d.id + '"><span class="sc-claim-opt-name">' + esc(d.name) + '</span><span class="sc-hint">Claim →</span></div>').join('');
+      }
+      openModal('modal-claim');
+    }
+
+    $('#claim-list').addEventListener('click', async e => {
+      const opt = e.target.closest('[data-did]');
+      if (!opt || !claimProjectId) return;
+      const row = { id: uid(), project_id: claimProjectId, designer_id: opt.dataset.did, status: 'assigned' };
+      const { error } = await db.from('sound_assignments').insert(row);
+      if (error) { console.error(error); status('Could not claim — see console.'); return; }
+      closeModal($('#modal-claim'));
+      status('Claimed — both pamphlets updated.');
+    });
+
+    // ── EDIT / DELETE / MANAGE ────────────────────────
+    function openEditProject(p) {
+      editingProjectId = p.id;
+      $('#modal-project .sc-modal-title').textContent = 'Edit Project';
+      $('#p-submit').textContent = 'Save changes';
+      $('#p-title').value = p.title || '';
+      $('#p-author').value = p.author || '';
+      $('#p-type').value = p.project_type || 'animation';
+      $('#p-desc').value = p.description || '';
+      $('#p-slots').value = p.slots || 1;
+      $('#p-contact').value = p.contact || '';
+      $('#p-image').value = ''; $('#p-poster').value = '';
+      const needed = (p.sounds_needed || '').split(',').filter(Boolean);
+      $$('#p-sounds .sc-check').forEach(c => c.classList.toggle('on', needed.includes(c.dataset.val)));
+      openModal('modal-project');
+    }
+
+    function openEditDesigner(d) {
+      editingDesignerId = d.id;
+      $('#modal-designer .sc-modal-title').textContent = 'Edit Your Listing';
+      $('#d-submit').textContent = 'Save changes';
+      $('#d-name').value = d.name || '';
+      $('#d-website').value = d.website || '';
+      $('#d-bio').value = d.bio || '';
+      $('#d-contact').value = d.contact || '';
+      $('#d-avatar').value = ''; $('#d-samples').value = '';
+      openModal('modal-designer');
+    }
+
+    async function deleteRow(kind, id) {
+      const table = kind === 'project' ? 'sound_projects' : 'sound_designers';
+      const label = kind === 'project' ? 'project' : 'designer listing';
+      if (!confirm('Delete this ' + label + '? This can\'t be undone.')) return;
+      const { error } = await db.from(table).delete().eq('id', id);
+      if (error) { console.error(error); status('Could not delete — see console.'); return; }
+      status(kind === 'project' ? 'Project deleted.' : 'Listing deleted.');
+    }
+
+    // Edit / Delete — shown only to the browser that owns the token; still behind the shared gate.
+    document.addEventListener('click', e => {
+      const editBtn = e.target.closest('[data-edit]');
+      if (editBtn) {
+        const [kind, id] = editBtn.dataset.edit.split(':');
+        const item = (kind === 'project' ? projects : designers).find(x => x.id === id);
+        if (item) requireAuth(() => (kind === 'project' ? openEditProject : openEditDesigner)(item));
+        return;
+      }
+      const delBtn = e.target.closest('[data-delete]');
+      if (delBtn) {
+        const [kind, id] = delBtn.dataset.delete.split(':');
+        requireAuth(() => deleteRow(kind, id));
+        return;
+      }
+    });
+
+    // "Manage listing" — unlock Edit/Delete on this device by typing the posting contact.
+    let pendingManage = null;
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-manage]');
+      if (!btn) return;
+      const [kind, id] = btn.dataset.manage.split(':');
+      requireAuth(() => {
+        pendingManage = { kind, id };
+        $('#mg-contact').value = ''; $('#mg-err').textContent = '';
+        openModal('modal-manage');
+        setTimeout(() => $('#mg-contact').focus(), 60);
+      });
+    });
+
+    $('#mg-submit').addEventListener('click', async () => {
+      if (!pendingManage) return;
+      const { kind, id } = pendingManage;
+      const item = (kind === 'project' ? projects : designers).find(x => x.id === id);
+      const typed = $('#mg-contact').value.trim().toLowerCase();
+      if (!item || !item.contact || !typed || item.contact.trim().toLowerCase() !== typed) {
+        $('#mg-err').textContent = 'That doesn\'t match the contact this was posted with.';
+        return;
+      }
+      // Legacy row with no owner_token yet (e.g. seeded directly in the database) —
+      // the first person to prove the matching contact adopts ownership going forward.
+      let token = item.owner_token;
+      if (!token) {
+        token = uid();
+        const table = kind === 'project' ? 'sound_projects' : 'sound_designers';
+        const { error } = await db.from(table).update({ owner_token: token }).eq('id', id);
+        if (error) { console.error(error); $('#mg-err').textContent = 'Could not unlock — see console.'; return; }
+        item.owner_token = token;
+      }
+      setLocalToken(kind, id, token);
+      closeModal($('#modal-manage'));
+      pendingManage = null;
+      render();
+      status('Unlocked — you can now edit or delete this listing.');
+    });
+    $('#mg-contact').addEventListener('keydown', e => { if (e.key === 'Enter') $('#mg-submit').click(); });
+    $('#mg-contact').addEventListener('input', () => { $('#mg-err').textContent = ''; });
+
+    // ── REALTIME ────────────────────────────────────
+    db.channel('sound_collab')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sound_projects' }, loadAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sound_designers' }, loadAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sound_assignments' }, loadAll)
+      .subscribe();
+
+    loadAll();
+  })();
+  </script>
+</body>
+</html>

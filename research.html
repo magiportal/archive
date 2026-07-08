@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Archive — MAGI Portal</title>
+  <title>Archive | MAGI Portal</title>
   <link rel="icon" type="image/png" href="logo/MAGI_favicon.png" />
   <link rel="apple-touch-icon" href="logo/MAGI_favicon.png" />
   <link rel="stylesheet" href="style.css" />
@@ -454,6 +454,17 @@
     .result-item.is-open > .result-player-wrap > .result-player { opacity: 1; }
     .rp { max-width: 720px; }
 
+    /* Fade the media in when it replaces the password prompt on unlock */
+    @keyframes rpReveal {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .rp-enter { animation: rpReveal 0.4s ease both; }
+
+    /* SharePoint / Stream embed */
+    .rp-embed { position: relative; aspect-ratio: 16 / 9; background: #000; }
+    .rp-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
     /* video */
     .rp-screen {
       position: relative;
@@ -738,6 +749,82 @@
     .up-open-btn:hover { background: #333; }
 
     /* ── UPLOAD MODAL ────────────────────────────── */
+    /* ── INLINE MEDIA ACCESS GATE ──────────────────── */
+    .rp-gate {
+      border: 1px solid var(--line);
+      background: var(--white);
+      padding: 34px 32px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .rp-gate-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+    .rp-gate-title { font-size: 14px; font-weight: 500; color: var(--black); line-height: 1.45; max-width: 360px; }
+    .rp-gate-row { display: flex; width: 100%; max-width: 320px; margin-top: 2px; }
+
+    .rp-gate-input {
+      flex: 1;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 13px;
+      color: var(--black);
+      background: none;
+      border: 1px solid var(--line);
+      border-right: none;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      letter-spacing: 0.06em;
+    }
+
+    .rp-gate-input:focus { border-color: var(--black); }
+    .rp-gate-input.is-error { border-color: #c0392b; animation: gate-shake 0.3s ease; }
+
+    .rp-gate-submit {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 16px;
+      line-height: 1;
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--black);
+      padding: 0 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rp-gate-submit:hover { background: #333; }
+
+    .rp-gate-error { font-size: 10px; color: #c0392b; letter-spacing: 0.06em; min-height: 13px; }
+
+    .rp-gate-cancel {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.1s;
+    }
+
+    .rp-gate-cancel:hover { color: var(--black); }
+
+    @keyframes gate-shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      60%      { transform: translateX(6px); }
+      80%      { transform: translateX(-3px); }
+    }
+
     .up-overlay {
       position: fixed;
       inset: 0;
@@ -829,11 +916,12 @@
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
-      <a class="nav-link active" href="research.html">Archive</a>
-      <a class="nav-link" href="studio.html">Board</a>
+      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
     </div>
     <div class="nav-right">
-      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
+      <a class="nav-link active" href="research.html">Archive</a>
+      <a class="nav-link" href="studio.html">Board</a>
       <div class="nav-link">Search</div>
     </div>
   </nav>
@@ -1002,12 +1090,13 @@
       </div>
 
       <!-- Video -->
-      <div class="result-item" data-type="video">
-        <div class="result-meta-top"><span class="result-type video">Video</span><span class="result-year">2025</span><span class="result-spec">Showreel</span></div>
-        <div class="result-title">MAGI EXPO 2025 — Exhibition Showreel</div>
-        <div class="result-authors">Compiled by <a href="#">MAGI Studio</a></div>
-        <div class="result-source">Video · 4m 20s · Melbourne, 2025</div>
-        <div class="result-abstract">A short showreel documenting the 2025 end-of-year exhibition — student installations, games and interactive works across the cohort.</div>
+      <!-- To make this play inline: add data-embed="<vimeo link or id>" to the div below. -->
+      <div class="result-item" data-type="video" data-embed="https://vimeo.com/1207762435">
+        <div class="result-meta-top"><span class="result-type video">Video</span><span class="result-year">2026</span><span class="result-spec">Session Recording</span></div>
+        <div class="result-title">Studio 3 Streaming Party — Session Recording</div>
+        <div class="result-authors">Recorded session — <a href="#">MAGI Studio</a></div>
+        <div class="result-source">Studio session · RMIT Melbourne, 3 Jun 2026</div>
+        <div class="result-abstract">Full capture of the Studio 3 streaming party from the MAGI Program studio sessions.</div>
         <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
         <div class="result-aside">
           <a class="result-aside-link primary" href="#">▶ Play</a>
@@ -1235,12 +1324,12 @@
       </div>
       <div class="footer-right">
         <div class="footer-apply-row">
-          <a class="footer-apply" href="#">Apply</a>
+          <a class="footer-apply" href="https://www.rmit.edu.au/study-with-us/levels-of-study/postgraduate-study/masters-by-coursework/master-of-animation-games-and-interactivity-mc232" target="_blank" rel="noopener">Apply</a>
           <span class="footer-follow">Follow Us —</span>
         </div>
         <div class="footer-socials">
-          <a class="footer-social" href="#" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg></a>
-          <a class="footer-social" href="#" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a class="footer-social" href="https://www.instagram.com/rmit.magistudio/" target="_blank" rel="noopener" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg></a>
+          <a class="footer-social" href="https://au.linkedin.com/in/magi-studio-9abb08270" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
         </div>
       </div>
     </div>
@@ -1312,6 +1401,41 @@
       const esc  = (s) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'document';
 
+      // Accepts a Vimeo player URL, a vimeo.com/ID(/HASH) link, or a bare ID → player embed URL.
+      const vimeoPlayerUrl = (raw) => {
+        if (/player\.vimeo\.com/.test(raw)) return raw;
+        const m = raw.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/) || raw.match(/^\s*(\d+)\s*$/);
+        if (!m) return raw;
+        let url = 'https://player.vimeo.com/video/' + m[1] + '?title=0&byline=0&portrait=0&dnt=1';
+        if (m[2]) url += '&h=' + m[2];
+        return url;
+      };
+
+      // Load the Vimeo Player SDK once, on demand (fail-open: the iframe still plays without it).
+      let vimeoSDK;
+      const loadVimeoSDK = () => {
+        if (vimeoSDK) return vimeoSDK;
+        vimeoSDK = new Promise((resolve) => {
+          if (window.Vimeo && window.Vimeo.Player) return resolve();
+          const s = document.createElement('script');
+          s.src = 'https://player.vimeo.com/api/player.js';
+          s.onload = resolve;
+          s.onerror = resolve;
+          document.head.appendChild(s);
+        });
+        return vimeoSDK;
+      };
+
+      const initVimeo = (rp) => {
+        loadVimeoSDK().then(() => {
+          if (!(window.Vimeo && window.Vimeo.Player)) return;
+          // If the video isn't publicly embeddable the SDK can't init — swallow it so the
+          // uncaught rejection doesn't spam the console; Vimeo's own message still shows.
+          try { rp._vimeo = new window.Vimeo.Player(rp.querySelector('iframe')); }
+          catch (e) { /* not embeddable — nothing to control */ }
+        });
+      };
+
       const kindOf = (item) => {
         const primary = (item.querySelector('.result-action-primary')?.textContent || '').toLowerCase();
         const type = item.dataset.type;
@@ -1321,7 +1445,28 @@
         return 'generic';
       };
 
+      // Create (once) the collapsible shell that holds either the gate or the player.
+      const getShell = (item) => {
+        let wrap = item.querySelector('.result-player-wrap');
+        if (!wrap) {
+          wrap = document.createElement('div');
+          wrap.className = 'result-player-wrap';
+          const inner = document.createElement('div');
+          inner.className = 'result-player';
+          wrap.appendChild(inner);
+          item.appendChild(wrap);
+          // Commit the collapsed (0fr) state to layout so the first open animates smoothly.
+          void wrap.offsetHeight;
+        }
+        return wrap.querySelector('.result-player');
+      };
+
       const buildPlayer = (item) => {
+        const shell = getShell(item);
+        if (shell.querySelector('.rp')) return;              // player already built
+        const existingGate = shell.querySelector('.rp-gate');
+        if (existingGate) existingGate.remove();             // swap the gate out for the player
+
         const kind     = kindOf(item);
         const title    = (item.querySelector('.result-title')?.textContent || 'Untitled').trim();
         const source   = (item.querySelector('.result-source')?.textContent || '').trim();
@@ -1329,11 +1474,21 @@
         const cited    = (item.querySelector('.result-aside-cited')?.textContent || '').trim();
         const dur      = (/\d/.test(cited) && !/cited/i.test(cited)) ? cited : '0:00';
 
-        const wrap = document.createElement('div');
-        wrap.className = 'result-player-wrap';
         const rp = document.createElement('div');
+        const embed = item.dataset.embed;
 
-        if (kind === 'video') {
+        if (embed) {
+          // Real hosted media. Vimeo frames cleanly and supports pause-in-place via its SDK;
+          // any other iframe URL (e.g. SharePoint) is embedded as-is.
+          const isVimeo = /vimeo\.com/.test(embed);
+          const url = isVimeo ? vimeoPlayerUrl(embed) : embed;
+          rp.className = 'rp rp-embed-wrap' + (isVimeo ? ' rp-vimeo' : '');
+          rp.innerHTML =
+            '<div class="rp-embed"><iframe data-src="' + esc(url) + '" src="' + esc(url) + '" ' +
+            'allowfullscreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" ' +
+            'title="' + esc(title) + '"></iframe></div>';
+          if (isVimeo) initVimeo(rp);
+        } else if (kind === 'video') {
           rp.className = 'rp rp-video';
           rp.innerHTML =
             '<div class="rp-screen"><button class="rp-play-lg" aria-label="Play">▶</button>' +
@@ -1367,11 +1522,7 @@
             '<a href="#">↓ Download file</a></div>';
         }
 
-        const inner = document.createElement('div');
-        inner.className = 'result-player';
-        inner.appendChild(rp);
-        wrap.appendChild(inner);
-        item.appendChild(wrap);
+        shell.appendChild(rp);
 
         rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -1382,25 +1533,95 @@
         });
       };
 
-      const ensure = (item) => {
-        if (item.querySelector('.result-player-wrap')) return;
-        buildPlayer(item);
-        // Commit the collapsed (0fr) state to layout before the caller expands the row,
-        // so the very first open animates smoothly instead of snapping open.
-        void item.querySelector('.result-player-wrap').offsetHeight;
-      };
-
-      // Pause playback but keep the media where it was, so reopening resumes from that spot.
+      // Pause playback but keep the mock player where it was, so reopening resumes from that spot.
       const pauseMedia = (item) => {
         const rp = item.querySelector('.rp');
         if (!rp) return;
         rp.classList.remove('playing');
         rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.textContent = '▶'; });
+        // Vimeo: pause in place via the Player SDK — keeps position, no reload.
+        if (rp._vimeo) { rp._vimeo.pause().catch(() => {}); return; }
+        // Any other cross-origin iframe: blank the src to stop playback (reloads when reopened).
+        const iframe = rp.querySelector('.rp-embed iframe');
+        if (iframe) iframe.src = 'about:blank';
       };
 
       const setOpen = (item, open) => {
-        if (open) { item.classList.add('is-open'); }
-        else { item.classList.remove('is-open'); pauseMedia(item); }
+        if (open) {
+          item.classList.add('is-open');
+          const iframe = item.querySelector('.rp-embed iframe');
+          if (iframe && iframe.getAttribute('src') === 'about:blank') iframe.src = iframe.dataset.src;
+        } else {
+          item.classList.remove('is-open');
+          pauseMedia(item);
+        }
+      };
+
+      // ── MEDIA ACCESS GATE ─────────────────────────────
+      // Browsing the archive is public; opening a player (watch / listen / read) requires the
+      // password. The prompt renders inline inside the expanded row. It shares the same session
+      // key as the Community Board, so entering it on either page unlocks media on both.
+      const GATE_KEY   = 'magi-studio-auth';
+      const PASSWORD   = 'magistu2026';
+      const isUnlocked = () => sessionStorage.getItem(GATE_KEY) === '1';
+
+      // Once the password is accepted, turn every already-built gate into its real player.
+      const unlockAll = () => {
+        results.querySelectorAll('.result-item').forEach(it => {
+          if (it.querySelector('.rp-gate')) {
+            buildPlayer(it);                      // swap the gate out for the player
+            const rp = it.querySelector('.rp');
+            if (rp) rp.classList.add('rp-enter');  // fade the revealed media in
+          }
+        });
+      };
+
+      const buildGate = (item) => {
+        const shell = getShell(item);
+        if (shell.querySelector('.rp-gate')) return;
+        const g = document.createElement('div');
+        g.className = 'rp-gate';
+        g.innerHTML =
+          '<div class="rp-gate-label">MAGI Archive — Media Access</div>' +
+          '<div class="rp-gate-title">Enter the student &amp; staff password to view this media.</div>' +
+          '<div class="rp-gate-row">' +
+            '<input class="rp-gate-input" type="password" placeholder="Enter password" autocomplete="off" />' +
+            '<button class="rp-gate-submit" type="button">→</button>' +
+          '</div>' +
+          '<div class="rp-gate-error"></div>' +
+          '<button class="rp-gate-cancel" type="button">Cancel — keep browsing</button>';
+        shell.appendChild(g);
+
+        const input  = g.querySelector('.rp-gate-input');
+        const submit = g.querySelector('.rp-gate-submit');
+        const error  = g.querySelector('.rp-gate-error');
+        const cancel = g.querySelector('.rp-gate-cancel');
+
+        const attempt = () => {
+          if (input.value === PASSWORD) {
+            sessionStorage.setItem(GATE_KEY, '1');
+            unlockAll();
+          } else {
+            error.textContent = 'Incorrect password.';
+            input.classList.remove('is-error');
+            void input.offsetWidth;
+            input.classList.add('is-error');
+            input.value = '';
+            setTimeout(() => input.classList.remove('is-error'), 400);
+          }
+        };
+
+        submit.addEventListener('click', attempt);
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+        input.addEventListener('input', () => { error.textContent = ''; });
+        cancel.addEventListener('click', () => setOpen(item, false));
+      };
+
+      // Expand a row: show the player if unlocked, otherwise the inline password prompt.
+      const requestOpen = (item) => {
+        if (isUnlocked()) { buildPlayer(item); }
+        else { buildGate(item); setTimeout(() => item.querySelector('.rp-gate-input')?.focus(), 90); }
+        setOpen(item, true);
       };
 
       results.addEventListener('click', (e) => {
@@ -1410,21 +1631,18 @@
         const anchor = e.target.closest('a');
         if (anchor && anchor.getAttribute('href') === '#') e.preventDefault();
 
-        // Interactive player controls operate normally and never collapse the row.
-        if (e.target.closest('.rp-play-lg, .rp-play-sm, .rp-scrub, .rp-ic, .rp-pdf-nav, .rp-pdf-dl')) return;
+        // Interactive player controls and the inline gate operate normally and never collapse the row.
+        if (e.target.closest('.rp-play-lg, .rp-play-sm, .rp-scrub, .rp-ic, .rp-pdf-nav, .rp-pdf-dl, .rp-gate')) return;
 
         if (anchor) {
-          // "Watch / Listen / PDF / Play" links open the player; utility links do nothing.
-          if (/watch|listen|pdf|play|open|view/.test(anchor.textContent.toLowerCase())) {
-            ensure(item);
-            setOpen(item, true);
-          }
+          // "Watch / Listen / PDF / Play" links open the player (gated); utility links do nothing.
+          if (/watch|listen|pdf|play|open|view/.test(anchor.textContent.toLowerCase())) requestOpen(item);
           return;
         }
 
-        // Clicking the row (or the player's non-control area) toggles it open/closed.
-        ensure(item);
-        setOpen(item, !item.classList.contains('is-open'));
+        // Clicking the row: closing needs no password; opening is gated.
+        if (item.classList.contains('is-open')) setOpen(item, false);
+        else requestOpen(item);
       });
     })();
 

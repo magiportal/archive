@@ -42,11 +42,6 @@ html, body {
 
 /* ── PAGE TRANSITIONS ────────────────────────────── */
 
-/* Cross-document fade in supporting browsers (Chromium) */
-@view-transition {
-  navigation: auto;
-}
-
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.4s;

@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Studio — MAGI Portal</title>
+  <title>Community Board | MAGI Portal</title>
   <link rel="icon" type="image/png" href="logo/MAGI_favicon.png" />
   <link rel="apple-touch-icon" href="logo/MAGI_favicon.png" />
+  <!-- If already authenticated this session, mark the page unlocked before the gate paints (no flash). -->
+  <script>try { if (sessionStorage.getItem('magi-studio-auth') === '1') document.documentElement.classList.add('gate-unlocked'); } catch (e) {}</script>
   <link rel="stylesheet" href="style.css" />
   <style>
 
@@ -912,6 +914,9 @@
       pointer-events: none;
     }
 
+    /* Already authenticated this session — hide the gate instantly, no fade, no flash. */
+    html.gate-unlocked .studio-gate { display: none; }
+
     .gate-box {
       background: var(--white);
       border: 1px solid var(--line);
@@ -1028,11 +1033,12 @@
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
-      <a class="nav-link" href="research.html">Archive</a>
-      <a class="nav-link active" href="studio.html">Board</a>
+      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
     </div>
     <div class="nav-right">
-      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
+      <a class="nav-link" href="research.html">Archive</a>
+      <a class="nav-link active" href="studio.html">Board</a>
       <div class="nav-link">Search</div>
     </div>
   </nav>
