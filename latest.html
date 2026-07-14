@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latest — MAGI Portal</title>
+  <link rel="icon" type="image/png" href="logo/MAGI_favicon.png" />
+  <link rel="apple-touch-icon" href="logo/MAGI_favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    /* ── ARTICLE HERO (crossfading slideshow — most recent post only) ── */
+    .article-hero {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+      min-height: 360px;
+      max-height: 620px;
+      overflow: hidden;
+      background: #111;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+    .hero-slide.is-active { opacity: 1; }
+
+    .article-hero-cap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 12px 32px 0;
+      font-family: 'Teachers', 'Satoshi', serif;
+      font-style: italic;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      color: var(--dim);
+      transition: opacity 0.3s ease;
+    }
+
+    /* ── ARTICLE BODY ──────────────────────────────── */
+    .article {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 52px 32px 88px;
+    }
+    /* Entries without a full hero get extra top air since there's no image above them */
+    .article-no-hero { padding-top: 64px; }
+
+    .article-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      margin-bottom: 30px;
+      transition: color 0.12s;
+    }
+    .article-back:hover { color: var(--black); }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .article-tag {
+      background: var(--black);
+      color: var(--white);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+    }
+    .article-date {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .article-title {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.06;
+      color: var(--black);
+      margin-bottom: 30px;
+    }
+
+    .article-lead {
+      font-size: 19px;
+      line-height: 1.6;
+      color: var(--black);
+      margin-bottom: 26px;
+    }
+
+    .article-body p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--secondary);
+      margin-bottom: 22px;
+    }
+    .article-body p:last-child { margin-bottom: 0; }
+    .article-body strong { color: var(--black); font-weight: 600; }
+
+    .article-media {
+      margin-top: 36px;
+    }
+    .article-media img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid var(--line);
+    }
+    /* Source photo is 1170×2080 (portrait, 9:16). Rotated -90deg, its rendered footprint
+       becomes 16:9 landscape — size the box to that exactly so it sits flush in the column
+       at full width with no cropping and no overflow. */
+    .article-media-flip {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .article-media-flip img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 56.25%;   /* = 9/16 of the column width — the photo's true width once rotated flush */
+      height: auto;
+      border: none;
+      transform: translate(-50%, -50%) rotate(-90deg);
+    }
+
+    /* A4 posters — shown whole (never cropped), side by side, same column width as the photo above */
+    .article-poster {
+      margin-top: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .article-poster img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid var(--line);
+    }
+
+    .article-details {
+      margin-top: 36px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px 32px;
+    }
+    .article-detail-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
+    .article-detail-value { font-size: 13px; color: var(--black); line-height: 1.5; }
+
+    /* Separates one entry from the next */
+    .entry-divider {
+      border-top: 1px solid var(--line);
+      background: var(--bg-hover);
+      height: 40px;
+    }
+
+    @media (max-width: 640px) {
+      .article-title { font-size: 32px; }
+      .article-lead { font-size: 17px; }
+      .article-details { grid-template-columns: 1fr; }
+      .article-poster { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav-wordmark">
+      <span class="nav-wordmark-magi">MAGI</span>
+      <span class="nav-wordmark-sub">Portal</span>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="latest.html">Latest</a>
+      <a class="nav-link" href="alumni.html">Alumni</a>
+      <a class="nav-link" href="staff.html">Staff</a>
+      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
+      <a class="nav-link" href="research.html">Archive</a>
+      <a class="nav-link" href="studio.html">Board</a>
+      <div class="nav-link">Search</div>
+    </div>
+  </nav>
+
+  <!-- ── EPIC WORKSHOP (most recent post — rotating hero) ─────────────
+       Add more landscape photos by adding another .hero-slide img + a
+       matching data-cap. Everything else (timing, fades) is automatic. -->
+  <div class="article-hero" id="epic-hero">
+    <img class="hero-slide is-active" src="media/events/EPIC/thewomb.png" data-cap="The Womb, 2026" alt="EPIC Workshop — The Womb, 2026" />
+    <img class="hero-slide" src="media/events/EPIC/IMG_6473.png" data-cap="EPIC Workshop, Winter 2026" alt="EPIC Workshop, Winter 2026" />
+  </div>
+  <div class="article-hero-cap" id="epic-hero-cap">The Womb, 2026</div>
+
+  <article class="article" id="epic">
+    <a class="article-back" href="index.html#news">‹ Back to News &amp; Events</a>
+
+    <div class="article-meta">
+      <span class="article-tag">Workshop</span>
+      <span class="article-date">Winter 2026 · VXLab, Building 91</span>
+    </div>
+
+    <h1 class="article-title">EPIC Workshop — Winter 2026</h1>
+
+    <p class="article-lead">MAGI and MDIT team up to solve, explore, and swim — yes, swim — through this season's most ambitious projects, built inside RMIT's VXLab.</p>
+
+    <div class="article-body">
+      <p>This winter's EPIC Workshop brings the Master of Animation, Games &amp; Interactivity together with the Master of Design Innovation &amp; Technology for a cross-disciplinary sprint. Over the season, mixed teams take a brief from concept to working prototype — trading skills across animation, game design, interaction, and emerging technology.</p>
+      <p>The work happens in <strong>Building 91's VXLab</strong>, RMIT's experimental visualisation and immersive space. Students get hands on with kit that rarely makes it into a standard studio — from the <strong>Nova Ball</strong> to a rack of <strong>VR headsets</strong> — and are encouraged to build for it, not around it.</p>
+      <p>The result is a slate of projects that are playful, technically ambitious, and unafraid to get in over their heads. Check back here as the season's works surface.</p>
+    </div>
+
+    <div class="article-media">
+      <img src="media/events/EPIC/IMG_6473.png" alt="EPIC Workshop — Winter 2026" />
+    </div>
+
+    <div class="article-poster">
+      <img src="media/events/EPIC/Screenshot%202026-07-10%20153208.png" alt="EPIC Workshop poster" />
+      <img src="media/events/EPIC/dream-poster.JPG" alt="EPIC Workshop — Dream poster" />
+    </div>
+
+    <div class="article-details">
+      <div>
+        <div class="article-detail-label">When</div>
+        <div class="article-detail-value">Winter 2026</div>
+      </div>
+      <div>
+        <div class="article-detail-label">Where</div>
+        <div class="article-detail-value">VXLab · Building 91, RMIT City Campus</div>
+      </div>
+      <div>
+        <div class="article-detail-label">Who</div>
+        <div class="article-detail-value">MAGI × MDIT students</div>
+      </div>
+      <div>
+        <div class="article-detail-label">Tech</div>
+        <div class="article-detail-value">Nova Ball · VR headsets</div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ── ACMI AUDIENCE LAB ─────────────────────────── -->
+  <div class="entry-divider"></div>
+
+  <article class="article article-no-hero" id="acmi">
+    <a class="article-back" href="index.html#news">‹ Back to News &amp; Events</a>
+
+    <div class="article-meta">
+      <span class="article-tag">Event</span>
+      <span class="article-date">1 May 2026 · Federation Square</span>
+    </div>
+
+    <h1 class="article-title">ACMI Audience Lab</h1>
+
+    <p class="article-lead">Three MAGI student works have been selected for public exhibition at Federation Square, running through May.</p>
+
+    <div class="article-media article-media-flip">
+      <img src="media/events/acmi-audience-lab.png" alt="ACMI Audience Lab" />
+    </div>
+
+    <div class="article-body">
+      <p>ACMI's Audience Lab gives student and emerging work a public platform outside the usual studio and gallery circuit — shown at Federation Square, in front of a general public audience rather than a graduate-show crowd.</p>
+      <p>The three selected works span the MAGI cohort's range, from interactive installation to real-time generative pieces, chosen for how they hold up in a high-traffic public setting. It's a rare chance for the works to be experienced by people who didn't come looking for student work — they just found it.</p>
+      <p>The exhibition runs through May at Federation Square. Details on session times will follow.</p>
+    </div>
+
+    <div class="article-details">
+      <div>
+        <div class="article-detail-label">When</div>
+        <div class="article-detail-value">1 May 2026 — running through May</div>
+      </div>
+      <div>
+        <div class="article-detail-label">Where</div>
+        <div class="article-detail-value">Federation Square, Melbourne</div>
+      </div>
+      <div>
+        <div class="article-detail-label">Who</div>
+        <div class="article-detail-value">3 selected MAGI student works</div>
+      </div>
+      <div>
+        <div class="article-detail-label">Programme</div>
+        <div class="article-detail-value">ACMI Audience Lab</div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ── FOOTER ────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="logo/magi-logo-white.png" alt="MAGI" class="footer-magi" />
+          <span class="footer-logos-divider">/</span>
+          <img src="logo/RMIT_Black 000.avif" alt="RMIT University" class="footer-rmit" />
+        </div>
+        <div class="footer-brand-sub">MAGI Portal — Master of Animation, Games &amp; Interactivity</div>
+      </div>
+      <div class="footer-info">
+        <div class="footer-info-title">RMIT University</div>
+        <div class="footer-info-line">School of Design</div>
+        <div class="footer-info-line">Melbourne, Australia</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-apply-row">
+          <a class="footer-apply" href="https://www.rmit.edu.au/study-with-us/levels-of-study/postgraduate-study/masters-by-coursework/master-of-animation-games-and-interactivity-mc232" target="_blank" rel="noopener">Apply</a>
+          <span class="footer-follow">Follow Us —</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="https://www.instagram.com/rmit.magistudio/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a class="footer-social" href="https://au.linkedin.com/in/magi-studio-9abb08270" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">Copyright © 2026 MAGI Portal — RMIT Melbourne</div>
+      <a class="footer-email" href="mailto:magi@rmit.edu.au">magi@rmit.edu.au</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── HERO SLIDESHOW (most recent post) ────────────────────────────
+    // Crossfades through the .hero-slide images inside #epic-hero every
+    // few seconds, swapping the caption to match. Add slides by adding
+    // more <img class="hero-slide" data-cap="..."> — no JS changes needed.
+    (function () {
+      const hero = document.getElementById('epic-hero');
+      const cap  = document.getElementById('epic-hero-cap');
+      if (!hero || !cap) return;
+
+      const slides = [...hero.querySelectorAll('.hero-slide')];
+      if (slides.length < 2) return; // nothing to rotate
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduceMotion) return; // respect the user's preference — stay on the first slide
+
+      let i = 0;
+      setInterval(() => {
+        slides[i].classList.remove('is-active');
+        i = (i + 1) % slides.length;
+        slides[i].classList.add('is-active');
+
+        cap.style.opacity = '0';
+        setTimeout(() => {
+          cap.textContent = slides[i].dataset.cap || '';
+          cap.style.opacity = '1';
+        }, 300);
+      }, 6000);
+    })();
+  </script>
+
+</body>
+</html>

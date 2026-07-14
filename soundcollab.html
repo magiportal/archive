@@ -111,15 +111,25 @@
     .pam-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 9px; flex: 1; min-height: 0; overflow-y: auto; }
     .pam-title { font-size: 15px; font-weight: 600; color: var(--black); line-height: 1.25; }
     .pam-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
-    .pam-foot {
-      margin-top: auto;
-      padding-top: 12px;
+    /* Grey band spanning the full card width — replaces the old separator line,
+       holds the name/volunteer row and the edit/delete (or manage) row together. */
+    .pam-card-foot {
+      background: var(--bg-hover);
+      border-top: 1px solid var(--line);
+      padding: 12px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      border-top: 1px solid var(--line);
+      gap: 12px;
       flex-shrink: 0;
+    }
+    /* Left-hand column: name on top, edit/delete (or manage) below — the Volunteer
+       button sits beside this column, vertically centred against both rows. */
+    .pam-foot {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
     }
     .pam-contact { font-size: 11px; color: var(--dim); word-break: break-all; }
 
@@ -153,6 +163,88 @@
     }
     .pam-manage-btn:hover { color: var(--dim); opacity: 1; }
 
+    /* Gameplay / reference video */
+    .pam-watch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--bg-hover);
+      border: 1px solid var(--line);
+      padding: 6px 11px;
+      cursor: pointer;
+      width: fit-content;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .pam-watch-btn:hover { background: var(--white); border-color: var(--black); }
+
+    .video-embed-wrap { position: relative; aspect-ratio: 16 / 9; background: #000; }
+    .video-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .video-embed-wrap .video-fallback {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.75); font-size: 12px; text-align: center; padding: 24px;
+    }
+    .video-embed-wrap .video-fallback a { color: #fff; text-decoration: underline; }
+
+    /* Withdraw list — inside the designer's edit modal */
+    .d-claims-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .d-claim-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+    }
+
+    /* Sound bite manager — reorder, preview, remove */
+    /* Shows one sound bite at a time — scroll within this box for the rest, rather than
+       the whole modal growing taller as more clips are added. */
+    .d-samples-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+      max-height: 62px;
+      overflow-y: auto;
+    }
+    .d-sample-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+    }
+    .d-sample-reorder { display: flex; flex-direction: column; flex-shrink: 0; }
+    .d-sample-reorder button {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 10px;
+      line-height: 1.3;
+      padding: 1px 4px;
+    }
+    .d-sample-reorder button:hover { color: var(--black); }
+    .d-sample-reorder button:disabled { color: var(--line); cursor: default; }
+    .d-sample-row audio { flex: 1; min-width: 0; height: 32px; }
+    .d-sample-remove {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .d-sample-remove:hover { color: #c0392b; }
+
     /* ── PROJECT PAMPHLET ──────────────────────────── */
     .pam-poster {
       position: relative;
@@ -180,6 +272,13 @@
     [data-spec="interactivity"] .pam-type { background: var(--col-interactivity); color: #fff; }
     [data-spec="research"]      .pam-type { background: var(--col-research); color: #4a5200; }
 
+    /* "Working on" chips (designer side) — coloured by the project's own type */
+    .pam-chip-project { font-weight: 600; border-color: transparent; }
+    .pam-chip-project[data-spec="animation"]     { background: var(--col-animation); color: #fff; }
+    .pam-chip-project[data-spec="games"]         { background: var(--col-games); color: #003a4a; }
+    .pam-chip-project[data-spec="interactivity"] { background: var(--col-interactivity); color: #fff; }
+    .pam-chip-project[data-spec="research"]      { background: var(--col-research); color: #4a5200; }
+
     .pam-a4 {
       position: absolute;
       top: 10px;
@@ -192,9 +291,38 @@
       padding: 4px 8px;
       text-decoration: none;
       border: 1px solid var(--line);
+      cursor: pointer;
+      font-family: 'Satoshi', sans-serif;
     }
 
-    .pam-sounds { display: flex; flex-wrap: wrap; gap: 5px; }
+    /* A4 poster viewer — fills most of the window instead of a new tab */
+    #modal-poster .sc-modal {
+      width: 92vw;
+      max-width: 900px;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .poster-embed-wrap {
+      flex: 1;
+      min-height: 0;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    .poster-embed-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+    .poster-embed-wrap iframe { width: 100%; height: 100%; border: 0; }
+
+    .pam-sounds { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+    .pam-sounds-label {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-right: 2px;
+    }
     .pam-sound-tag {
       font-size: 9px;
       letter-spacing: 0.08em;
@@ -204,7 +332,25 @@
       padding: 3px 7px;
     }
 
-    .pam-assigned-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin-bottom: 5px; }
+    /* Bottom-anchors the "Sound by" block (+ everything after it) to the foot of the card,
+       separated from the description above by a single line. */
+    .pam-sound-by {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .pam-sound-by-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .pam-assigned-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+    .pam-open-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
     .pam-chips { display: flex; flex-wrap: wrap; gap: 5px; }
     .pam-chip {
       font-size: 11px;
@@ -217,13 +363,14 @@
       gap: 5px;
     }
     .pam-chip.is-open { color: var(--dim); background: none; border-style: dashed; }
+    .pam-chip-row { display: inline-flex; align-items: center; gap: 6px; }
     .pam-chip-avatar {
-      width: 16px;
-      height: 16px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: var(--black);
       color: var(--white);
-      font-size: 8px;
+      font-size: 10px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -231,8 +378,8 @@
       flex-shrink: 0;
       background-size: cover;
       background-position: center;
+      border: 1px solid var(--line);
     }
-    .pam-slots { font-size: 10px; letter-spacing: 0.06em; color: var(--dim); }
 
     .pam-claim {
       font-family: 'Satoshi', sans-serif;
@@ -283,8 +430,20 @@
     .pam-web { font-size: 11px; color: rgba(255,255,255,0.6); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.25); }
     .pam-web:hover { color: var(--white); }
 
-    .pam-samples { display: flex; flex-direction: column; gap: 7px; }
+    /* Shows one sound bite at a time on the pamphlet itself — scroll within this box
+       for the rest, rather than scrolling the whole card. */
+    .pam-samples {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 78px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      background: var(--bg-hover);
+      padding: 8px 9px;
+    }
     .pam-sample { display: flex; flex-direction: column; gap: 3px; }
+    .pam-sample:not(:last-child) { padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .pam-sample-name { font-size: 10px; color: var(--dim); letter-spacing: 0.04em; }
     .pam-audio { width: 100%; height: 34px; }
 
@@ -397,6 +556,7 @@
     </div>
     <div class="nav-links">
       <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="latest.html">Latest</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
@@ -414,7 +574,7 @@
   <div class="page-header">
     <div class="page-header-inner">
       <h1 class="page-title">Sound Collab</h1>
-      <p class="page-desc">A looking-for-group board pairing MAGI makers with sound designers. Post a project that needs sound, or list yourself as a sound designer — designers claim the projects they take on, and both sides stay in sync.</p>
+      <p class="page-desc">A forum-style board pairing MAGI makers with sound designers. Post a project that needs sound, or list yourself as a sound designer — designers collaborate on the projects they'd like to work on, and both sides stay in sync.</p>
     </div>
   </div>
 
@@ -503,10 +663,18 @@
           </div>
         </div>
         <div class="sc-field"><label>Short description</label><textarea id="p-desc" placeholder="What the project is and what you're after."></textarea></div>
-        <div class="sc-field"><label>Sound designers needed</label><input type="text" id="p-slots" value="1" /></div>
+        <div class="sc-field">
+          <label>Sound designers needed</label>
+          <select id="p-slots">
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+          <span class="sc-hint">Capped at 2 per project.</span>
+        </div>
         <div class="sc-field"><label>Contact (email / Discord)</label><input type="text" id="p-contact" placeholder="How designers reach you" /></div>
         <div class="sc-field"><label>Project image (optional)</label><input type="file" id="p-image" accept="image/*" class="sc-file" /></div>
         <div class="sc-field"><label>Or upload your A4 poster (optional)</label><input type="file" id="p-poster" accept="image/*,application/pdf" class="sc-file" /><span class="sc-hint">The printed version students post outside — shown as-is.</span></div>
+        <div class="sc-field"><label>Gameplay / reference video (optional)</label><input type="url" id="p-media" placeholder="YouTube or Vimeo link" /><span class="sc-hint">Lets sound designers see the project before collaborating.</span></div>
       </div>
       <div class="sc-modal-foot">
         <button class="sc-btn" data-close>Cancel</button>
@@ -528,7 +696,16 @@
         <div class="sc-field"><label>About your sound practice</label><textarea id="d-bio" placeholder="What you do, your style, software, availability."></textarea></div>
         <div class="sc-field"><label>Contact (email / Discord)</label><input type="text" id="d-contact" placeholder="How makers reach you" /></div>
         <div class="sc-field"><label>Profile photo (optional)</label><input type="file" id="d-avatar" accept="image/*" class="sc-file" /></div>
-        <div class="sc-field"><label>Sound bites (optional, up to 3)</label><input type="file" id="d-samples" accept="audio/*" multiple class="sc-file" /><span class="sc-hint">MP3 / WAV — plays inline on your pamphlet.</span></div>
+        <div class="sc-field" id="d-samples-current-wrap" style="display:none">
+          <label>Your sound bites</label>
+          <div class="d-samples-list" id="d-samples-current-list"></div>
+        </div>
+        <div class="sc-field"><label id="d-samples-label">Sound bites (optional, up to 3)</label><input type="file" id="d-samples" accept="audio/*" multiple class="sc-file" /><span class="sc-hint">MP3 / WAV, up to 8MB each — plays inline on your pamphlet.</span></div>
+        <div class="sc-field" id="d-claims-wrap" style="display:none">
+          <label>Projects you've collaborated on</label>
+          <div class="d-claims-list" id="d-claims-list"></div>
+          <span class="sc-hint">Withdrawing removes you from the project — it's still up to the MAGI student to pick who's next.</span>
+        </div>
       </div>
       <div class="sc-modal-foot">
         <button class="sc-btn" data-close>Cancel</button>
@@ -541,14 +718,43 @@
   <div class="sc-overlay modal-overlay" id="modal-claim">
     <div class="sc-modal">
       <div class="sc-modal-head">
-        <div class="sc-modal-title">Claim this project</div>
+        <div class="sc-modal-title">Collaborate on this project</div>
         <button class="sc-modal-close" data-close>×</button>
       </div>
       <div class="sc-modal-body">
         <p class="sc-hint" id="claim-for"></p>
-        <div class="sc-field"><label>Claim as which designer listing?</label></div>
+        <div class="sc-field"><label>Collaborate as which designer listing?</label></div>
         <div class="sc-claim-list" id="claim-list"></div>
         <p class="sc-hint">Not listed yet? Close this and hit “List Yourself” first.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIDEO MODAL (gameplay / reference) ─────────── -->
+  <div class="sc-overlay modal-overlay" id="modal-video">
+    <div class="sc-modal" style="width:640px">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title" id="video-title">Watch</div>
+        <button class="sc-modal-close" data-close>×</button>
+      </div>
+      <div class="sc-modal-body" style="padding:0">
+        <div class="video-embed-wrap" id="video-embed-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── A4 POSTER VIEWER ───────────────────────────── -->
+  <div class="sc-overlay modal-overlay" id="modal-poster">
+    <div class="sc-modal">
+      <div class="sc-modal-head">
+        <div class="sc-modal-title" id="poster-title">Poster</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <a class="sc-hint" id="poster-open-new" href="#" target="_blank" rel="noopener">Open in new tab ↗</a>
+          <button class="sc-modal-close" data-close>×</button>
+        </div>
+      </div>
+      <div class="sc-modal-body" style="padding:0;flex:1;min-height:0;display:flex">
+        <div class="poster-embed-wrap" id="poster-embed-wrap"></div>
       </div>
     </div>
   </div>
@@ -580,7 +786,7 @@
         <button class="sc-modal-close" id="gate-close">×</button>
       </div>
       <div class="sc-modal-body sc-gate-box">
-        <p class="sc-hint" style="text-align:center">Posting and claiming is for MAGI students &amp; staff. Enter the password to continue — you'll only need to do this once.</p>
+        <p class="sc-hint" style="text-align:center">Posting and collaborating is for MAGI students &amp; staff. Enter the password to continue — you'll only need to do this once.</p>
         <div class="sc-gate-row">
           <input type="password" id="gate-in" placeholder="Enter password" autocomplete="off" />
           <button id="gate-go">→</button>
@@ -592,6 +798,7 @@
 
   <div class="sc-status modal-overlay" id="sc-status"></div>
 
+  <script src="moderation.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
   (function () {
@@ -600,6 +807,9 @@
     const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
     const BUCKET   = 'sound-collab';
     const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+    const MAX_SAMPLES       = 3;                 // sound bites per designer listing
+    const MAX_SAMPLE_BYTES  = 8 * 1024 * 1024;    // 8MB — plenty for a short clip, not a full mix
 
     const GATE_KEY = 'magi-studio-auth';   // shared with the Board & Archive
     const PASSWORD = 'magistu2026';
@@ -614,6 +824,15 @@
     const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8));
     const host = (u) => { try { return new URL(u).host.replace(/^www\./, ''); } catch (e) { return u; } };
     const status = (msg) => { const el = $('#sc-status'); el.textContent = msg; el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2200); };
+
+    // YouTube / Vimeo link → embeddable iframe src, or null if the host isn't recognised.
+    const videoEmbedSrc = (raw) => {
+      const yt = raw.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+      if (yt) return 'https://www.youtube.com/embed/' + yt[1];
+      const vm = raw.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/(\w+))?/) || raw.match(/^\s*(\d+)\s*$/);
+      if (vm) return 'https://player.vimeo.com/video/' + vm[1] + '?title=0&byline=0&portrait=0&dnt=1' + (vm[2] ? '&h=' + vm[2] : '');
+      return null;
+    };
 
     // ── OWNERSHIP (trust-based: no logins/passwords stored) ──
     // When you post, we generate a random token, save it on the row, and cache it in
@@ -630,8 +849,16 @@
     const forProject  = (pid) => assignments.filter(a => a.project_id === pid);
     const forDesigner = (did) => assignments.filter(a => a.designer_id === did);
     const designerById = (did) => designers.find(d => d.id === did);
+    const projectById  = (pid) => projects.find(p => p.id === pid);
     const designerName = (did) => (designerById(did) || {}).name || 'Unknown';
-    const projectTitle = (pid) => (projects.find(p => p.id === pid) || {}).title || 'a project';
+    const projectTitle = (pid) => (projectById(pid) || {}).title || 'a project';
+
+    // "Working on" chip — coloured by the project's own type, like the type badge elsewhere.
+    const projectChip = (pid) => {
+      const p = projectById(pid);
+      const spec = p ? p.project_type : '';
+      return '<span class="pam-chip pam-chip-project" data-spec="' + esc(spec) + '">' + esc(projectTitle(pid)) + '</span>';
+    };
 
     // Circular avatar (photo or initials) + name, used in the "Sound by" chips.
     const designerChip = (did) => {
@@ -641,7 +868,7 @@
       const avatar = d && d.avatar_url
         ? '<span class="pam-chip-avatar" style="background-image:url(' + esc(d.avatar_url) + ')"></span>'
         : '<span class="pam-chip-avatar">' + esc(initials) + '</span>';
-      return '<span class="pam-chip">' + avatar + esc(name) + '</span>';
+      return '<span class="pam-chip-row">' + avatar + '<span class="pam-chip">' + esc(name) + '</span></span>';
     };
 
     // Edit/Delete for the browser that posted it; a subtle "Manage" unlock link for everyone else.
@@ -702,20 +929,27 @@
           '<div class="pamphlet pam-project" data-spec="' + esc(p.project_type) + '">' +
             '<div class="pam-poster' + (poster ? '' : ' is-placeholder') + '"' + (poster ? ' style="background-image:url(' + esc(poster) + ')"' : '') + '>' +
               '<span class="pam-type">' + esc(p.project_type) + '</span>' +
-              (p.poster_url ? '<a class="pam-a4" href="' + esc(p.poster_url) + '" target="_blank" rel="noopener">⤢ A4</a>' : '') +
+              (p.poster_url ? '<button class="pam-a4" data-poster="' + esc(p.poster_url) + '" data-poster-title="' + esc(p.title) + '">⤢ A4</button>' : '') +
             '</div>' +
             '<div class="pam-body">' +
               '<div class="pam-title">' + esc(p.title) + '</div>' +
-              (sounds.length ? '<div class="pam-sounds">' + sounds.map(s => '<span class="pam-sound-tag">' + esc(s) + '</span>').join('') + '</div>' : '') +
+              (sounds.length ? '<div class="pam-sounds"><span class="pam-sounds-label">Seeking:</span>' + sounds.map(s => '<span class="pam-sound-tag">' + esc(s) + '</span>').join('') + '</div>' : '') +
               (p.description ? '<div class="pam-desc">' + esc(p.description) + '</div>' : '') +
-              '<div><div class="pam-assigned-label">Sound by' + (left ? ' · <span class="pam-slots">' + left + ' of ' + slots + ' open</span>' : ' · <span class="pam-slots">full</span>') + '</div><div class="pam-chips">' + chips + '</div></div>' +
+              (p.media_url ? '<button class="pam-watch-btn" data-video="' + esc(p.media_url) + '" data-video-title="' + esc(p.title) + '">▶ Watch gameplay</button>' : '') +
+              '<div class="pam-sound-by">' +
+                '<div class="pam-sound-by-head"><span class="pam-assigned-label">Sound by</span>' +
+                '<span class="pam-open-badge">' + (left ? left + ' of ' + slots + ' open' : 'Full') + '</span></div>' +
+                '<div class="pam-chips">' + chips + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="pam-card-foot">' +
               '<div class="pam-foot">' +
                 '<span class="pam-contact">' + (p.author ? esc(p.author) : '') + '</span>' +
-                (left
-                  ? '<button class="pam-claim" data-claim="' + p.id + '">Claim ›</button>'
-                  : '<button class="pam-claim is-filled" disabled>Filled</button>') +
+                ownerControls('project', p) +
               '</div>' +
-              ownerControls('project', p) +
+              (left
+                ? '<button class="pam-claim" data-claim="' + p.id + '">Collaborate ›</button>'
+                : '<button class="pam-claim is-filled" disabled>Filled</button>') +
             '</div>' +
           '</div>'
         );
@@ -730,7 +964,7 @@
         const initials = (d.name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
         const samples = (d.sample_urls || '').split(',').filter(Boolean);
         const chips = chosen.length
-          ? chosen.map(a => '<span class="pam-chip">' + esc(projectTitle(a.project_id)) + '</span>').join('')
+          ? chosen.map(a => projectChip(a.project_id)).join('')
           : '<span class="pam-chip is-open">Available</span>';
         return (
           '<div class="pamphlet pam-designer">' +
@@ -742,9 +976,18 @@
             '<div class="pam-body">' +
               (d.bio ? '<div class="pam-desc">' + esc(d.bio) + '</div>' : '') +
               (samples.length ? '<div class="pam-samples">' + samples.map((s, i) => '<div class="pam-sample"><span class="pam-sample-name">Sample ' + (i + 1) + '</span><audio class="pam-audio" controls preload="none" src="' + esc(s) + '"></audio></div>').join('') + '</div>' : '') +
-              '<div><div class="pam-assigned-label">Working on</div><div class="pam-chips">' + chips + '</div></div>' +
-              '<div class="pam-foot"><span class="pam-contact">' + (d.contact ? esc(d.contact) : '') + '</span></div>' +
-              ownerControls('designer', d) +
+              '<div class="pam-sound-by">' +
+                '<div class="pam-sound-by-head"><span class="pam-assigned-label">Wants to work with</span>' +
+                (chosen.length ? '<span class="pam-open-badge">' + chosen.length + (chosen.length === 1 ? ' project' : ' projects') + '</span>' : '') +
+                '</div>' +
+                '<div class="pam-chips">' + chips + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="pam-card-foot">' +
+              '<div class="pam-foot">' +
+                '<span class="pam-contact">' + (d.contact ? esc(d.contact) : '') + '</span>' +
+                ownerControls('designer', d) +
+              '</div>' +
             '</div>' +
           '</div>'
         );
@@ -753,9 +996,41 @@
 
     // ── MODALS ──────────────────────────────────────
     const openModal  = (id) => $('#' + id).classList.add('is-open');
-    const closeModal = (el) => el.classList.remove('is-open');
+    const closeModal = (el) => {
+      el.classList.remove('is-open');
+      if (el.id === 'modal-video') $('#video-embed-wrap').innerHTML = ''; // stop playback on close
+      if (el.id === 'modal-poster') $('#poster-embed-wrap').innerHTML = '';
+    };
     $$('.sc-overlay').forEach(ov => {
       ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('[data-close]')) closeModal(ov); });
+    });
+
+    // ── GAMEPLAY / REFERENCE VIDEO ────────────────────
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-video]');
+      if (!btn) return;
+      const url = btn.dataset.video;
+      const src = videoEmbedSrc(url);
+      $('#video-title').textContent = btn.dataset.videoTitle || 'Watch';
+      const wrap = $('#video-embed-wrap');
+      wrap.innerHTML = src
+        ? '<iframe src="' + esc(src) + '" allowfullscreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" title="Gameplay video"></iframe>'
+        : '<div class="video-fallback">Can\'t preview this link inline.<br><a href="' + esc(url) + '" target="_blank" rel="noopener">Open it directly ↗</a></div>';
+      openModal('modal-video');
+    });
+
+    // ── A4 POSTER VIEWER ───────────────────────────────
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('[data-poster]');
+      if (!btn) return;
+      const url = btn.dataset.poster;
+      const isPdf = /\.pdf(\?|#|$)/i.test(url);
+      $('#poster-title').textContent = btn.dataset.posterTitle || 'Poster';
+      $('#poster-open-new').href = url;
+      $('#poster-embed-wrap').innerHTML = isPdf
+        ? '<iframe src="' + esc(url) + '" title="A4 poster"></iframe>'
+        : '<img src="' + esc(url) + '" alt="A4 poster" />';
+      openModal('modal-poster');
     });
 
     // ── ACCESS GATE (blurs only the grid; shared session) ──
@@ -803,12 +1078,61 @@
 
     // ── POST BUTTONS ────────────────────────────────
     let editingProjectId = null, editingDesignerId = null;
+    let editingSamples = []; // ordered array of existing sound-bite URLs for the open designer form
+
+    function renderSampleList() {
+      const wrap = $('#d-samples-current-wrap');
+      const list = $('#d-samples-current-list');
+      if (!editingSamples.length) { wrap.style.display = 'none'; list.innerHTML = ''; }
+      else {
+        wrap.style.display = '';
+        list.innerHTML = editingSamples.map((url, i) => {
+          const name = 'Sample ' + (i + 1);
+          return '<div class="d-sample-row">' +
+            '<div class="d-sample-reorder">' +
+              '<button type="button" data-move-up="' + i + '"' + (i === 0 ? ' disabled' : '') + '>▲</button>' +
+              '<button type="button" data-move-down="' + i + '"' + (i === editingSamples.length - 1 ? ' disabled' : '') + '>▼</button>' +
+            '</div>' +
+            '<audio controls preload="none" src="' + esc(url) + '"></audio>' +
+            '<button type="button" class="d-sample-remove" data-remove-sample="' + i + '">Remove</button>' +
+          '</div>';
+        }).join('');
+      }
+      const remaining = Math.max(0, MAX_SAMPLES - editingSamples.length);
+      $('#d-samples-label').textContent = remaining
+        ? 'Add sound bites (optional, ' + remaining + ' more allowed)'
+        : 'Sound bites (limit reached — remove one above to add another)';
+      $('#d-samples').disabled = remaining === 0;
+    }
+
+    function populateDesignerSamples(d) {
+      editingSamples = (d.sample_urls || '').split(',').filter(Boolean);
+      renderSampleList();
+    }
+
+    $('#d-samples-current-list').addEventListener('click', e => {
+      const up = e.target.closest('[data-move-up]');
+      const down = e.target.closest('[data-move-down]');
+      const rm = e.target.closest('[data-remove-sample]');
+      if (up) {
+        const i = +up.dataset.moveUp;
+        if (i > 0) [editingSamples[i - 1], editingSamples[i]] = [editingSamples[i], editingSamples[i - 1]];
+      } else if (down) {
+        const i = +down.dataset.moveDown;
+        if (i < editingSamples.length - 1) [editingSamples[i + 1], editingSamples[i]] = [editingSamples[i], editingSamples[i + 1]];
+      } else if (rm) {
+        editingSamples.splice(+rm.dataset.removeSample, 1);
+      } else {
+        return;
+      }
+      renderSampleList();
+    });
 
     function resetProjectForm() {
       editingProjectId = null;
       $('#modal-project .sc-modal-title').textContent = 'Post a Project';
       $('#p-submit').textContent = 'Post project';
-      ['#p-title','#p-author','#p-desc','#p-contact'].forEach(s => $(s).value = '');
+      ['#p-title','#p-author','#p-desc','#p-contact','#p-media'].forEach(s => $(s).value = '');
       $('#p-slots').value = '1'; $('#p-type').value = 'animation';
       $$('#p-sounds .sc-check').forEach(c => c.classList.remove('on'));
       $('#p-image').value = ''; $('#p-poster').value = '';
@@ -819,6 +1143,10 @@
       $('#d-submit').textContent = 'Add listing';
       ['#d-name','#d-website','#d-bio','#d-contact'].forEach(s => $(s).value = '');
       $('#d-avatar').value = ''; $('#d-samples').value = '';
+      $('#d-claims-wrap').style.display = 'none';
+      $('#d-claims-list').innerHTML = '';
+      editingSamples = [];
+      renderSampleList();
     }
 
     $$('.sc-post-bar').forEach(btn => btn.addEventListener('click', () => {
@@ -836,6 +1164,12 @@
     $('#p-submit').addEventListener('click', async () => {
       const title = $('#p-title').value.trim();
       if (!title) { $('#p-title').focus(); return; }
+      if (window.MAGIModeration && !MAGIModeration.gate({ context: 'Sound Collab — project', fields: [
+        { label: 'Project title', value: $('#p-title').value },
+        { label: 'Your name', value: $('#p-author').value },
+        { label: 'Description', value: $('#p-desc').value },
+        { label: 'Contact', value: $('#p-contact').value },
+      ] })) return;
       const editing = editingProjectId ? projects.find(p => p.id === editingProjectId) : null;
       const btn = $('#p-submit'); btn.disabled = true; btn.textContent = editing ? 'Saving…' : 'Posting…';
       const newImage  = await uploadFile($('#p-image').files[0], 'projects');
@@ -849,7 +1183,8 @@
         poster_url: newPoster || (editing ? editing.poster_url : null),
         contact: $('#p-contact').value.trim(),
         author: $('#p-author').value.trim(),
-        slots: Math.max(1, parseInt($('#p-slots').value, 10) || 1),
+        slots: Math.min(2, Math.max(1, parseInt($('#p-slots').value, 10) || 1)),
+        media_url: $('#p-media').value.trim(),
       };
       let error, newId, ownerToken;
       if (editing) {
@@ -870,19 +1205,38 @@
     $('#d-submit').addEventListener('click', async () => {
       const name = $('#d-name').value.trim();
       if (!name) { $('#d-name').focus(); return; }
+      if (window.MAGIModeration && !MAGIModeration.gate({ context: 'Sound Collab — designer listing', fields: [
+        { label: 'Name', value: $('#d-name').value },
+        { label: 'Website', value: $('#d-website').value },
+        { label: 'About', value: $('#d-bio').value },
+        { label: 'Contact', value: $('#d-contact').value },
+      ] })) return;
       const editing = editingDesignerId ? designers.find(d => d.id === editingDesignerId) : null;
       const btn = $('#d-submit'); btn.disabled = true; btn.textContent = editing ? 'Saving…' : 'Adding…';
       const newAvatar = await uploadFile($('#d-avatar').files[0], 'designers');
-      const files = [...$('#d-samples').files].slice(0, 3);
+
+      // Kept/reordered existing bites (editingSamples) + newly picked files, capped at
+      // MAX_SAMPLES total and MAX_SAMPLE_BYTES each — skipped files are reported, not silently dropped.
+      const remainingSlots = Math.max(0, MAX_SAMPLES - editingSamples.length);
+      const picked = [...$('#d-samples').files];
+      const accepted = [], skipped = [];
+      for (const f of picked) {
+        if (accepted.length >= remainingSlots) { skipped.push(f.name + ' — over the ' + MAX_SAMPLES + ' clip limit'); continue; }
+        if (f.size > MAX_SAMPLE_BYTES) { skipped.push(f.name + ' — over ' + (MAX_SAMPLE_BYTES / 1024 / 1024) + 'MB'); continue; }
+        accepted.push(f);
+      }
       const newUrls = [];
-      for (const f of files) { const u = await uploadFile(f, 'samples'); if (u) newUrls.push(u); }
+      for (const f of accepted) { const u = await uploadFile(f, 'samples'); if (u) newUrls.push(u); }
+      const finalSamples = editingSamples.concat(newUrls);
+      if (skipped.length) alert('Some sound bites were skipped:\n' + skipped.join('\n'));
+
       const row = {
         name,
         website: $('#d-website').value.trim(),
         bio: $('#d-bio').value.trim(),
         contact: $('#d-contact').value.trim(),
         avatar_url: newAvatar || (editing ? editing.avatar_url : null),
-        sample_urls: newUrls.length ? newUrls.join(',') : (editing ? editing.sample_urls : ''),
+        sample_urls: finalSamples.join(','),
       };
       let error, newId, ownerToken;
       if (editing) {
@@ -909,7 +1263,7 @@
 
     function openClaim(pid) {
       claimProjectId = pid;
-      $('#claim-for').textContent = 'Claiming: ' + projectTitle(pid);
+      $('#claim-for').textContent = 'Collaborating on: ' + projectTitle(pid);
       const already = forProject(pid).map(a => a.designer_id);
       const options = designers.filter(d => !already.includes(d.id));
       const list = $('#claim-list');
@@ -918,7 +1272,7 @@
       } else if (!options.length) {
         list.innerHTML = '<p class="sc-hint">Every listed designer is already on this project.</p>';
       } else {
-        list.innerHTML = options.map(d => '<div class="sc-claim-opt" data-did="' + d.id + '"><span class="sc-claim-opt-name">' + esc(d.name) + '</span><span class="sc-hint">Claim →</span></div>').join('');
+        list.innerHTML = options.map(d => '<div class="sc-claim-opt" data-did="' + d.id + '"><span class="sc-claim-opt-name">' + esc(d.name) + '</span><span class="sc-hint">Collaborate →</span></div>').join('');
       }
       openModal('modal-claim');
     }
@@ -928,9 +1282,9 @@
       if (!opt || !claimProjectId) return;
       const row = { id: uid(), project_id: claimProjectId, designer_id: opt.dataset.did, status: 'assigned' };
       const { error } = await db.from('sound_assignments').insert(row);
-      if (error) { console.error(error); status('Could not claim — see console.'); return; }
+      if (error) { console.error(error); status('Could not collaborate — see console.'); return; }
       closeModal($('#modal-claim'));
-      status('Claimed — both pamphlets updated.');
+      status('You\'re on it — both pamphlets updated.');
     });
 
     // ── EDIT / DELETE / MANAGE ────────────────────────
@@ -942,8 +1296,9 @@
       $('#p-author').value = p.author || '';
       $('#p-type').value = p.project_type || 'animation';
       $('#p-desc').value = p.description || '';
-      $('#p-slots').value = p.slots || 1;
+      $('#p-slots').value = Math.min(2, Math.max(1, p.slots || 1));
       $('#p-contact').value = p.contact || '';
+      $('#p-media').value = p.media_url || '';
       $('#p-image').value = ''; $('#p-poster').value = '';
       const needed = (p.sounds_needed || '').split(',').filter(Boolean);
       $$('#p-sounds .sc-check').forEach(c => c.classList.toggle('on', needed.includes(c.dataset.val)));
@@ -959,8 +1314,41 @@
       $('#d-bio').value = d.bio || '';
       $('#d-contact').value = d.contact || '';
       $('#d-avatar').value = ''; $('#d-samples').value = '';
+      populateDesignerSamples(d);
+      populateDesignerClaims(d.id);
       openModal('modal-designer');
     }
+
+    // Shows the "withdraw" list inside the designer's edit modal — only when they've
+    // volunteered for at least one project. Re-run after a withdraw to refresh it live.
+    function populateDesignerClaims(did) {
+      const rows = forDesigner(did);
+      const wrap = $('#d-claims-wrap');
+      const list = $('#d-claims-list');
+      if (!rows.length) { wrap.style.display = 'none'; list.innerHTML = ''; return; }
+      wrap.style.display = '';
+      list.innerHTML = rows.map(a => {
+        const p = projectById(a.project_id);
+        const spec = p ? p.project_type : '';
+        return '<div class="d-claim-row">' +
+          '<span class="pam-chip pam-chip-project" data-spec="' + esc(spec) + '">' + esc(projectTitle(a.project_id)) + '</span>' +
+          '<button class="pam-owner-btn danger" data-unclaim="' + a.id + '">Withdraw</button>' +
+        '</div>';
+      }).join('');
+    }
+
+    $('#d-claims-list').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-unclaim]');
+      if (!btn) return;
+      if (!confirm('Withdraw from this project? The MAGI student will see it as open again.')) return;
+      const { error } = await db.from('sound_assignments').delete().eq('id', btn.dataset.unclaim);
+      if (error) { console.error(error); status('Could not withdraw — see console.'); return; }
+      // Update locally right away rather than waiting on the realtime round-trip.
+      assignments = assignments.filter(a => a.id !== btn.dataset.unclaim);
+      populateDesignerClaims(editingDesignerId);
+      render();
+      status('Withdrawn.');
+    });
 
     async function deleteRow(kind, id) {
       const table = kind === 'project' ? 'sound_projects' : 'sound_designers';

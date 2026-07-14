@@ -13,13 +13,17 @@
 <body>
 
   <!-- ── NAV ──────────────────────────────────────── -->
-  <nav class="nav">
+  <nav class="nav" id="site-nav">
     <div class="nav-wordmark">
       <span class="nav-wordmark-magi">MAGI</span>
       <span class="nav-wordmark-sub">Portal</span>
     </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav-links">
       <a class="nav-link active" href="index.html">Home</a>
+      <a class="nav-link" href="latest.html">Latest</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
@@ -142,8 +146,8 @@
   <section id="news">
 
     <div class="bar">
-      <a class="bar-title bar-title-link" href="#">News &amp; Events</a>
-      <div class="bar-right"><div class="bar-link">View All ›</div></div>
+      <a class="bar-title bar-title-link" href="latest.html">News &amp; Events</a>
+      <div class="bar-right"><a class="bar-link" href="latest.html">View All ›</a></div>
     </div>
 
     <div class="news-grid">
@@ -156,19 +160,19 @@
       </div>
 
       <div class="news-card">
-        <div class="news-img"><img src="media/workshop/week2.png" alt="Three.js Workshop" /></div>
+        <div class="news-img"><img src="media/events/EPIC/thewomb.png" alt="EPIC Workshop — Winter 2026" /></div>
         <div class="news-tag">Workshop</div>
-        <div class="news-title">End the Boring Internet — Three.js Intensive</div>
-        <div class="news-body">A hands-on session covering interactive web graphics, GitHub Pages deployment, and creative coding fundamentals. Open to all MAGI students.</div>
-        <div class="news-meta"><span class="news-date">22 Apr 2026</span><a class="news-link" href="#">Read more ›</a></div>
+        <div class="news-title">EPIC Workshop — Winter 2026</div>
+        <div class="news-body">MAGI and MDIT team up to solve, explore, and swim — yes, swim — through this season's most ambitious projects. Held in the VXLab (Building 91), using tech like the Nova Ball and VR headsets.</div>
+        <div class="news-meta"><span class="news-date">Winter 2026</span><a class="news-link" href="latest.html#epic">Read more ›</a></div>
       </div>
 
       <div class="news-card">
         <div class="news-img news-img-rotated"><img src="media/events/acmi-audience-lab.png" alt="ACMI Audience Lab" /></div>
         <div class="news-tag">Event</div>
         <div class="news-title">ACMI Audience Lab</div>
-        <div class="news-body">Three MAGI student works selected for the Luminous Festival programme at Federation Square. Public exhibition running through May.</div>
-        <div class="news-meta"><span class="news-date">1 May 2026</span><a class="news-link" href="#">Read more ›</a></div>
+        <div class="news-body">Three MAGI student works selected for public exhibition at Federation Square, running through May.</div>
+        <div class="news-meta"><span class="news-date">1 May 2026</span><a class="news-link" href="latest.html#acmi">Read more ›</a></div>
       </div>
 
       <div class="news-card">
@@ -249,73 +253,8 @@
       <div class="bar-right"><a class="bar-link" href="research.html">View All ›</a></div>
     </div>
 
-    <div class="rec-compact-list">
-
-      <a class="rec-compact-row" href="research.html">
-        <div class="rec-compact-num">01</div>
-        <div class="rec-compact-thumb">
-          <img src="media/s3634079-remnants-of-our-days.webp" alt="" />
-        </div>
-        <div class="rec-compact-body">
-          <div class="rec-compact-title">End the Boring Internet — Three.js Intensive</div>
-          <div class="rec-compact-meta">MAGI Studio &nbsp;·&nbsp; 29 Apr 2026</div>
-        </div>
-        <span class="rec-compact-badge recording">Recording</span>
-        <div class="rec-compact-dur">1h 48m</div>
-      </a>
-
-      <a class="rec-compact-row" href="research.html">
-        <div class="rec-compact-num">02</div>
-        <div class="rec-compact-thumb">
-          <img src="media/S4125361-bunny-flip.webp" alt="" />
-        </div>
-        <div class="rec-compact-body">
-          <div class="rec-compact-title">On Play &amp; Place — Guest Lecture with Dr Matthew Riley</div>
-          <div class="rec-compact-meta">Dr Matthew Riley &nbsp;·&nbsp; 12 Mar 2025</div>
-        </div>
-        <span class="rec-compact-badge lecture">Lecture</span>
-        <div class="rec-compact-dur">52m</div>
-      </a>
-
-      <a class="rec-compact-row" href="research.html">
-        <div class="rec-compact-num">03</div>
-        <div class="rec-compact-thumb">
-          <img src="media/s4148738-mind-tilt.webp" alt="" />
-        </div>
-        <div class="rec-compact-body">
-          <div class="rec-compact-title">MAGI EXPO 2025 — Exhibition Showreel</div>
-          <div class="rec-compact-meta">MAGI Studio &nbsp;·&nbsp; 5 Dec 2025</div>
-        </div>
-        <span class="rec-compact-badge video">Video</span>
-        <div class="rec-compact-dur">4m 20s</div>
-      </a>
-
-      <a class="rec-compact-row" href="research.html">
-        <div class="rec-compact-num">04</div>
-        <div class="rec-compact-thumb">
-          <img src="media/S4183453-state-of-mind.webp" alt="" />
-        </div>
-        <div class="rec-compact-body">
-          <div class="rec-compact-title">Careers in Games — Alumni Panel</div>
-          <div class="rec-compact-meta">MAGI Alumni &nbsp;·&nbsp; 7 Apr 2024</div>
-        </div>
-        <span class="rec-compact-badge audio">Audio</span>
-        <div class="rec-compact-dur">1h 06m</div>
-      </a>
-
-      <a class="rec-compact-row" href="research.html">
-        <div class="rec-compact-num">05</div>
-        <div class="rec-compact-thumb">
-          <img src="media/S4078320-tethered-thoughts.webp" alt="" />
-        </div>
-        <div class="rec-compact-body">
-          <div class="rec-compact-title">TAMAC1DE: Anti-Extractive UX &amp; the Gacha Machine</div>
-          <div class="rec-compact-meta">Student Name &nbsp;·&nbsp; 2026</div>
-        </div>
-        <span class="rec-compact-badge document">Document</span>
-        <div class="rec-compact-dur">PDF</div>
-      </a>
-
+    <div class="rec-compact-list" id="rec-media-list">
+      <div class="rec-media-loading">Loading recent media…</div>
     </div>
 
   </section>
@@ -384,5 +323,149 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script src="main.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    // ── MOBILE NAV (hamburger) ─────────────────────────────────────────
+    (function () {
+      const nav = document.getElementById('site-nav');
+      const btn = document.getElementById('nav-toggle');
+      if (!nav || !btn) return;
+      const setOpen = (open) => {
+        nav.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+      btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+      // Close when a link is tapped, or on Escape.
+      nav.querySelectorAll('.nav-links a, .nav-right a').forEach(a =>
+        a.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    })();
+  </script>
+
+  <script>
+    // ── RECENT MEDIA — live from the Archive's Supabase table ──────────
+    (function () {
+      const listEl = document.getElementById('rec-media-list');
+      if (!listEl) return;
+
+      const SUPA_URL = 'https://hzzhuikzvdfcizkuelte.supabase.co';
+      const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
+      const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+      const LIMIT = 5;
+
+      const esc = (s) => (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const LABELS = { recording:'Recording', lecture:'Lecture', video:'Video', audio:'Audio', document:'Document', image:'Image' };
+      const ACTION = { recording:'Watch', lecture:'Watch', video:'Watch', audio:'Listen', document:'PDF', image:'View' };
+      const GLYPH  = { recording:'▶', lecture:'▶', video:'▶', audio:'♪', document:'PDF' };
+
+      const fmtDate = (iso) => {
+        const d = new Date(iso);
+        if (isNaN(d)) return '';
+        return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+      };
+
+      // Best-effort thumbnail: the image itself for images, provider stills for
+      // YouTube/Vimeo, otherwise a play/type glyph. Provider stills fall back to
+      // the glyph tile on load error (see wireThumbFallbacks()).
+      function thumbSrc(row) {
+        const type = row.type || 'document';
+        const url  = row.media_url || '';
+        if (type === 'image' && url) return url;
+        const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+        if (yt) return 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg';
+        const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        if (vm) return 'https://vumbnail.com/' + vm[1] + '.jpg';
+        return null;
+      }
+
+      function rowHtml(row, i) {
+        const type  = row.type || 'document';
+        const num   = String(i + 1).padStart(2, '0');
+        const glyph = GLYPH[type] || '▶';
+        const src   = thumbSrc(row);
+        const thumb = src
+          ? '<div class="rec-compact-thumb" data-glyph="' + esc(glyph) + '"><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
+          : '<div class="rec-compact-thumb rec-thumb-play"><span>' + esc(glyph) + '</span></div>';
+        const meta  = [row.authors, fmtDate(row.created_at)].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+        return (
+          '<div class="rec-item">' +
+            '<div class="rec-compact-row" role="button" tabindex="0" aria-expanded="false">' +
+              '<div class="rec-compact-num">' + num + '</div>' +
+              thumb +
+              '<div class="rec-compact-body">' +
+                '<div class="rec-compact-title">' + esc(row.title || 'Untitled') + '</div>' +
+                '<div class="rec-compact-meta">' + (meta || '&nbsp;') + '</div>' +
+              '</div>' +
+              '<span class="rec-compact-badge ' + esc(type) + '">' + esc(LABELS[type] || type) + '</span>' +
+              '<div class="rec-compact-dur">' + (ACTION[type] || 'Open') + '</div>' +
+            '</div>' +
+            '<div class="rec-compact-panel-wrap">' +
+              '<div class="rec-compact-panel">' +
+                '<div class="rec-compact-panel-inner">' +
+                  (row.abstract ? '<p class="rec-panel-abstract">' + esc(row.abstract) + '</p>' : '') +
+                  (row.source ? '<div class="rec-panel-source">' + esc(row.source) + '</div>' : '') +
+                  '<a class="rec-panel-link" href="research.html#' + esc(row.id) + '">View in the Archive →</a>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      async function load() {
+        const { data, error } = await db.from('archive_items')
+          .select('*').order('created_at', { ascending: false }).limit(LIMIT);
+        if (error) {
+          console.error(error);
+          listEl.innerHTML = '<div class="rec-media-empty">Couldn\'t reach the archive database.</div>';
+          return;
+        }
+        if (!data || !data.length) {
+          listEl.innerHTML = '<div class="rec-media-empty">Nothing in the archive yet.</div>';
+          return;
+        }
+        listEl.innerHTML = data.map(rowHtml).join('');
+        wireThumbFallbacks();
+      }
+
+      // Provider thumbnail failed to load → fall back to the play/type glyph tile.
+      function wireThumbFallbacks() {
+        listEl.querySelectorAll('.rec-compact-thumb img').forEach(img => {
+          img.addEventListener('error', () => {
+            const box = img.closest('.rec-compact-thumb');
+            if (!box) return;
+            box.classList.add('rec-thumb-play');
+            box.innerHTML = '<span>' + (box.dataset.glyph || '▶') + '</span>';
+          }, { once: true });
+        });
+      }
+
+      // Expand/collapse works for dynamically-rendered rows via delegation.
+      listEl.addEventListener('click', e => {
+        if (e.target.closest('a')) return;
+        const row = e.target.closest('.rec-compact-row');
+        if (!row) return;
+        const item = row.closest('.rec-item');
+        const open = item.classList.toggle('is-open');
+        row.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      listEl.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const row = e.target.closest('.rec-compact-row');
+        if (!row) return;
+        e.preventDefault();
+        const item = row.closest('.rec-item');
+        const open = item.classList.toggle('is-open');
+        row.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      load();
+      db.channel('recent_media_home')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'archive_items' }, load)
+        .subscribe();
+    })();
+  </script>
 </body>
 </html>

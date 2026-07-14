@@ -54,6 +54,13 @@
       line-height: 1.1;
     }
 
+    .research-updated {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: var(--faint);
+      margin-top: 8px;
+    }
+
     /* ── SEARCH BAR ──────────────────────────────── */
 
     .search-form {
@@ -258,23 +265,52 @@
       cursor: pointer;
       transition: background 0.1s;
       display: grid;
-      grid-template-columns: 1fr 140px;
-      gap: 0 32px;
+      grid-template-columns: 92px 1fr 140px;
+      gap: 0 24px;
       align-items: start;
+      scroll-margin-top: 72px;   /* clears the sticky nav when deep-linked */
     }
 
     .result-item:hover { background: var(--bg-hover); }
     .result-item:last-child { border-bottom: none; }
+    /* Highlight the item briefly when arrived at via a #deep-link (e.g. from the home page) */
+    .result-item:target { animation: resTargetFlash 1.8s ease; }
+    @keyframes resTargetFlash {
+      0%, 30% { background: var(--bg-hover); }
+      100%    { background: transparent; }
+    }
+
+    .result-thumb {
+      grid-column: 1;
+      grid-row: 1 / 99;
+      align-self: start;
+      width: 92px;
+      height: 66px;
+      overflow: hidden;
+      background: #ececea;
+      border: 1px solid var(--line);
+    }
+    .result-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .result-thumb-ph {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff;
+    }
+    .result-thumb-ph[data-t="recording"] { background: var(--col-games); color: #003a4a; }
+    .result-thumb-ph[data-t="lecture"]   { background: var(--col-research); color: #4a5200; }
+    .result-thumb-ph[data-t="video"]     { background: var(--col-animation); }
+    .result-thumb-ph[data-t="audio"]     { background: var(--col-interactivity); }
+    .result-thumb-ph[data-t="document"]  { background: #2b2b2b; }
+    .result-thumb-ph[data-t="image"]     { background: #7c5cff; }
 
     .result-meta-top,
     .result-title,
     .result-authors,
     .result-source,
     .result-abstract,
-    .result-actions { grid-column: 1; }
+    .result-actions { grid-column: 2; }
 
     .result-aside {
-      grid-column: 2;
+      grid-column: 3;
       grid-row: 1 / 99;
       display: flex;
       flex-direction: column;
@@ -435,7 +471,7 @@
     }
 
     .result-player-wrap {
-      grid-column: 1;
+      grid-column: 2;
       display: grid;
       grid-template-rows: 0fr;
       transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
@@ -464,6 +500,23 @@
     /* SharePoint / Stream embed */
     .rp-embed { position: relative; aspect-ratio: 16 / 9; background: #000; }
     .rp-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    /* audio (SoundCloud) embeds aren't 16:9 */
+    .rp-embed-audio .rp-embed { aspect-ratio: auto; height: 166px; }
+
+    /* real uploaded PDF */
+    .rp-doc-frame { height: 68vh; min-height: 420px; background: #333; }
+    .rp-doc-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+    /* real uploaded image */
+    .rp-image-box { background: #111; text-align: center; }
+    .rp-image-box img { max-width: 100%; max-height: 68vh; display: block; margin: 0 auto; }
+    /* shared file bar (download row) */
+    .rp-file-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: #2b2b2b; color: #fff; padding: 9px 14px;
+    }
+    .rp-file-name { font-family: 'Satoshi', sans-serif; font-size: 11px; letter-spacing: 0.03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rp-file-dl { color: #fff; text-decoration: none; font-family: 'Satoshi', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+    .rp-file-dl:hover { text-decoration: underline; }
 
     /* video */
     .rp-screen {
@@ -878,11 +931,17 @@
     .up-file-name { font-size: 12px; color: var(--black); margin-top: 4px; font-weight: 500; }
     .up-field { display: flex; flex-direction: column; gap: 6px; }
     .up-field label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-    .up-field input, .up-field select {
+    .up-field input, .up-field select, .up-field textarea {
       font-family: 'Satoshi', sans-serif; font-size: 13px;
       padding: 9px 10px; border: 1px solid var(--line); background: var(--white); color: var(--black);
     }
-    .up-field input:focus, .up-field select:focus { outline: none; border-color: var(--black); }
+    .up-field textarea { resize: vertical; min-height: 56px; }
+    .up-field input:focus, .up-field select:focus, .up-field textarea:focus { outline: none; border-color: var(--black); }
+    .up-hint { font-size: 10px; color: var(--faint); letter-spacing: 0.02em; }
+
+    .results-loading, .results-empty {
+      padding: 60px 28px; text-align: center; font-size: 13px; color: var(--faint); letter-spacing: 0.03em;
+    }
     .up-foot {
       display: flex; justify-content: flex-end; gap: 8px;
       padding: 16px 24px; border-top: 1px solid var(--line);
@@ -903,6 +962,7 @@
     }
 
   </style>
+  <script src="moderation.js"></script>
 </head>
 <body>
 
@@ -913,6 +973,7 @@
     </div>
     <div class="nav-links">
       <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="latest.html">Latest</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
@@ -932,6 +993,7 @@
       <img src="logo/magi-logo-white.png" alt="MAGI" class="research-logo" />
       
       <h1 class="research-h1">Media Database</h1>
+      <div class="research-updated" id="db-last-updated">Last updated: 13/07/26 11:01AM</div>
       <p class="research-sub">Recordings, lectures, video, audio, documents and images — an open, growing library that students and staff contribute to.</p>
     </div>
 
@@ -1050,7 +1112,7 @@
     <div class="research-results">
 
       <div class="results-bar">
-        <span class="results-count"><strong>64</strong> items in the archive</span>
+        <span class="results-count" id="results-count"><strong>0</strong> items in the archive</span>
         <div class="results-sort">
           <span class="results-sort-label">Sort —</span>
           <button class="sort-btn active">Relevance</button>
@@ -1059,206 +1121,8 @@
         </div>
       </div>
 
-      <!-- Recording -->
-      <div class="result-item" data-type="recording">
-        <div class="result-meta-top"><span class="result-type recording">Recording</span><span class="result-year">2026</span><span class="result-spec">Workshop</span></div>
-        <div class="result-title">End the Boring Internet — Three.js Intensive (Full Session)</div>
-        <div class="result-authors">Recorded session — <a href="#">MAGI Studio</a></div>
-        <div class="result-source">Workshop recording · 1h 48m · RMIT Melbourne, 2026</div>
-        <div class="result-abstract">Full capture of the hands-on Three.js workshop covering interactive web graphics, GitHub Pages deployment, and creative coding fundamentals. Includes live-coding segments and a closing Q&amp;A.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a><div class="result-action-sep"></div><a class="result-action" href="#">Transcript</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">▶ Play</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <span class="result-aside-cited">1h 48m</span>
-        </div>
-      </div>
-
-      <!-- Lecture -->
-      <div class="result-item" data-type="lecture">
-        <div class="result-meta-top"><span class="result-type lecture">Lecture</span><span class="result-year">2025</span><span class="result-spec">Guest Talk</span></div>
-        <div class="result-title">On Play &amp; Place — Guest Lecture</div>
-        <div class="result-authors"><a href="#">Dr </a></div>
-        <div class="result-source">Guest lecture · 52m · Master of Animation, Games &amp; Interactivity, 2025</div>
-        <div class="result-abstract">A lecture on urban play, creative placemaking and the YomeciPlay collective — exploring how interactive installation connects digital, physical and social space.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Slides</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">▶ Play</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <span class="result-aside-cited">52m</span>
-        </div>
-      </div>
-
-      <!-- Video -->
-      <!-- To make this play inline: add data-embed="<vimeo link or id>" to the div below. -->
-      <div class="result-item" data-type="video" data-embed="https://vimeo.com/1207762435">
-        <div class="result-meta-top"><span class="result-type video">Video</span><span class="result-year">2026</span><span class="result-spec">Session Recording</span></div>
-        <div class="result-title">Studio 3 Streaming Party — Session Recording</div>
-        <div class="result-authors">Recorded session — <a href="#">MAGI Studio</a></div>
-        <div class="result-source">Studio session · RMIT Melbourne, 3 Jun 2026</div>
-        <div class="result-abstract">Full capture of the Studio 3 streaming party from the MAGI Program studio sessions.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Watch</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">▶ Play</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <span class="result-aside-cited">4m 20s</span>
-        </div>
-      </div>
-
-      <!-- Audio -->
-      <div class="result-item" data-type="audio">
-        <div class="result-meta-top"><span class="result-type audio">Audio</span><span class="result-year">2024</span><span class="result-spec">Panel</span></div>
-        <div class="result-title">Careers in Games — Alumni Panel (Audio)</div>
-        <div class="result-authors"><a href="#">MAGI Alumni</a></div>
-        <div class="result-source">Audio recording · 1h 06m · RMIT Melbourne, 2024</div>
-        <div class="result-abstract">Audio from the alumni panel on breaking into the games and interactive industries — studio pathways, portfolios and freelance practice.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">▶ Listen</a><div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">▶ Play</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <span class="result-aside-cited">1h 06m</span>
-        </div>
-      </div>
-
-      <!-- Result 01 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type interactivity">Interactivity</span><span class="result-year">2026</span><span class="result-spec">Exegesis</span></div>
-        <div class="result-title">TAMAC1DE: Anti-Extractive UX and the Gacha Machine — A Practice-Led Critical Design Installation</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2026</div>
-        <div class="result-abstract">This exegesis documents the development of TAMAC1DE, an interactive installation that critiques predatory UX design through the lens of adversarial design theory. Drawing on DiSalvo's framework of agonistic design, Schüll's empirical research on machine-zone addiction mechanics, and Hjorth and Richardson's ambient play theory, the work positions familiar digital gestures — the swipe, the pull-to-reveal, the card flip — as sites of critique rather than compliance.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 0</span>
-        </div>
-      </div>
-
-      <!-- Result 02 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type animation">Animation</span><span class="result-year">2025</span><span class="result-spec">Master's Thesis</span></div>
-        <div class="result-title">Kinetic Empathy: Embodied Emotion in 2D Character Animation Through Motion Principles</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">Master of Animation, Games &amp; Interactivity, RMIT University, Melbourne, 2025</div>
-        <div class="result-abstract">This research investigates how the twelve principles of animation can be redeployed as an affective toolkit — a system for encoding and transmitting emotion through motion rather than expression. Through a series of iterative animated studies, the thesis develops a practice-based methodology for producing empathetic response in viewers without relying on facial legibility or narrative context.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 2</span>
-        </div>
-      </div>
-
-      <!-- Result 03 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type games">Games</span><span class="result-year">2025</span><span class="result-spec">Practice Research</span></div>
-        <div class="result-title">Weight as Mechanic: Physical Computing and the Phenomenology of Play in Alt-Controller Game Design</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2025</div>
-        <div class="result-abstract">This research examines how physical weight and haptic resistance can function as game mechanics rather than peripheral affordances. Through the design and exhibition of a series of alt-controller works, the research argues that somatic engagement reframes the player's relationship to consequence — making failure felt rather than merely seen.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 1</span>
-        </div>
-      </div>
-
-      <!-- Result 04 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type research">Research</span><span class="result-year">2025</span><span class="result-spec">Conference Paper</span></div>
-        <div class="result-title">Seamful Encounters: Exposing Platform Infrastructure in New Media Installation Practice</div>
-        <div class="result-authors"><a href="#">Staff Name</a>, <a href="#">Student Name</a></div>
-        <div class="result-source">ISEA International Symposium on Electronic Art, 2025</div>
-        <div class="result-abstract">This paper revisits Chris Speed's concept of seamful design as a critical framework for new media installation practice. Where seamless design conceals infrastructure to produce effortless consumption, seamful design renders the seams visible — making legible the labour, logistics, and politics embedded in digital systems.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 4</span>
-        </div>
-      </div>
-
-      <!-- Result 05 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type interactivity">Interactivity</span><span class="result-year">2024</span><span class="result-spec">Exegesis</span></div>
-        <div class="result-title">Held, Instantaneously: Adversarial Interface Design and the Choreography of Digital Loneliness</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2024</div>
-        <div class="result-abstract">This exegesis documents Held, Instantaneously — a satirical installation that uses the gestural vocabulary of dating applications to expose the dehumanising logic of swipe-culture. By redeploying the Hinge interface aesthetic in an installation context, the work literalises the relationship between user gesture and NPC spawning.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 3</span>
-        </div>
-      </div>
-
-      <!-- Result 06 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type animation">Animation</span><span class="result-year">2024</span><span class="result-spec">Master's Thesis</span></div>
-        <div class="result-title">Narrative Ecology: Non-Linear Storytelling Structures in Short-Form 3D Animation</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">Master of Animation, Games &amp; Interactivity, RMIT University, Melbourne, 2024</div>
-        <div class="result-abstract">This thesis investigates structural alternatives to linear narrative in short-form animated work, drawing on ecology as a conceptual model — where story events are interdependent rather than sequential. Through four experimental animated shorts, the research develops a vocabulary for non-causal narrative architecture.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 5</span>
-        </div>
-      </div>
-
-      <!-- Result 07 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type games">Games</span><span class="result-year">2024</span><span class="result-spec">Practice Research</span></div>
-        <div class="result-title">Critical Play and the Complicit Player: Designing for Discomfort in Indie Game Contexts</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">MAGI Studio 3 Exegesis, RMIT University, Melbourne, 2024</div>
-        <div class="result-abstract">This research extends Mary Flanagan's framework of critical play into contemporary indie game design, examining how designers can produce games that position the player as complicit in the systems they inhabit. Drawing on examples from Molleindustria and Zach Gage, the research proposes a set of design principles for games that critique without moralising.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 6</span>
-        </div>
-      </div>
-
-      <!-- Result 08 -->
-      <div class="result-item" data-type="document">
-        <div class="result-meta-top"><span class="result-type research">Research</span><span class="result-year">2023</span><span class="result-spec">Master's Thesis</span></div>
-        <div class="result-title">Boid Ecologies: Generative Systems and the Aesthetics of Emergence in Real-Time Installation</div>
-        <div class="result-authors"><a href="#">Student Name</a> — supervised by <a href="#">Staff Name</a></div>
-        <div class="result-source">Master of Animation, Games &amp; Interactivity, RMIT University, Melbourne, 2023</div>
-        <div class="result-abstract">This thesis investigates the aesthetic and conceptual potential of flocking algorithms (boids) as a medium for installation art. Rather than treating emergence as a technical phenomenon, the research positions it as an expressive vocabulary — one capable of producing work that is simultaneously legible and unpredictable.</div>
-        <div class="result-actions"><a class="result-action result-action-primary" href="#">↓ Full PDF</a><div class="result-action-sep"></div><a class="result-action" href="#">Abstract</a><div class="result-action-sep"></div><a class="result-action" href="#">Cite</a><div class="result-action-sep"></div><a class="result-action" href="#">Related Works</a></div>
-        <div class="result-aside">
-          <a class="result-aside-link primary" href="#">↓ PDF</a>
-          <a class="result-aside-link" href="#">Save</a>
-          <a class="result-aside-link" href="#">Cite</a>
-          <span class="result-aside-cited">Cited by 8</span>
-        </div>
-      </div>
-
-
-      <!-- Pagination -->
-      <div class="results-pagination">
-        <button class="page-btn wide">← Prev</button>
-        <button class="page-btn active">1</button>
-        <button class="page-btn">2</button>
-        <button class="page-btn">3</button>
-        <button class="page-btn">4</button>
-        <button class="page-btn">5</button>
-        <button class="page-btn">6</button>
-        <button class="page-btn wide">Next →</button>
+      <div id="results-list">
+        <div class="results-loading" id="results-loading">Loading the archive…</div>
       </div>
 
     </div>
@@ -1273,16 +1137,10 @@
         <button class="up-close" id="up-close" aria-label="Close">×</button>
       </div>
       <div class="up-body">
-        <label class="up-drop" id="up-drop">
-          <input type="file" id="up-file" hidden />
-          <div class="up-drop-icon">↑</div>
-          <div class="up-drop-text">Drag a file here or <span>browse</span></div>
-          <div class="up-drop-hint">Recordings · Lectures · Video · Audio · Documents · Images</div>
-          <div class="up-file-name" id="up-file-name"></div>
-        </label>
-        <div class="up-field">
-          <label for="up-title-in">Title</label>
-          <input type="text" id="up-title-in" placeholder="Give it a title" />
+        <div class="up-field" id="up-gate-field" style="display:none">
+          <label for="up-gate-input">Archive password</label>
+          <input type="password" id="up-gate-input" placeholder="Student &amp; staff password" autocomplete="off" />
+          <span class="up-hint" id="up-gate-hint">Uploading is for MAGI students &amp; staff — enter the password once.</span>
         </div>
         <div class="up-field">
           <label for="up-type">Type</label>
@@ -1291,13 +1149,38 @@
             <option value="lecture">Lecture</option>
             <option value="video">Video</option>
             <option value="audio">Audio</option>
-            <option value="document">Document</option>
+            <option value="document">Document (PDF)</option>
             <option value="image">Image</option>
           </select>
         </div>
+
+        <!-- Video / audio: a LINK (keeps Supabase light) -->
+        <div class="up-field" id="up-link-field">
+          <label for="up-link"><span id="up-link-label">Video link</span></label>
+          <input type="url" id="up-link" placeholder="Vimeo / YouTube link" />
+          <span class="up-hint" id="up-link-hint">Paste a Vimeo or YouTube link — video isn't uploaded, just linked.</span>
+        </div>
+
+        <!-- Document / image: a FILE uploaded to Storage -->
+        <label class="up-drop" id="up-drop" style="display:none">
+          <input type="file" id="up-file" hidden />
+          <div class="up-drop-icon">↑</div>
+          <div class="up-drop-text">Drag a file here or <span>browse</span></div>
+          <div class="up-drop-hint" id="up-drop-hint">PDF, up to 20MB</div>
+          <div class="up-file-name" id="up-file-name"></div>
+        </label>
+
         <div class="up-field">
-          <label for="up-author">Uploaded by</label>
-          <input type="text" id="up-author" placeholder="Your name" />
+          <label for="up-title-in">Title</label>
+          <input type="text" id="up-title-in" placeholder="Give it a title" />
+        </div>
+        <div class="up-field">
+          <label for="up-author">Author(s)</label>
+          <input type="text" id="up-author" placeholder="e.g. Student Name — supervised by Staff Name" />
+        </div>
+        <div class="up-field">
+          <label for="up-abstract">Description (optional)</label>
+          <textarea id="up-abstract" rows="3" placeholder="A short description of the work."></textarea>
         </div>
       </div>
       <div class="up-foot">
@@ -1339,6 +1222,7 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     // ── FILTER CHIPS ──────────────────────────────────
     document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -1411,6 +1295,16 @@
         return url;
       };
 
+      // Normalise a Vimeo / YouTube / SoundCloud link into an embeddable iframe src.
+      const embedUrl = (raw) => {
+        const yt = raw.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+        if (yt) return 'https://www.youtube.com/embed/' + yt[1];
+        if (/vimeo\.com/.test(raw)) return vimeoPlayerUrl(raw);
+        if (/soundcloud\.com/.test(raw) && !/w\.soundcloud\.com\/player/.test(raw))
+          return 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(raw) + '&color=%23222222&visual=false';
+        return raw;
+      };
+
       // Load the Vimeo Player SDK once, on demand (fail-open: the iframe still plays without it).
       let vimeoSDK;
       const loadVimeoSDK = () => {
@@ -1476,18 +1370,31 @@
 
         const rp = document.createElement('div');
         const embed = item.dataset.embed;
+        const file  = item.dataset.file;
 
         if (embed) {
-          // Real hosted media. Vimeo frames cleanly and supports pause-in-place via its SDK;
-          // any other iframe URL (e.g. SharePoint) is embedded as-is.
+          // Real hosted media: Vimeo (pause-in-place via SDK), YouTube, SoundCloud, or any iframe URL.
           const isVimeo = /vimeo\.com/.test(embed);
-          const url = isVimeo ? vimeoPlayerUrl(embed) : embed;
-          rp.className = 'rp rp-embed-wrap' + (isVimeo ? ' rp-vimeo' : '');
+          const isAudio = item.dataset.type === 'audio';
+          const url = embedUrl(embed);
+          rp.className = 'rp rp-embed-wrap' + (isVimeo ? ' rp-vimeo' : '') + (isAudio ? ' rp-embed-audio' : '');
           rp.innerHTML =
             '<div class="rp-embed"><iframe data-src="' + esc(url) + '" src="' + esc(url) + '" ' +
             'allowfullscreen allow="autoplay; fullscreen; picture-in-picture; encrypted-media" ' +
             'title="' + esc(title) + '"></iframe></div>';
           if (isVimeo) initVimeo(rp);
+        } else if (file && item.dataset.type === 'image') {
+          rp.className = 'rp rp-image';
+          rp.innerHTML =
+            '<div class="rp-image-box"><img src="' + esc(file) + '" alt="' + esc(title) + '" /></div>' +
+            '<div class="rp-file-bar"><span class="rp-file-name">' + esc(title) + '</span>' +
+            '<a class="rp-file-dl" href="' + esc(file) + '" target="_blank" rel="noopener">↓ Download</a></div>';
+        } else if (file) {
+          rp.className = 'rp rp-doc';
+          rp.innerHTML =
+            '<div class="rp-doc-frame"><iframe src="' + esc(file) + '#view=FitH" title="' + esc(title) + '"></iframe></div>' +
+            '<div class="rp-file-bar"><span class="rp-file-name">' + esc(slug(title)) + '.pdf</span>' +
+            '<a class="rp-file-dl" href="' + esc(file) + '" target="_blank" rel="noopener">↓ Open / Download</a></div>';
         } else if (kind === 'video') {
           rp.className = 'rp rp-video';
           rp.innerHTML =
@@ -1646,48 +1553,210 @@
       });
     })();
 
-    // ── UPLOAD ────────────────────────────────────────
+    // ── ARCHIVE DATA (Supabase) + UPLOAD ───────────────
     (function () {
-      const openBtn = document.getElementById('up-open');
-      const overlay = document.getElementById('up-overlay');
-      if (!openBtn || !overlay) return;
+      const SUPA_URL = 'https://hzzhuikzvdfcizkuelte.supabase.co';
+      const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
+      const BUCKET   = 'archive';
+      const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-      const drop     = document.getElementById('up-drop');
-      const fileIn   = document.getElementById('up-file');
-      const fileName = document.getElementById('up-file-name');
-      const titleIn  = document.getElementById('up-title-in');
-      const typeSel  = document.getElementById('up-type');
-      const authorIn = document.getElementById('up-author');
-      const list     = document.querySelector('.research-results');
-      const anchor   = list.querySelector('.result-item');
-      const LABELS   = { recording:'Recording', lecture:'Lecture', video:'Video', audio:'Audio', document:'Document', image:'Image' };
+      const GATE_KEY = 'magi-studio-auth';   // shared with the Board / Sound Collab
+      const PASSWORD = 'magistu2026';
+      const isUnlocked = () => sessionStorage.getItem(GATE_KEY) === '1';
+
+      const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20MB cap for PDF/image
+      const LABELS = { recording:'Recording', lecture:'Lecture', video:'Video', audio:'Audio', document:'Document', image:'Image' };
+      const isLinkType = t => ['video','recording','lecture','audio'].includes(t);
+
+      const $ = (s, r=document) => r.querySelector(s);
+      const esc = (s) => (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2,8));
+
+      // Ownership (lets the posting browser delete its own item) — same soft model as Sound Collab.
+      const tokenKey = id => 'arch-own-' + id;
+      const getToken = id => { try { return localStorage.getItem(tokenKey(id)); } catch(e){ return null; } };
+      const setToken = (id,t) => { try { localStorage.setItem(tokenKey(id), t); } catch(e){} };
+      const isOwner = row => !!row.owner_token && getToken(row.id) === row.owner_token;
+
+      let items = [];
+
+      // ── LOAD / RENDER ────────────────────────────────
+      async function loadAll() {
+        const { data, error } = await db.from('archive_items').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.error(error);
+          $('#results-list').innerHTML = '<div class="results-empty">Couldn\'t reach the archive database — the Supabase table may not be set up yet (see archive-setup.sql).</div>';
+          return;
+        }
+        items = data || [];
+        render();
+      }
+
+      const GLYPHS = { recording:'▶', lecture:'▶', video:'▶', audio:'♪', document:'PDF', image:'IMG' };
+
+      // Best-effort thumbnail: the image itself for images, provider stills for
+      // YouTube/Vimeo, otherwise a coloured type tile. Provider thumbs fall back
+      // to the tile on load error (see render()).
+      function thumbSrc(row) {
+        const type = row.type || 'document';
+        const url  = row.media_url || '';
+        if (type === 'image' && url) return url;
+        const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+        if (yt) return 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg';
+        const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        if (vm) return 'https://vumbnail.com/' + vm[1] + '.jpg';
+        return null;
+      }
+      function thumbHtml(row) {
+        const type  = row.type || 'document';
+        const glyph = GLYPHS[type] || '▶';
+        const src   = thumbSrc(row);
+        const attrs = 'data-t="' + esc(type) + '" data-glyph="' + esc(glyph) + '"';
+        return src
+          ? '<div class="result-thumb" ' + attrs + '><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
+          : '<div class="result-thumb result-thumb-ph" ' + attrs + '><span>' + esc(glyph) + '</span></div>';
+      }
+
+      function itemHtml(row) {
+        const type  = row.type || 'document';
+        const label = LABELS[type] || type;
+        const link  = isLinkType(type);
+        const primary = type === 'audio' ? '▶ Listen' : type === 'document' ? '↓ Full PDF' : type === 'image' ? 'View image' : '▶ Watch';
+        const asideP  = type === 'audio' ? '▶ Play'   : type === 'document' ? '↓ PDF'      : type === 'image' ? 'View'       : '▶ Play';
+        const cited   = link ? (row.duration || '') : (type === 'document' ? 'PDF' : '');
+        const dataAttr = row.media_url ? (link ? ' data-embed="'+esc(row.media_url)+'"' : ' data-file="'+esc(row.media_url)+'"') : '';
+        const dl = row.media_url ? '<div class="result-action-sep"></div><a class="result-action" href="'+esc(row.media_url)+'" target="_blank" rel="noopener">Download</a>' : '';
+        const owner = isOwner(row) ? '<a class="result-aside-link" href="#" data-arch-del="'+esc(row.id)+'">Delete</a>' : '';
+        return (
+          '<div class="result-item" data-type="'+esc(type)+'"'+dataAttr+' id="'+esc(row.id)+'">' +
+            thumbHtml(row) +
+            '<div class="result-meta-top"><span class="result-type '+esc(type)+'">'+esc(label)+'</span>' +
+              (row.year ? '<span class="result-year">'+esc(row.year)+'</span>' : '') +
+              (row.spec ? '<span class="result-spec">'+esc(row.spec)+'</span>' : '') + '</div>' +
+            '<div class="result-title">'+esc(row.title || 'Untitled')+'</div>' +
+            (row.authors ? '<div class="result-authors">'+esc(row.authors)+'</div>' : '') +
+            (row.source ? '<div class="result-source">'+esc(row.source)+'</div>' : '') +
+            (row.abstract ? '<div class="result-abstract">'+esc(row.abstract)+'</div>' : '') +
+            '<div class="result-actions"><a class="result-action result-action-primary" href="#">'+primary+'</a>'+dl+'</div>' +
+            '<div class="result-aside"><a class="result-aside-link primary" href="#">'+asideP+'</a>'+owner +
+              (cited ? '<span class="result-aside-cited">'+esc(cited)+'</span>' : '') + '</div>' +
+          '</div>'
+        );
+      }
+
+      function render() {
+        const listEl = $('#results-list');
+        listEl.innerHTML = items.length
+          ? items.map(itemHtml).join('')
+          : '<div class="results-empty">Nothing in the archive yet — be the first to upload a work.</div>';
+        const n = items.length;
+        $('#results-count').innerHTML = '<strong>'+n+'</strong> '+(n===1?'item':'items')+' in the archive';
+        // Provider thumbnail failed to load → fall back to the coloured type tile.
+        listEl.querySelectorAll('.result-thumb img').forEach(img => {
+          img.addEventListener('error', () => {
+            const box = img.closest('.result-thumb');
+            if (!box) return;
+            box.classList.add('result-thumb-ph');
+            box.innerHTML = '<span>' + (box.dataset.glyph || '▶') + '</span>';
+          }, { once: true });
+        });
+        stampFromData();
+        maybeScrollToHash();
+      }
+
+      function fmtStamp(d) {
+        const p = x => String(x).padStart(2,'0');
+        let h = d.getHours(); const ampm = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12;
+        return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+p(d.getFullYear()%100)+' '+h+':'+p(d.getMinutes())+ampm;
+      }
+      function stampFromData() {
+        const el = $('#db-last-updated');
+        if (!el) return;
+        el.textContent = items.length ? 'Last updated: ' + fmtStamp(new Date(items[0].created_at || Date.now())) : '';
+      }
+      function maybeScrollToHash() {
+        const id = location.hash.slice(1);
+        if (!id) return;
+        const el = document.getElementById(id);
+        if (el && el.classList.contains('result-item')) el.scrollIntoView({ block: 'center' });
+      }
+
+      // ── DELETE (owner only) ──────────────────────────
+      $('#results-list').addEventListener('click', async e => {
+        const del = e.target.closest('[data-arch-del]');
+        if (!del) return;
+        e.preventDefault(); e.stopPropagation();
+        const id = del.dataset.archDel;
+        const row = items.find(x => x.id === id);
+        if (!confirm('Delete "'+(row ? row.title : 'this item')+'" from the archive? This can\'t be undone.')) return;
+        if (row && row.media_url && row.media_url.includes('/storage/v1/object/public/'+BUCKET+'/')) {
+          const path = row.media_url.split('/storage/v1/object/public/'+BUCKET+'/')[1];
+          if (path) db.storage.from(BUCKET).remove([decodeURIComponent(path)]).catch(()=>{});
+        }
+        const { error } = await db.from('archive_items').delete().eq('id', id);
+        if (error) { console.error(error); alert('Could not delete — see console.'); return; }
+        items = items.filter(x => x.id !== id);
+        render();
+      });
+
+      // ── REALTIME ─────────────────────────────────────
+      db.channel('archive_items')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'archive_items' }, loadAll)
+        .subscribe();
+
+      // ── UPLOAD MODAL ─────────────────────────────────
+      const overlay   = document.getElementById('up-overlay');
+      const openBtn   = document.getElementById('up-open');
+      const drop      = document.getElementById('up-drop');
+      const fileIn    = document.getElementById('up-file');
+      const fileName  = document.getElementById('up-file-name');
+      const dropHint  = document.getElementById('up-drop-hint');
+      const titleIn   = document.getElementById('up-title-in');
+      const typeSel   = document.getElementById('up-type');
+      const authorIn  = document.getElementById('up-author');
+      const abstractIn= document.getElementById('up-abstract');
+      const linkIn    = document.getElementById('up-link');
+      const linkField = document.getElementById('up-link-field');
+      const linkLabel = document.getElementById('up-link-label');
+      const linkHint  = document.getElementById('up-link-hint');
+      const gateField = document.getElementById('up-gate-field');
+      const gateInput = document.getElementById('up-gate-input');
+      const gateHint  = document.getElementById('up-gate-hint');
+      const submitBtn = document.getElementById('up-submit');
       let picked = null;
 
-      const escapeHtml = (s) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      function syncType() {
+        const t = typeSel.value;
+        if (isLinkType(t)) {
+          linkField.style.display = ''; drop.style.display = 'none';
+          if (t === 'audio') { linkLabel.textContent = 'Audio link'; linkIn.placeholder = 'SoundCloud link'; linkHint.textContent = 'Paste a SoundCloud (or similar) link — audio is linked, not uploaded.'; }
+          else { linkLabel.textContent = 'Video link'; linkIn.placeholder = 'Vimeo / YouTube link'; linkHint.textContent = 'Paste a Vimeo or YouTube link — video is linked, not uploaded.'; }
+        } else {
+          linkField.style.display = 'none'; drop.style.display = '';
+          if (t === 'image') { fileIn.accept = 'image/*'; dropHint.textContent = 'PNG / JPG, up to 20MB'; }
+          else { fileIn.accept = 'application/pdf'; dropHint.textContent = 'PDF, up to 20MB'; }
+        }
+      }
+      typeSel.addEventListener('change', syncType);
 
-      const typeFromFile = (f) => {
-        const t = (f.type || '').toLowerCase();
-        if (t.startsWith('video/')) return 'video';
-        if (t.startsWith('audio/')) return 'audio';
-        if (t.startsWith('image/')) return 'image';
-        return 'document';
-      };
-
-      const open  = () => overlay.classList.add('is-open');
+      function syncGate() { gateField.style.display = isUnlocked() ? 'none' : ''; }
+      const open  = () => { overlay.classList.add('is-open'); syncType(); syncGate(); };
       const close = () => overlay.classList.remove('is-open');
       const reset = () => {
         picked = null; fileIn.value = ''; fileName.textContent = '';
-        titleIn.value = ''; authorIn.value = ''; typeSel.value = 'recording';
+        titleIn.value = ''; authorIn.value = ''; abstractIn.value = ''; linkIn.value = '';
+        typeSel.value = 'video'; syncType();
       };
 
       const handleFile = (f) => {
-        picked = f;
-        fileName.textContent = f.name;
+        if (f.size > MAX_FILE_BYTES) { alert(f.name + ' is over 20MB. Upload a smaller file, or host video/audio externally and paste a link.'); return; }
+        picked = f; fileName.textContent = f.name;
         if (!titleIn.value) titleIn.value = f.name.replace(/\.[^.]+$/, '');
-        typeSel.value = typeFromFile(f);
+        typeSel.value = (f.type||'').startsWith('image/') ? 'image' : 'document';
+        syncType();
       };
 
-      openBtn.addEventListener('click', open);
+      if (openBtn) openBtn.addEventListener('click', open);
       document.getElementById('up-close').addEventListener('click', close);
       document.getElementById('up-cancel').addEventListener('click', close);
       overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
@@ -1698,37 +1767,66 @@
       ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragover'); }));
       drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
 
-      document.getElementById('up-submit').addEventListener('click', () => {
-        const type   = typeSel.value;
-        const title  = titleIn.value.trim() || (picked ? picked.name : 'Untitled upload');
-        const author = authorIn.value.trim() || 'You';
-        const year   = new Date().getFullYear();
+      submitBtn.addEventListener('click', async () => {
+        // Gate: uploading persists to the shared archive, so it needs the password.
+        if (!isUnlocked()) {
+          gateField.style.display = '';
+          if (gateInput.value === PASSWORD) { sessionStorage.setItem(GATE_KEY, '1'); gateHint.textContent = ''; }
+          else { gateHint.textContent = 'Enter the archive password to upload.'; gateInput.focus(); return; }
+        }
+        // Moderation
+        if (window.MAGIModeration && !MAGIModeration.gate({ context: 'Archive upload', fields: [
+          { label: 'Title', value: titleIn.value },
+          { label: 'Author(s)', value: authorIn.value },
+          { label: 'Description', value: abstractIn.value },
+        ] })) return;
 
-        const item = document.createElement('div');
-        item.className = 'result-item just-added';
-        item.dataset.type = type;
-        item.innerHTML =
-          '<div class="result-meta-top"><span class="result-type ' + type + '">' + LABELS[type] + '</span>' +
-          '<span class="result-year">' + year + '</span><span class="result-spec">Uploaded</span></div>' +
-          '<div class="result-title">' + escapeHtml(title) + '</div>' +
-          '<div class="result-authors">Uploaded by <a href="#">' + escapeHtml(author) + '</a></div>' +
-          '<div class="result-source">' + (picked ? escapeHtml(picked.name) : 'File') + ' · added just now</div>' +
-          '<div class="result-abstract">Newly added to the MAGI Archive.</div>' +
-          '<div class="result-actions"><a class="result-action result-action-primary" href="#">Open</a>' +
-          '<div class="result-action-sep"></div><a class="result-action" href="#">Download</a></div>' +
-          '<div class="result-aside"><a class="result-aside-link primary" href="#">Open</a>' +
-          '<a class="result-aside-link" href="#">Save</a></div>';
+        const type = typeSel.value;
+        const title = titleIn.value.trim();
+        let media_url = '';
 
-        list.insertBefore(item, anchor || null);
-        close();
-        reset();
-        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (isLinkType(type)) {
+          media_url = linkIn.value.trim();
+          if (!media_url) { linkIn.focus(); return; }
+        } else if (!picked) {
+          alert('Choose a ' + (type === 'image' ? 'image' : 'PDF') + ' to upload.'); return;
+        }
+        if (!title && !picked) { titleIn.focus(); return; }
+
+        submitBtn.disabled = true; submitBtn.textContent = 'Adding…';
+
+        if (!isLinkType(type) && picked) {
+          const ext = (picked.name.split('.').pop() || 'bin').toLowerCase();
+          const path = type + 's/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+          const { error: upErr } = await db.storage.from(BUCKET).upload(path, picked, { upsert: false, contentType: picked.type || undefined });
+          if (upErr) { console.error(upErr); alert('File upload failed — check the "archive" storage bucket exists. See console.'); submitBtn.disabled=false; submitBtn.textContent='Add to Archive'; return; }
+          media_url = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+
+        const id = uid(), token = uid();
+        const row = {
+          id, type,
+          title: title || (picked ? picked.name.replace(/\.[^.]+$/, '') : 'Untitled'),
+          authors: authorIn.value.trim(),
+          abstract: abstractIn.value.trim(),
+          year: new Date().getFullYear(),
+          spec: 'Uploaded',
+          media_url,
+          owner_token: token,
+        };
+        const { error } = await db.from('archive_items').insert(row);
+        submitBtn.disabled = false; submitBtn.textContent = 'Add to Archive';
+        if (error) { console.error(error); alert('Could not add to the archive — see console.'); return; }
+        setToken(id, token);
+        close(); reset();
       });
 
-      // Open automatically when linked to with #upload (e.g. the home "Submit Your Work" button)
+      // Open automatically when linked with #upload (home "Submit Your Work" button)
       const maybeOpenFromHash = () => { if (location.hash === '#upload') open(); };
       maybeOpenFromHash();
-      window.addEventListener('hashchange', maybeOpenFromHash);
+      window.addEventListener('hashchange', () => { maybeOpenFromHash(); maybeScrollToHash(); });
+
+      loadAll();
     })();
   </script>
 

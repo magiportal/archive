@@ -1030,6 +1030,7 @@
     </div>
     <div class="nav-links">
       <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="latest.html">Latest</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
@@ -1176,6 +1177,7 @@
     </div>
   </div>
 
+  <script src="moderation.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     // ── PASSWORD GATE ──────────────────────────────────
@@ -1836,6 +1838,13 @@
       const img     = document.getElementById('form-img').value.trim();
 
       if (!title) { document.getElementById('form-title').focus(); return; }
+
+      if (window.MAGIModeration && !MAGIModeration.gate({ context: 'Community Board — card', fields: [
+        { label: 'Title', value: title },
+        { label: 'Description', value: text },
+        { label: 'Author', value: author },
+        { label: 'Tags', value: tagsRaw },
+      ] })) return;
 
       // disable button to prevent spam
       const submitBtn = document.getElementById('modal-submit');

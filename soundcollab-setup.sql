@@ -48,6 +48,10 @@ create table if not exists public.sound_assignments (
 alter table public.sound_projects  add column if not exists owner_token text;
 alter table public.sound_designers add column if not exists owner_token text;
 
+-- ── MEDIA (gameplay / reference video for a project) ─────────
+-- A YouTube or Vimeo link so sound designers can see the project before volunteering.
+alter table public.sound_projects add column if not exists media_url text;
+
 -- ── ROW LEVEL SECURITY (open / trust-based, same as studio_cards) ──
 alter table public.sound_projects    enable row level security;
 alter table public.sound_designers   enable row level security;

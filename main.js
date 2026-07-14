@@ -36,6 +36,25 @@ letters.forEach(letter => {
   letter.addEventListener('mouseleave', deactivate);
 });
 
+// ── TOUCH: tap a letter to light its specialisation ───────────────
+// Touch devices have no hover, so the whole logo↔spec system felt dead on
+// mobile. Tapping a letter now toggles its spec (and dims the rest); tapping
+// again, or anywhere outside the logo, clears it. Additive — the existing
+// flourish handlers (M-fold, A-shatter, I-game) still fire on tap too.
+if (window.matchMedia('(hover: none)').matches) {
+  letters.forEach(letter => {
+    if (!letter.dataset.spec) return;
+    letter.addEventListener('click', () => {
+      const active = logoWrap.getAttribute('data-active');
+      if (active === letter.dataset.spec) deactivate();
+      else activate(letter.dataset.spec);
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (logoWrap.hasAttribute('data-active') && !e.target.closest('#logo-wrap')) deactivate();
+  });
+}
+
 // ── A — SHATTER INTO A 3×3 JENGA STACK ───────────
 const letterA = document.getElementById('letter-a');
 let aShattered = false;
