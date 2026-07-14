@@ -873,3 +873,27 @@ document.querySelectorAll('.nav-link').forEach(link => {
     this.classList.add('active');
   });
 });
+
+// ── SPEC CATEGORY REVEAL (mobile) ─────────────────
+// On mobile the four specialisations show as a compact logo row; tapping a
+// logo reveals that category's description in the shared area below the row
+// (and highlights it). Tapping the same one again closes it. Inert on desktop,
+// where the reveal element is display:none and each panel shows its desc inline.
+(function () {
+  const specs  = document.querySelector('.specs');
+  const reveal = document.getElementById('spec-mreveal');
+  if (!specs || !reveal) return;
+  const panels = [...specs.querySelectorAll('.spec-panel')];
+  panels.forEach(panel => {
+    panel.addEventListener('click', (e) => {
+      if (e.target.closest('.spec-link')) return;   // let the "View all works" link navigate
+      const wasOpen = panel.classList.contains('is-open');
+      panels.forEach(p => p.classList.remove('is-open'));
+      if (wasOpen) { reveal.classList.remove('show'); reveal.innerHTML = ''; return; }
+      panel.classList.add('is-open');
+      const inner = panel.querySelector('.spec-inner');
+      reveal.innerHTML = inner ? inner.innerHTML : '';
+      reveal.classList.add('show');
+    });
+  });
+})();

@@ -11,11 +11,14 @@
 <body>
 
   <!-- ── NAV ──────────────────────────────────────── -->
-  <nav class="nav">
+  <nav class="nav" id="site-nav">
     <div class="nav-wordmark">
       <span class="nav-wordmark-magi">MAGI</span>
       <span class="nav-wordmark-sub">Portal</span>
     </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav-links">
       <a class="nav-link" href="index.html">Home</a>
       <a class="nav-link" href="latest.html">Latest</a>
@@ -175,5 +178,6 @@
     </div>
   </footer>
 
+  <script src="nav-toggle.js"></script>
 </body>
 </html>

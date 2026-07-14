@@ -1941,6 +1941,9 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .rec-panel-link:hover { background: #fff; color: #0a0a0a; border-color: #fff; }
 
 
+/* Category description reveal — hidden entirely on desktop (see mobile block) */
+.spec-mreveal { display: none; }
+
 /* ══════════════════════════════════════════════════════
    MOBILE — home page + shared chrome
    ══════════════════════════════════════════════════════ */
@@ -2004,17 +2007,64 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   .hero-tagline-wrap { bottom: 44px; width: 92%; gap: 14px; }
   .hero-tagline-wrap .hero-rmit { height: 38px; }
 
-  /* ── SPECIALISATIONS ──────────────────────────────── */
-  .specs { grid-template-columns: 1fr; border-left: none; }
-  .spec-inner { padding: 22px 22px 30px; }
+  /* ── SPECIALISATIONS — compact logo row + tap-to-reveal ── */
+  .specs {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: auto;
+    border-left: none;
+  }
+  .spec-panel { cursor: pointer; }         /* keeps the coloured ::before top bar */
+  .spec-header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 16px 4px 14px;
+    border-bottom: none;
+  }
+  .spec-symbol { height: 42px; }
+  .spec-header-label {
+    align-self: center;                    /* override base flex-end so it centres under the logo */
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    padding: 3px 6px 4px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .spec-panel.is-open { background: var(--bg-hover); }
+  .spec-panel.is-open .spec-symbol { filter: none; }
+  .spec-inner { display: none; }                    /* desc shown in the shared reveal */
+
+  .spec-mreveal {
+    grid-column: 1 / -1;
+    display: none;
+    padding: 20px 22px 24px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-hover);
+  }
+  .spec-mreveal.show { display: block; }
+  .spec-mreveal .spec-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; margin-bottom: 14px; }
+  .spec-mreveal .spec-link { font-size: 11px; }
 
   /* ── UPLOAD CTA ───────────────────────────────────── */
   .upload-inner { padding: 32px 22px; }
 
-  /* ── NEWS & EVENTS ────────────────────────────────── */
-  .news-grid { grid-template-columns: 1fr; }
-  .news-card { padding: 24px 22px; }
-  .news-card-featured { border-right: none; }
+  /* ── NEWS & EVENTS — horizontal scroller ──────────── */
+  .news-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;                 /* Firefox */
+  }
+  .news-grid::-webkit-scrollbar { display: none; }  /* WebKit */
+  .news-card {
+    flex: 0 0 80%;
+    min-width: 0;
+    scroll-snap-align: start;
+    padding: 24px 22px;
+  }
+  .news-card:last-child { border-right: none; }
 
   /* ── SELECTED WORKS ───────────────────────────────── */
   .sel-grid { grid-template-columns: 1fr 1fr; gap: 16px; padding: 22px; }

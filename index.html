@@ -129,6 +129,9 @@
       </div>
     </div>
 
+    <!-- Mobile-only: a category's description is revealed here when its logo is tapped -->
+    <div class="spec-mreveal" id="spec-mreveal" aria-live="polite"></div>
+
   </section>
 
   <!-- ── UPLOAD CTA ─────────────────────────────────── -->
@@ -323,25 +326,9 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script src="main.js"></script>
+  <script src="nav-toggle.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script>
-    // ── MOBILE NAV (hamburger) ─────────────────────────────────────────
-    (function () {
-      const nav = document.getElementById('site-nav');
-      const btn = document.getElementById('nav-toggle');
-      if (!nav || !btn) return;
-      const setOpen = (open) => {
-        nav.classList.toggle('open', open);
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      };
-      btn.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
-      // Close when a link is tapped, or on Escape.
-      nav.querySelectorAll('.nav-links a, .nav-right a').forEach(a =>
-        a.addEventListener('click', () => setOpen(false)));
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
-    })();
-  </script>
 
   <script>
     // ── RECENT MEDIA — live from the Archive's Supabase table ──────────
