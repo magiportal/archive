@@ -1232,18 +1232,20 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 3px; padding: 0 14px 14px; }
 .tag { font-size: 9px; color: var(--muted); border: 1px solid var(--line); padding: 2px 6px; }
 
-/* Staff tags — larger, coloured to each member's category */
+/* Staff tags — same solid category-badge style used on Alumni, Archive, etc. */
 .staff-tags .tag {
-  font-size: 11px;
-  padding: 4px 10px;
-  letter-spacing: 0.02em;
-  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: none;
 }
 
-.staff-card[data-cat="research"]      .staff-tags .tag { background: var(--tint-research);      border-color: var(--col-research);      color: #5a6200; }
-.staff-card[data-cat="animation"]     .staff-tags .tag { background: var(--tint-animation);     border-color: var(--col-animation);     color: #a0007a; }
-.staff-card[data-cat="games"]         .staff-tags .tag { background: var(--tint-games);         border-color: var(--col-games);         color: #007fa0; }
-.staff-card[data-cat="interactivity"] .staff-tags .tag { background: var(--tint-interactivity); border-color: var(--col-interactivity); color: #b04400; }
+.staff-card[data-cat="research"]      .staff-tags .tag { background: var(--col-research);      color: #4a5200; }
+.staff-card[data-cat="animation"]     .staff-tags .tag { background: var(--col-animation);     color: #fff; }
+.staff-card[data-cat="games"]         .staff-tags .tag { background: var(--col-games);         color: #003a4a; }
+.staff-card[data-cat="interactivity"] .staff-tags .tag { background: var(--col-interactivity); color: #fff; }
 
 /* ── SELECTED WORKS (framed cards) ───────────────── */
 
@@ -1543,21 +1545,31 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 
 .staff-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  border-left: 1px solid var(--line);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  padding: 28px;
+  background: var(--bg-hover);
+  align-items: start;
 }
 
+/* Floats as its own card rather than a shared-border grid cell — matches
+   the Sound Collab pamphlet treatment, but sized to its content, not a
+   fixed ratio, so there's no dead space under a short bio. */
 .staff-card {
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 44px;
+  position: relative;
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: var(--white);
+  padding: 26px 24px;
   display: flex;
-  gap: 36px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.1s, box-shadow 0.15s;
 }
 
-.staff-card:hover { background: var(--bg-hover); }
+.staff-card:hover { background: var(--bg-hover); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09); }
 
 .staff-initials {
   align-self: flex-start;
@@ -1580,6 +1592,7 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  width: 100%;
 }
 
 .staff-photo {
@@ -1626,23 +1639,32 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 }
 
 .staff-link {
-  font-size: 11px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--dim);
   text-decoration: none;
-  transition: color 0.1s;
-  letter-spacing: 0.04em;
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  white-space: nowrap;
+  transition: color 0.1s, border-color 0.1s;
+  z-index: 2;
 }
 
-.staff-link:hover { color: var(--black); }
+.staff-link:hover { color: var(--black); border-color: var(--black); }
 
-@media (max-width: 720px) {
-  .staff-grid { grid-template-columns: 1fr; }
-  .staff-card { padding: 28px 24px; gap: 22px; }
+@media (max-width: 980px) {
+  .staff-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .staff-grid { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+  .staff-card { padding: 24px 22px; gap: 14px; }
   .staff-photo, .staff-initials { width: 76px; height: 76px; }
-}
-
-@media (max-width: 400px) {
-  .staff-card { flex-direction: column; gap: 16px; }
 }
 
 /* ── RECENT RECORDINGS SPOTLIGHT ────────────────── */
