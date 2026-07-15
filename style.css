@@ -177,33 +177,83 @@ body > :not(.nav):not(.modal-overlay) {
 .nav-right  { margin-left: auto; display: flex; height: 100%; }
 .nav-right .nav-link { border-right: none; border-left: 1px solid var(--line); }
 
+/* ── SEARCH (expands leftward, pushing the earlier nav-right buttons along
+   with it since this sits last and nav-right is pinned to the nav's right
+   edge — no JS positioning needed, plain layout does the "sliding"). ────── */
+
+.nav-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  border-left: 1px solid var(--line);
+}
+
+.nav-search-input {
+  width: 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 12px;
+  color: var(--black);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), padding 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-search-input::placeholder { color: var(--faint); }
+.nav-search.open .nav-search-input { width: 200px; padding: 0 6px 0 16px; }
+
+.nav-search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.1s;
+  flex-shrink: 0;
+}
+.nav-search-btn:hover { color: var(--black); }
+.nav-search.open .nav-search-btn { color: var(--black); }
+
+.nav-search-label-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+
+.nav-search-label {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.nav-search-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.nav-search.open .nav-search-label { opacity: 0; }
+.nav-search.open .nav-search-icon { opacity: 1; }
+
 /* ── EXPO DROPDOWN (previous years) ───────────────── */
 
 .nav-expo { position: relative; display: flex; align-items: stretch; height: 100%; }
 .nav-expo-link { border-right: none; }
 
-.nav-expo-caret {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 9px;
-  cursor: pointer;
-  transition: color 0.1s;
-}
-.nav-expo-caret:hover { color: var(--black); }
-.nav-expo:hover .nav-expo-caret,
-.nav-expo.open .nav-expo-caret { color: var(--black); }
-
-/* The vertical divider that normally sits at the caret's right edge (dividing
-   EXPO from the rest of the nav) slides right to meet the dropdown's right
-   border as it opens — same line, it just travels there.
+/* The vertical divider that normally sits at EXPO's right edge slides right
+   to meet the dropdown's right border as it opens — same line, it just
+   travels there.
    `right: calc(100% - 240px)` lands it exactly on the menu's right edge
    (menu is left:0, width:240px) regardless of how wide "EXPO ↗" renders. */
 .nav-expo-accent {
@@ -2107,6 +2157,18 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     border-bottom: 1px solid var(--line);
   }
 
+  /* Search becomes a full-width row; the input fills the remaining space
+     next to the button instead of a fixed 200px flyout */
+  .nav:has(.nav-toggle) .nav-search {
+    width: 100%;
+    height: auto;
+    border-left: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav:has(.nav-toggle) .nav-search-btn { padding: 15px 20px; flex-shrink: 0; }
+  .nav:has(.nav-toggle) .nav-search-input { height: auto; padding: 15px 0; }
+  .nav:has(.nav-toggle) .nav-search.open .nav-search-input { flex: 1; width: auto; padding: 15px 0 15px 20px; }
+
   /* EXPO becomes a tap-to-expand accordion row instead of a hover flyout */
   .nav:has(.nav-toggle) .nav-expo {
     flex-direction: column;
@@ -2116,15 +2178,6 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     position: relative;
   }
   .nav:has(.nav-toggle) .nav-expo-link { border-bottom: 1px solid var(--line); }
-  .nav:has(.nav-toggle) .nav-expo-caret {
-    position: absolute;
-    top: 0; right: 0;
-    width: 52px;
-    height: 52px;
-    border-right: none;
-    border-left: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
   .nav:has(.nav-toggle) .nav-expo-menu {
     position: static;
     display: none;
