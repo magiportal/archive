@@ -14,3 +14,26 @@
     a.addEventListener('click', () => setOpen(false)));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
 })();
+
+// ── EXPO DROPDOWN (previous years) ──────────────────
+// Hover already reveals it on desktop (CSS). The caret button makes it
+// click-toggleable too (desktop and — on mobile, where hover doesn't exist —
+// it's the only way in, expanding as an accordion row under EXPO).
+(function () {
+  document.querySelectorAll('.nav-expo').forEach(wrap => {
+    const caret = wrap.querySelector('.nav-expo-caret');
+    if (!caret) return;
+    const setOpen = (open) => {
+      wrap.classList.toggle('open', open);
+      caret.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    caret.addEventListener('click', (e) => {
+      e.preventDefault();
+      setOpen(!wrap.classList.contains('open'));
+    });
+    document.addEventListener('click', (e) => {
+      if (wrap.classList.contains('open') && !wrap.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+  });
+})();

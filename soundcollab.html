@@ -20,7 +20,7 @@
     /* When the access gate is up, blur just the listings — not the whole page. */
     .sc-wrap.is-gated { filter: blur(3px) brightness(0.97); pointer-events: none; user-select: none; transition: filter 0.2s ease; }
 
-    .sc-col { border-right: 1px solid var(--line); }
+    .sc-col { border-right: 5px double var(--line); }
     .sc-col:last-child { border-right: none; }
 
     .sc-col-top {
@@ -538,7 +538,8 @@
 
     @media (max-width: 820px) {
       .sc-wrap { grid-template-columns: 1fr; }
-      .sc-col { border-right: none; border-bottom: 1px solid var(--line); }
+      .sc-col { border-right: none; border-bottom: 5px double var(--line); }
+      .sc-col:last-child { border-bottom: none; }
     }
     @media (max-width: 480px) {
       .sc-grid { grid-template-columns: 1fr; }
@@ -563,7 +564,22 @@
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
-      <a class="nav-link" href="#" target="_blank" rel="noopener">EXPO ↗</a>
+      <div class="nav-expo">
+        <a class="nav-link nav-expo-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
+        <button class="nav-expo-caret" type="button" aria-label="Previous EXPOs" aria-expanded="false">▾</button>
+        <span class="nav-expo-accent" aria-hidden="true"></span>
+        <div class="nav-expo-menu">
+          <a class="nav-expo-item is-current" href="https://magiexpo2025.com/" target="_blank" rel="noopener">
+            <span class="nav-expo-year">2025</span><span class="nav-expo-name">Orbits</span>
+          </a>
+          <a class="nav-expo-item" href="https://magiexpo.github.io/2024/" target="_blank" rel="noopener">
+            <span class="nav-expo-year">2024</span><span class="nav-expo-name">Banquet of Oddities</span>
+          </a>
+          <a class="nav-expo-item" href="https://pasteleftdane.github.io/" target="_blank" rel="noopener">
+            <span class="nav-expo-year">2022</span><span class="nav-expo-name">MAGIc</span>
+          </a>
+        </div>
+      </div>
     </div>
     <div class="nav-right">
       <a class="nav-link active" href="soundcollab.html">Sound Collab</a>
