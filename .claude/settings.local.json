@@ -8,7 +8,9 @@
       "Bash(command -v python3)",
       "Bash(command -v python)",
       "Bash(command -v node)",
-      "Bash(xxd -l 33 \"media/events/acmi-audience-lab.png\")"
+      "Bash(xxd -l 33 \"media/events/acmi-audience-lab.png\")",
+      "Bash(node -e ' *)",
+      "Bash(awk -F: '$1>2200')"
     ]
   }
 }

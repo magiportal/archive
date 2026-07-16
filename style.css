@@ -2299,8 +2299,35 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   .spec-mreveal .spec-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; margin-bottom: 14px; }
   .spec-mreveal .spec-link { font-size: 11px; }
 
-  /* ── UPLOAD CTA ───────────────────────────────────── */
-  .upload-inner { padding: 32px 22px; }
+  /* ── UPLOAD CTA ─────────────────────────────────────
+     Drops below News & Events here, and drops its voice with it: the pale
+     yellow fill and big type read as a banner on a narrow screen, which is
+     more weight than a secondary action wants. */
+
+  /* Reordering needs a flex parent. `:has(#upload)` keeps that scoped to the
+     home page — the other eight pages stay plain block layout. None of these
+     sections carry vertical margins, so flex is layout-equivalent here. */
+  body:has(#upload) { display: flex; flex-direction: column; }
+  /* Every child needs a number: order groups run 0s first, so numbering only
+     #upload would fling it past the footer. */
+  body:has(#upload) > .nav               { order: 0; }
+  body:has(#upload) > .hero              { order: 1; }
+  body:has(#upload) > #specialisations   { order: 2; }
+  body:has(#upload) > #news              { order: 3; }
+  body:has(#upload) > #upload            { order: 4; }
+  body:has(#upload) > #archive           { order: 5; }
+  body:has(#upload) > #recent-recordings { order: 6; }
+  body:has(#upload) > #gallery           { order: 7; }
+  body:has(#upload) > .footer            { order: 8; }
+
+  /* Grey rather than white: it now sits between the black News section and
+     the light Archive, so white would dissolve into the latter. This keeps it
+     a quiet band instead of a yellow banner. */
+  .upload-cta { background: var(--bg-hover); }
+  .upload-inner { padding: 26px 22px; gap: 14px; }
+  .upload-title { font-size: 14px; margin-bottom: 3px; }
+  .upload-desc  { font-size: 11px; line-height: 1.6; }
+  .upload-btn   { font-size: 10px; padding: 11px 20px; }
 
   /* ── NEWS & EVENTS — horizontal scroller ──────────── */
   .news-grid {

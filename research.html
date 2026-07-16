@@ -961,6 +961,88 @@
       to   { background: transparent; }
     }
 
+    /* The filters toggle only exists for the mobile layout below. */
+    .research-filter-toggle { display: none; }
+
+    /* ══════════════════════════════════════════════
+       MOBILE
+       The page was built for a 220px sidebar + results; on a phone that left
+       the results column with ~100px to work with. Everything below collapses
+       it to a single column and reflows the pieces that assumed the width.
+       ══════════════════════════════════════════════ */
+    @media (max-width: 760px) {
+
+      /* ── HERO ── */
+      .research-hero { padding: 32px 20px 26px; gap: 22px; }
+      .research-logo { height: 28px; margin-bottom: 14px; }
+      .research-h1 { font-size: 26px; }
+      .research-sub { font-size: 12px; }
+
+      /* An <input> carries a default intrinsic width that flex won't shrink
+         past, which is what was shoving the Search button off-screen. */
+      .search-input { min-width: 0; font-size: 13px; padding: 12px 14px; }
+      .search-btn { padding: 0 16px; flex-shrink: 0; }
+      .up-open-btn { width: 100%; }
+
+      /* ── LAYOUT: one column, filters behind a toggle ── */
+      .research-layout { grid-template-columns: 1fr; min-height: 0; }
+
+      .research-filter-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 14px 20px;
+        background: none;
+        border: none;
+        border-bottom: 1px solid var(--line);
+        font-family: 'Satoshi', sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--black);
+        cursor: pointer;
+      }
+      .research-filter-caret { font-size: 9px; transition: transform 0.2s ease; }
+      .research-filter-toggle[aria-expanded="true"] .research-filter-caret { transform: rotate(180deg); }
+
+      .research-sidebar {
+        display: none;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+        padding: 20px;
+        gap: 22px;
+      }
+      .research-sidebar.open { display: flex; }
+
+      /* ── RESULT ROWS ──
+         Was `92px 1fr 140px`; the 140px action column is what crushed the text
+         down to ~100px. Dropping to two columns hands that width back, and the
+         actions move under the text instead, laid out as a wrapping row.
+
+         The thumb keeps its `grid-row: 1 / 99` span — that's load-bearing, not
+         decoration: it's what forces the auto-placed text into column 2 rather
+         than letting it tuck under the thumb. So everything here stays in
+         column 2 and merely re-flows within it. */
+      .results-bar { padding: 0 20px; }
+      .result-item {
+        grid-template-columns: 64px 1fr;
+        gap: 0 14px;
+        padding: 18px 20px 20px;
+      }
+      .result-thumb { width: 64px; height: 46px; }
+      .result-aside {
+        grid-column: 2;
+        grid-row: auto;          /* release the 1/99 span it needed as a column */
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 12px;
+      }
+    }
+
   </style>
   <script src="moderation.js"></script>
 </head>
@@ -1047,8 +1129,18 @@
   <!-- ── RESULTS LAYOUT ───────────────────────────── -->
   <div class="research-layout">
 
+    <!-- Mobile only. Stacked, the sidebar's four filter sections push the
+         actual results a screen and a half down, so on narrow viewports they
+         collapse behind this. Hidden on desktop, where the sidebar has its
+         own column. -->
+    <button class="research-filter-toggle" id="research-filter-toggle" type="button"
+            aria-expanded="false" aria-controls="research-sidebar">
+      <span>Filters</span>
+      <span class="research-filter-caret" aria-hidden="true">▾</span>
+    </button>
+
     <!-- ── SIDEBAR ──────────────────────────────────── -->
-    <aside class="research-sidebar">
+    <aside class="research-sidebar" id="research-sidebar">
 
       <div>
         <div class="sidebar-section-title">Specialisation</div>
@@ -1272,6 +1364,19 @@
         this.classList.add('active');
       });
     });
+
+    // ── FILTERS TOGGLE (mobile) ───────────────────────
+    // The button only renders under the mobile breakpoint; on desktop the
+    // sidebar is always visible in its own column and this never runs.
+    (function () {
+      const btn = document.getElementById('research-filter-toggle');
+      const bar = document.getElementById('research-sidebar');
+      if (!btn || !bar) return;
+      btn.addEventListener('click', () => {
+        const open = bar.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
 
     // ── SORT BUTTONS ──────────────────────────────────
     document.querySelectorAll('.sort-btn').forEach(btn => {
