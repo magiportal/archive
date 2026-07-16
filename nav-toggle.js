@@ -58,10 +58,18 @@
   const input = document.getElementById('nav-search-input');
   if (!wrap || !btn || !input) return;
 
+  const nav    = document.getElementById('site-nav');
+  const navBtn = document.getElementById('nav-toggle');
+
   const setOpen = (open) => {
     wrap.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (open) {
+      // On mobile the search sits in the bar rather than inside the hamburger
+      // panel, so both can be open at once — and the results would then cover
+      // the menu. Opening one closes the other.
+      if (nav) nav.classList.remove('open');
+      if (navBtn) navBtn.setAttribute('aria-expanded', 'false');
       setTimeout(() => input.focus(), 30); // wait for the width transition to start
     } else {
       input.blur();
@@ -75,13 +83,19 @@
   });
 
   document.addEventListener('click', (e) => {
-    if (wrap.classList.contains('open') && !wrap.contains(e.target)) setOpen(false);
+    if (!wrap.classList.contains('open')) return;
+    if (wrap.contains(e.target)) return;
+    // The results panel (search.js) lives outside this wrapper but is part of
+    // the same interaction — clicking its tabs must not collapse the box and
+    // wipe the query out from under it.
+    if (e.target.closest('#search-results')) return;
+    setOpen(false);
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && wrap.classList.contains('open')) setOpen(false);
   });
 
-  // No search logic wired up yet — just stop Enter from doing anything odd.
+  // search.js owns the querying; just don't let Enter submit/reload anything.
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
 })();

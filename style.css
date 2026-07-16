@@ -2133,8 +2133,20 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 
 @media (max-width: 760px) {
 
-  /* ── NAV (collapsible — only where a hamburger exists) ── */
-  .nav:has(.nav-toggle) { flex-wrap: wrap; align-items: center; height: auto; min-height: 56px; }
+  /* ── NAV (collapsible — only where a hamburger exists) ──
+     The bar's box stays locked at 56px so opening the menu never reflows the
+     page. The panels still wrap onto their own flex lines, but those lines
+     now overflow the fixed-height bar instead of growing it — so they paint
+     over the page (the nav is sticky + z-indexed) rather than pushing it
+     down. They carry their own background for that reason: they sit outside
+     the bar's painted box. */
+  .nav:has(.nav-toggle) {
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    height: 56px;
+    overflow: visible;
+  }
   .nav:has(.nav-toggle) .nav-toggle { display: flex; }
   .nav:has(.nav-toggle) .nav-wordmark { height: 56px; }
   .nav:has(.nav-toggle) .nav-links,
@@ -2144,9 +2156,13 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     height: auto;
     display: none;
     border-top: 1px solid var(--line);
+    background: var(--white);
   }
   .nav:has(.nav-toggle).open .nav-links,
   .nav:has(.nav-toggle).open .nav-right { display: flex; }
+  /* nav-right is the lower of the two stacked panels, so it's what casts the
+     menu's shadow onto the page underneath. */
+  .nav:has(.nav-toggle).open .nav-right { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08); }
   .nav:has(.nav-toggle) .nav-right { margin-left: 0; }
   .nav:has(.nav-toggle) .nav-link {
     width: 100%;
@@ -2157,17 +2173,40 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     border-bottom: 1px solid var(--line);
   }
 
-  /* Search becomes a full-width row; the input fills the remaining space
-     next to the button instead of a fixed 200px flyout */
+  /* ── SEARCH — lives in the bar beside the hamburger, not in the menu ──
+     The markup has it after .nav-right (so desktop's margin-left:auto still
+     carries both to the right edge); order lifts it onto the bar's own flex
+     line here. The auto margin moves off .nav-toggle onto .nav-search so the
+     two travel right together as a pair. */
+  .nav:has(.nav-toggle) .nav-wordmark { order: 1; }
+  .nav:has(.nav-toggle) .nav-search   { order: 2; margin-left: auto; }
+  .nav:has(.nav-toggle) .nav-toggle   { order: 3; margin-left: 0; }
+  .nav:has(.nav-toggle) .nav-links    { order: 4; }
+  .nav:has(.nav-toggle) .nav-right    { order: 5; }
+
   .nav:has(.nav-toggle) .nav-search {
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 56px;
     border-left: none;
-    border-bottom: 1px solid var(--line);
+    border-bottom: none;
   }
-  .nav:has(.nav-toggle) .nav-search-btn { padding: 15px 20px; flex-shrink: 0; }
-  .nav:has(.nav-toggle) .nav-search-input { height: auto; padding: 15px 0; }
-  .nav:has(.nav-toggle) .nav-search.open .nav-search-input { flex: 1; width: auto; padding: 15px 0 15px 20px; }
+  /* Icon only — no room for the word beside the hamburger. The icon is
+     absolutely stacked over the label by default; with the label gone it has
+     to go back in flow or it'd collapse to nothing. */
+  .nav:has(.nav-toggle) .nav-search-label { display: none; }
+  .nav:has(.nav-toggle) .nav-search-icon { position: static; opacity: 1; }
+  .nav:has(.nav-toggle) .nav-search-btn { padding: 0 16px; flex-shrink: 0; }
+  /* Open: take the room between wordmark and toggle. A fixed 200px input (the
+     desktop figure) would overflow a 320px bar, so grow into what's there.
+     margin-left has to drop back to 0 — an auto margin eats the free space
+     before flex-grow ever sees it. */
+  .nav:has(.nav-toggle) .nav-search.open { flex: 1; margin-left: 0; }
+  .nav:has(.nav-toggle) .nav-search.open .nav-search-input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    padding: 0 4px 0 14px;
+  }
 
   /* EXPO becomes a tap-to-expand accordion row instead of a hover flyout */
   .nav:has(.nav-toggle) .nav-expo {
@@ -2189,17 +2228,35 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     background: var(--bg-hover);
     width: 100%;
   }
-  .nav:has(.nav-toggle) .nav-expo.open .nav-expo-menu { display: block; }
+  /* The menu now overlays the page rather than lengthening it, so it can't be
+     scrolled to — everything has to fit the viewport. The nav rows alone do
+     (~470px), but expanding EXPO in place would push the last items off a
+     short screen, so it scrolls within its own row instead. */
+  .nav:has(.nav-toggle) .nav-expo.open .nav-expo-menu {
+    display: block;
+    max-height: 152px;
+    overflow-y: auto;
+  }
   .nav:has(.nav-toggle) .nav-expo-item { padding-left: 32px; }
   /* the desktop "meets the dropdown" accent line makes no sense against a
      full-width accordion row on mobile */
   .nav:has(.nav-toggle) .nav-expo-accent { display: none; }
 
   /* ── HERO ─────────────────────────────────────────── */
-  .hero { height: 66vh; min-height: 460px; max-height: none; }
+  /* Sized to the content (logo + tagline ≈ 190px) rather than a big desktop
+     vh figure, which left the short mobile logo stranded in empty space. */
+  .hero { height: 52vh; min-height: 380px; max-height: 540px; }
   .hero-logo { top: 42%; width: 94%; }
   .logo-wrap { gap: clamp(4px, 1.4vw, 12px); }
-  .logo-letter { height: clamp(54px, 15vw, 100px); }
+  /* The letters are sized by HEIGHT (keeping each one's own proportions), but
+     what we actually want to control is how wide the MAGI row lands. The four
+     aspect ratios sum to 3.583, so:
+         row = height × 3.583 + 3 gaps
+     Solving for a row ≈ 90vw, with the ~1.4vw gaps above:
+         height × 3.583 + 4.2vw = 90vw  →  height ≈ 24vw
+     That holds its span across the whole mobile range (320 → 760px) without a
+     clamp, which is what was shrinking it to ~54% of the screen before. */
+  .logo-letter { height: 24vw; }
   .hero-tagline-wrap { bottom: 44px; width: 92%; gap: 14px; }
   .hero-tagline-wrap .hero-rmit { height: 38px; }
 
@@ -2287,7 +2344,159 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 
 @media (max-width: 480px) {
   .sel-grid { grid-template-columns: 1fr; }
-  .logo-letter { height: clamp(46px, 14vw, 82px); }
+  /* No .logo-letter override here — the 24vw above already scales linearly all
+     the way down, and re-clamping it was what shrank the logo on small phones. */
   .hero-tagline-wrap .hero-badge { font-size: 12px; letter-spacing: 0.06em; }
   .hero-tagline-wrap .strip-tagline { font-size: 12px; }
+}
+/* ── SEARCH RESULTS PANEL ─────────────────────────────
+   Full-viewport results below the nav, driven by the nav search box.
+   Injected by search.js, so no per-page markup. `modal-overlay` opts it
+   out of the global page fade-in (which would fight its own opacity). */
+
+.search-results {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--white);
+  z-index: 150;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.search-results.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+/* Freeze the page behind the results rather than letting both scroll */
+body.search-open { overflow: hidden; }
+
+.search-results-inner { max-width: 860px; margin: 0 auto; padding: 40px 32px 80px; }
+
+.search-results-title {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--black);
+  margin-bottom: 26px;
+}
+
+/* ── Tabs (All + whichever groups matched) ── */
+.search-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+.search-tab {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0 0 12px;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 0.1s;
+  white-space: nowrap;
+}
+.search-tab:hover { color: var(--black); }
+.search-tab.is-active { color: var(--black); }
+.search-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: var(--black);
+}
+.search-tab-n { color: var(--faint); font-weight: 400; margin-left: 2px; }
+
+.search-note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  margin-top: 18px;
+}
+.search-note a { color: var(--black); }
+
+/* ── Groups ── */
+.search-group { margin-top: 34px; }
+
+.search-group-head {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--black);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+
+/* ── Result row ── */
+.sr-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 16px;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 8px 18px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  transition: background 0.1s;
+}
+.sr-row:hover { background: var(--bg-hover); }
+
+.sr-thumb {
+  width: 92px;
+  height: 66px;
+  overflow: hidden;
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+.sr-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sr-thumb-empty { border: 1px solid var(--line); background: var(--bg-hover); }
+
+.sr-body { min-width: 0; }
+
+.sr-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--black);
+  line-height: 1.3;
+}
+.sr-kind { font-size: 11px; color: var(--secondary); margin-top: 3px; }
+.sr-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 6px;
+  /* keep long abstracts from bloating the row */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sr-chev { color: var(--faint); flex-shrink: 0; }
+.sr-row:hover .sr-chev { color: var(--black); }
+
+.search-empty { font-size: 13px; color: var(--muted); padding: 40px 0; }
+
+@media (max-width: 640px) {
+  .search-results-inner { padding: 28px 20px 60px; }
+  .search-results-title { font-size: 21px; }
+  .search-tabs { gap: 18px; }
+  .sr-row { grid-template-columns: 64px 1fr 16px; gap: 14px; }
+  .sr-thumb { width: 64px; height: 48px; }
 }

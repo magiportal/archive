@@ -155,17 +155,19 @@
       <a class="nav-link" href="soundcollab.html">Sound Collab</a>
       <a class="nav-link" href="research.html">Archive</a>
       <a class="nav-link" href="studio.html">Board</a>
-      <div class="nav-search" id="nav-search">
-        <input class="nav-search-input" type="text" id="nav-search-input" placeholder="Search…" aria-label="Search the site" autocomplete="off" />
-        <button class="nav-search-btn" id="nav-search-btn" type="button" aria-label="Search" aria-expanded="false">
-          <span class="nav-search-label-wrap">
-            <span class="nav-search-label">Search</span>
-            <span class="nav-search-icon" aria-hidden="true">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </span>
+    </div>
+    <!-- Sits outside .nav-right so the mobile hamburger doesn't swallow it —
+         on mobile it's ordered up next to the toggle (see style.css). -->
+    <div class="nav-search" id="nav-search">
+      <input class="nav-search-input" type="text" id="nav-search-input" placeholder="Search…" aria-label="Search the site" autocomplete="off" />
+      <button class="nav-search-btn" id="nav-search-btn" type="button" aria-label="Search" aria-expanded="false">
+        <span class="nav-search-label-wrap">
+          <span class="nav-search-label">Search</span>
+          <span class="nav-search-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </span>
-        </button>
-      </div>
+        </span>
+      </button>
     </div>
   </nav>
 
@@ -357,5 +359,6 @@
   </script>
 
   <script src="nav-toggle.js"></script>
+  <script src="search.js"></script>
 </body>
 </html>
