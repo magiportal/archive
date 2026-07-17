@@ -1,4 +1,40 @@
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
+/* Self-hosted — was `@import url(api.fontshare.com/...)`. Same family, same
+   weights actually used on the site (300/400/500/700; nothing uses 900), just
+   served from fonts/satoshi/ instead of a third-party CDN: one less external
+   dependency, works if that CDN is ever slow/down/blocked, and loads from the
+   same origin as everything else. */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('fonts/satoshi/Satoshi-Light.woff2') format('woff2'),
+       url('fonts/satoshi/Satoshi-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('fonts/satoshi/Satoshi-Regular.woff2') format('woff2'),
+       url('fonts/satoshi/Satoshi-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('fonts/satoshi/Satoshi-Medium.woff2') format('woff2'),
+       url('fonts/satoshi/Satoshi-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('fonts/satoshi/Satoshi-Bold.woff2') format('woff2'),
+       url('fonts/satoshi/Satoshi-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -506,7 +542,10 @@ body > :not(.nav):not(.modal-overlay) {
 }
 
 .news-tag { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #999; }
-.news-title { font-size: 17px; font-weight: 500; color: #fff; line-height: 1.4; }
+/* 13px matches the section header above it (.bar-title-link) and the other
+   two card-title styles on this page (.sel-title, .rec-compact-title) — it
+   used to run at 17px, outsizing its own section label. */
+.news-title { font-size: 13px; font-weight: 500; color: #fff; line-height: 1.4; }
 .news-body { font-size: 13px; color: #bbb; line-height: 1.8; flex: 1; }
 
 .news-meta {
@@ -723,7 +762,15 @@ body > :not(.nav):not(.modal-overlay) {
 
 .logo-letter {
   display: block;
-  height: min(280px, 23vw);
+  /* Sized by height, but the letters' aspect ratios sum to ~3.583, so the
+     MAGI row width tracks this ×3.583 (+gaps). The old `min(280px, 23vw)`
+     went FLAT at 280px above ~1217px viewport — so dragging a wide window
+     smaller kept the logo pinned oversized until it suddenly started
+     shrinking at 1217px. clamp() scales it continuously instead: it tracks
+     18vw across the whole 830→1667px range (row stays ~70vw, ~15vw of air
+     each side), and only pins at 300px on genuinely large monitors. Below
+     ~760px the mobile block takes over with its own wider-spanning rule. */
+  height: clamp(150px, 18vw, 300px);
   width: auto;
   flex: 0 0 auto;
   user-select: none;
@@ -1368,7 +1415,7 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 .sel-card:hover .sel-overlay { opacity: 1; }
 
 .sel-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
@@ -2008,7 +2055,7 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 }
 
 .rec-compact-meta {
-  font-size: 10px;
+  font-size: 11px;
   color: #666;
   letter-spacing: 0.04em;
 }
@@ -2149,17 +2196,38 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   }
   .nav:has(.nav-toggle) .nav-toggle { display: flex; }
   .nav:has(.nav-toggle) .nav-wordmark { height: 56px; }
+  /* display:none can't be transitioned, so the collapse is driven by
+     max-height + opacity instead — `display:none` becomes `visibility:hidden`,
+     which *can* animate, via a transition-delay so it only takes effect once
+     the collapse has actually finished (closing) or immediately (opening).
+     That keeps the closed menu's links out of tab order, same as
+     display:none did, without the hard visual cut. The 600px max-height is
+     just a ceiling comfortably above the tallest real content (~400px) —
+     grid-template-rows:0fr→1fr would size it exactly, but that needs an
+     inner wrapper div this markup doesn't have. */
   .nav:has(.nav-toggle) .nav-links,
   .nav:has(.nav-toggle) .nav-right {
     flex-basis: 100%;
     flex-direction: column;
     height: auto;
-    display: none;
+    max-height: 0;
+    visibility: hidden;
+    overflow: hidden;
     border-top: 1px solid var(--line);
     background: var(--white);
+    /* No opacity here on purpose — fading made it feel like it was
+       materializing in place. Height is the only thing animating now, so it
+       reads as unrolling downward instead. */
+    transition: max-height 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0s linear 0.34s;
   }
   .nav:has(.nav-toggle).open .nav-links,
-  .nav:has(.nav-toggle).open .nav-right { display: flex; }
+  .nav:has(.nav-toggle).open .nav-right {
+    max-height: 600px;
+    visibility: visible;
+    transition: max-height 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0s linear 0s;
+  }
   /* nav-right is the lower of the two stacked panels, so it's what casts the
      menu's shadow onto the page underneath. */
   .nav:has(.nav-toggle).open .nav-right { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08); }
