@@ -56,52 +56,82 @@
   const STATIC = [
     {
       group: 'Staff', page: 'staff.html', sel: '.staff-card',
-      pick: (el) => ({
-        title: txt(el, '.staff-name'),
-        kind:  txt(el, '.staff-role') || 'Staff',
-        desc:  txt(el, '.staff-desc'),
-        extra: [...el.querySelectorAll('.staff-tags .tag')].map(t => t.textContent).join(' '),
-        thumb: src(el, '.staff-photo'),
-        href:  'staff.html'
-      })
+      pick: (el) => {
+        const name = txt(el, '.staff-name');
+        // Staff without a photo already get a hand-computed "UN"-style tile
+        // on their own page (.staff-initials) — reuse that exact value
+        // instead of re-deriving it, so it stays consistent with what's
+        // actually shown there.
+        return {
+          title: name,
+          kind:  txt(el, '.staff-role') || 'Staff',
+          desc:  txt(el, '.staff-desc'),
+          extra: [...el.querySelectorAll('.staff-tags .tag')].map(t => t.textContent).join(' '),
+          thumb: src(el, '.staff-photo'),
+          initials: txt(el, '.staff-initials') || initials(name),
+          href:  'staff.html'
+        };
+      }
     },
     {
       group: 'Alumni', page: 'alumni.html', sel: '.alumni-cell',
-      pick: (el) => ({
-        title: txt(el, '.alumni-card-title'),
-        kind:  txt(el, '.alumni-card-spec') || 'Work',
-        desc:  txt(el, '.alumni-card-desc'),
-        extra: txt(el, '.alumni-card-name') + ' ' + txt(el, '.alumni-card-year'),
-        thumb: src(el, '.alumni-thumb img'),
-        href:  'alumni.html'
-      })
+      pick: (el) => {
+        const title = txt(el, '.alumni-card-title');
+        return {
+          title,
+          kind:  txt(el, '.alumni-card-spec') || 'Work',
+          desc:  txt(el, '.alumni-card-desc'),
+          extra: txt(el, '.alumni-card-name') + ' ' + txt(el, '.alumni-card-year'),
+          thumb: src(el, '.alumni-thumb img'),
+          initials: initials(title),
+          href:  'alumni.html'
+        };
+      }
     },
     {
       group: 'News & Events', page: 'latest.html', sel: 'article.article',
-      pick: (el) => ({
-        title: txt(el, '.article-title'),
-        kind:  txt(el, '.article-tag') || 'Article',
-        desc:  txt(el, '.article-lead') || txt(el, '.article-body p'),
-        extra: txt(el, '.article-date'),
-        thumb: null,
-        href:  'latest.html' + (el.id ? '#' + el.id : '')
-      })
+      pick: (el) => {
+        const title = txt(el, '.article-title');
+        return {
+          title,
+          kind:  txt(el, '.article-tag') || 'Article',
+          desc:  txt(el, '.article-lead') || txt(el, '.article-body p'),
+          extra: txt(el, '.article-date'),
+          thumb: null,
+          initials: initials(title),
+          href:  'latest.html' + (el.id ? '#' + el.id : '')
+        };
+      }
     },
     {
       group: 'Partners', page: 'sponsors.html', sel: '.partner',
-      pick: (el) => ({
-        title: txt(el, '.partner-name'),
-        kind:  txt(el, '.partner-kind') || 'Partner',
-        desc:  txt(el, '.partner-desc'),
-        extra: '',
-        thumb: src(el, 'img'),
-        href:  'sponsors.html'
-      })
+      pick: (el) => {
+        const title = txt(el, '.partner-name');
+        return {
+          title,
+          kind:  txt(el, '.partner-kind') || 'Partner',
+          desc:  txt(el, '.partner-desc'),
+          extra: '',
+          thumb: src(el, 'img'),
+          initials: initials(title),
+          href:  'sponsors.html'
+        };
+      }
     }
   ];
 
   const txt = (el, s) => { const n = el.querySelector(s); return n ? n.textContent.trim() : ''; };
   const src = (el, s) => { const n = el.querySelector(s); return n ? n.getAttribute('src') : null; };
+
+  // Fallback for results with no photo — e.g. Uyen Nguyen on the Staff page,
+  // who already gets a "UN" initials tile there instead of a picture. First
+  // letter of each of the first two words, e.g. "Uyen Nguyen" → "UN",
+  // "Melbourne Design Week" → "MD".
+  function initials(str) {
+    const words = (str || '').trim().split(/\s+/).filter(w => /^[A-Za-z]/.test(w));
+    if (!words.length) return '?';
+    return words.slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  }
 
   let staticCache = null;
   async function loadStatic() {
@@ -166,6 +196,7 @@
           desc:  r.abstract || '',
           extra: [r.authors, r.year].filter(Boolean).join(' · '),
           thumb: archiveThumb(r),
+          initials: initials(r.title),
           href:  'research.html#' + r.id
         }))),
       rest('sound_projects', '*', like(q, ['title', 'description', 'author', 'sounds_needed']))
@@ -176,6 +207,7 @@
           desc:  r.description || '',
           extra: [r.author, r.sounds_needed].filter(Boolean).join(' · '),
           thumb: r.image_url || null,
+          initials: initials(r.title),
           href:  'soundcollab.html'
         }))),
       rest('sound_designers', '*', like(q, ['name', 'bio']))
@@ -185,6 +217,7 @@
           kind:  'Sound designer',
           desc:  r.bio || '',
           extra: '',
+          initials: initials(r.name),
           thumb: r.avatar_url || null,
           href:  'soundcollab.html'
         }))),
@@ -196,6 +229,7 @@
           desc:  r.body || '',
           extra: [r.author, r.date].filter(Boolean).join(' · '),
           thumb: null,
+          initials: initials(r.title),
           href:  'studio.html'
         })))
     ];
@@ -225,9 +259,13 @@
   const CHEV = '<svg class="sr-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
 
   function rowHtml(it) {
+    const label = esc(it.initials || initials(it.title));
+    // data-initials lets wireThumbFallbacks() (below) swap a *broken* image
+    // URL for the same tile a missing one gets — same underlying problem
+    // (empty-looking thumbnail), same fix.
     const thumb = it.thumb
-      ? '<div class="sr-thumb"><img src="' + esc(it.thumb) + '" alt="" loading="lazy" /></div>'
-      : '<div class="sr-thumb sr-thumb-empty"></div>';
+      ? '<div class="sr-thumb" data-initials="' + label + '"><img src="' + esc(it.thumb) + '" alt="" loading="lazy" /></div>'
+      : '<div class="sr-thumb sr-thumb-initials">' + label + '</div>';
     return (
       '<a class="sr-row" href="' + esc(it.href) + '">' +
         thumb +
@@ -266,6 +304,21 @@
         '<div class="search-group-head">' + esc(g) + '</div>' +
         groups[g].map(rowHtml).join('') +
       '</section>').join('');
+    wireThumbFallbacks();
+  }
+
+  // A thumb URL that 404s (stale Storage link, provider still processing a
+  // just-uploaded video, etc.) shouldn't leave a broken-image icon sitting in
+  // the results — same fallback tile a missing thumb gets.
+  function wireThumbFallbacks() {
+    groupsEl.querySelectorAll('.sr-thumb img').forEach(img => {
+      img.addEventListener('error', () => {
+        const box = img.closest('.sr-thumb');
+        if (!box) return;
+        box.classList.add('sr-thumb-initials');
+        box.textContent = box.dataset.initials || '?';
+      }, { once: true });
+    });
   }
 
   function render(q) {

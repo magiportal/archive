@@ -12,7 +12,8 @@
       "Bash(node -e ' *)",
       "Bash(awk -F: '$1>2200')",
       "Bash(ls -la \"/c/Users/adria/Downloads/\" 2>/dev/null | grep -i satoshi *)",
-      "Bash(unzip -o -q Satoshi_Complete.zip -d Satoshi_Complete_extracted)"
+      "Bash(unzip -o -q Satoshi_Complete.zip -d Satoshi_Complete_extracted)",
+      "Bash(grep -v ':1$')"
     ]
   }
 }

@@ -32,6 +32,82 @@
     }
     .hero-slide.is-active { opacity: 1; }
 
+    /* ── HERO PROGRESS (Stories-style pause + segmented timer) ──
+       One segment per slide, built by JS from however many .hero-slide images
+       exist — add a slide, get another segment, no markup changes needed.
+       Aligned to the same 720px/32px column as .article-hero-cap and .article
+       below it, so the bar starts and ends exactly where the text does,
+       rather than spanning the full width of the photo. Pulled back to a
+       thin, quiet line — this is a timer, not a media-player control bar. */
+    .hero-progress {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 720px;
+      padding: 0 32px;
+      box-sizing: border-box;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-progress-btn {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.75);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .hero-progress-btn:hover { color: #fff; }
+    .hero-progress-btn svg { display: block; }
+    .hero-progress-btn .icon-play  { display: none; }
+    .hero-progress.paused .hero-progress-btn .icon-pause { display: none; }
+    .hero-progress.paused .hero-progress-btn .icon-play  { display: block; }
+
+    .hero-progress-track {
+      flex: 1;
+      display: flex;
+      gap: 4px;
+    }
+
+    .hero-progress-seg {
+      flex: 1;
+      height: 1.5px;
+      border-radius: 1px;
+      background: rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+    }
+
+    .hero-progress-fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: inherit;
+    }
+    /* A segment already stepped past — full and static, no animation */
+    .hero-progress-seg.is-done .hero-progress-fill { width: 100%; }
+
+    @keyframes heroProgressFill { from { width: 0%; } to { width: 100%; } }
+    .hero-progress-seg.is-active .hero-progress-fill {
+      animation: heroProgressFill linear forwards;
+      animation-duration: var(--hero-progress-duration, 6s);
+    }
+    /* animation-play-state:paused freezes the fill exactly where it is —
+       this is what makes the button an actual pause, not just a reset */
+    .hero-progress.paused .hero-progress-seg.is-active .hero-progress-fill {
+      animation-play-state: paused;
+    }
+
     .article-hero-cap {
       max-width: 720px;
       margin: 0 auto;
@@ -197,6 +273,7 @@
     </button>
     <div class="nav-links">
       <a class="nav-link active" href="latest.html">Latest</a>
+      <a class="nav-link" href="studios.html">Studios</a>
       <a class="nav-link" href="alumni.html">Alumni</a>
       <a class="nav-link" href="staff.html">Staff</a>
       <a class="nav-link" href="sponsors.html">Partners</a>
@@ -242,6 +319,14 @@
   <div class="article-hero" id="epic-hero">
     <img class="hero-slide is-active" src="media/events/EPIC/thewomb.png" data-cap="The Womb, 2026" alt="EPIC Workshop — The Womb, 2026" />
     <img class="hero-slide" src="media/events/EPIC/IMG_6473.png" data-cap="EPIC Workshop, Winter 2026" alt="EPIC Workshop, Winter 2026" />
+    <!-- The segment track itself is built by JS, one per .hero-slide above -->
+    <div class="hero-progress" id="epic-hero-progress">
+      <button class="hero-progress-btn" id="epic-hero-toggle" type="button" aria-label="Pause slideshow">
+        <svg class="icon-pause" width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="1" y="0" width="3" height="10"/><rect x="6" y="0" width="3" height="10"/></svg>
+        <svg class="icon-play" width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><polygon points="1,0 10,5 1,10"/></svg>
+      </button>
+      <div class="hero-progress-track" id="epic-hero-track"></div>
+    </div>
   </div>
   <div class="article-hero-cap" id="epic-hero-cap">The Womb, 2026</div>
 
@@ -312,6 +397,7 @@
     </div>
 
     <div class="article-body">
+      <br>
       <p>ACMI's Audience Lab gives student and emerging work a public platform outside the usual studio and gallery circuit — shown at Federation Square, in front of a general public audience rather than a graduate-show crowd.</p>
       <p>The three selected works span the MAGI cohort's range, from interactive installation to real-time generative pieces, chosen for how they hold up in a high-traffic public setting. It's a rare chance for the works to be experienced by people who didn't come looking for student work — they just found it.</p>
       <p>The exhibition runs through May at Federation Square. Details on session times will follow.</p>
@@ -376,32 +462,93 @@
 
   <script>
     // ── HERO SLIDESHOW (most recent post) ────────────────────────────
-    // Crossfades through the .hero-slide images inside #epic-hero every
-    // few seconds, swapping the caption to match. Add slides by adding
-    // more <img class="hero-slide" data-cap="..."> — no JS changes needed.
+    // Crossfades through the .hero-slide images inside #epic-hero, with a
+    // Stories-style segmented progress bar + pause button. Add slides by
+    // adding more <img class="hero-slide" data-cap="..."> — the segment
+    // track is built to match, no other changes needed.
     (function () {
-      const hero = document.getElementById('epic-hero');
-      const cap  = document.getElementById('epic-hero-cap');
+      const hero  = document.getElementById('epic-hero');
+      const cap   = document.getElementById('epic-hero-cap');
+      const prog  = document.getElementById('epic-hero-progress');
+      const track = document.getElementById('epic-hero-track');
+      const btn   = document.getElementById('epic-hero-toggle');
       if (!hero || !cap) return;
 
       const slides = [...hero.querySelectorAll('.hero-slide')];
       if (slides.length < 2) return; // nothing to rotate
 
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduceMotion) return; // respect the user's preference — stay on the first slide
+      if (reduceMotion) return; // respect the user's preference — stay on the first slide, no controls
+
+      const DURATION = 6000;
+      hero.style.setProperty('--hero-progress-duration', DURATION + 'ms');
+
+      // Build one segment per slide.
+      const segs = slides.map(() => {
+        const seg = document.createElement('div');
+        seg.className = 'hero-progress-seg';
+        seg.innerHTML = '<span class="hero-progress-fill"></span>';
+        track.appendChild(seg);
+        return seg;
+      });
 
       let i = 0;
-      setInterval(() => {
+      let paused = false;
+      let slideStart = 0;
+      let remaining = DURATION;
+      let timer = null;
+
+      function showSlide(next) {
         slides[i].classList.remove('is-active');
-        i = (i + 1) % slides.length;
+        segs[i].classList.remove('is-active');
+        segs[i].classList.add('is-done');
+
+        i = next;
         slides[i].classList.add('is-active');
+        // The segment being re-activated may be mid-transition from a
+        // previous lap (looping back to segment 0) — force a reflow so its
+        // fill animation restarts from 0 instead of being a no-op class toggle.
+        segs[i].classList.remove('is-done');
+        void segs[i].offsetWidth;
+        segs[i].classList.add('is-active');
 
         cap.style.opacity = '0';
         setTimeout(() => {
           cap.textContent = slides[i].dataset.cap || '';
           cap.style.opacity = '1';
         }, 300);
-      }, 6000);
+
+        slideStart = Date.now();
+        remaining = DURATION;
+        scheduleNext();
+      }
+
+      function scheduleNext() {
+        clearTimeout(timer);
+        timer = setTimeout(() => showSlide((i + 1) % slides.length), remaining);
+      }
+
+      function setPaused(next) {
+        if (next === paused) return;
+        paused = next;
+        prog.classList.toggle('paused', paused);
+        btn.setAttribute('aria-label', paused ? 'Resume slideshow' : 'Pause slideshow');
+        if (paused) {
+          clearTimeout(timer);
+          remaining -= (Date.now() - slideStart);
+        } else {
+          slideStart = Date.now();
+          scheduleNext();
+        }
+      }
+
+      // First segment starts animating immediately, in sync with the slide
+      // that's already showing (marked is-active in the HTML).
+      segs[0].classList.add('is-active');
+      slideStart = Date.now();
+      scheduleNext();
+
+      btn.addEventListener('click', () => setPaused(!paused));
     })();
   </script>
 

@@ -679,6 +679,16 @@ function showHint(item, duration = 2800) {
   if (hintsStopped || !item.el) return;
   const wrap = item.el.closest('.letter-wrap');
   if (!wrap) return;
+
+  // Now that hover can trigger this directly, sweeping the cursor across a
+  // couple of letters quickly could otherwise leave two bubbles up at once —
+  // only the letter under the cursor should ever be showing.
+  hintEls.forEach((otherEntry, otherWrap) => {
+    if (otherWrap === wrap) return;
+    clearTimeout(otherEntry.timer);
+    otherEntry.el.classList.remove('show');
+  });
+
   const entry = getHintEl(wrap);
   entry.el.textContent = item.text;
   entry.el.classList.remove('show');
@@ -700,13 +710,16 @@ function stopHints() {
 
 // the moment the user engages the logo, they've got it — stop nudging
 logoWrap.addEventListener('pointerdown', stopHints);
+
+// Feedback: people were hovering the letters and not realising they were
+// interactive at all — the ambient nudge above is a random letter every
+// 11–20s, so it easily never lands on the one someone's actually looking at.
+// Hovering now shows that letter's own hint immediately instead of waiting
+// for its turn in the queue. Clicking still dismisses everything via
+// stopHints() above (pointerdown is on the whole logoWrap, so it fires
+// regardless of which letter — no separate handling needed here).
 hintConfig.forEach(item => {
-  // hide a letter's own hint as soon as it's hovered
-  item.el.addEventListener('mouseenter', () => {
-    const wrap = item.el.closest('.letter-wrap');
-    const entry = wrap && hintEls.get(wrap);
-    if (entry) { clearTimeout(entry.timer); entry.el.classList.remove('show'); }
-  });
+  item.el.addEventListener('mouseenter', () => showHint(item));
 });
 
 // gentle recurring nudge on a random letter, every now and then

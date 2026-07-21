@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studios | MAGI Portal</title>
+  <link rel="icon" type="image/png" href="logo/MAGI_favicon.png" />
+  <link rel="apple-touch-icon" href="logo/MAGI_favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+
+    /* ── STUDIOS GRID ──────────────────────────────────
+       Three columns, one per studio in the progression. Visual-heavy: an
+       oversized numeral does the work, copy stays succinct. Each column
+       carries a brand colour (lime → cyan → orange) that reads as a
+       foundation-to-advanced progression. */
+    .studios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+
+    .studio-col {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 0 0 34px;
+      overflow: hidden;
+    }
+
+    /* Colour is set per-column via --accent / --accent-ink below. */
+    .studio-col[data-studio="1"] { --accent: var(--col-research);      --accent-ink: #4a5200; }
+    .studio-col[data-studio="2"] { --accent: var(--col-games);         --accent-ink: #003a4a; }
+    .studio-col[data-studio="3"] { --accent: var(--col-interactivity); --accent-ink: #fff;    }
+
+    /* Coloured top rule, same device as the home specialisation panels */
+    .studio-col::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--accent);
+    }
+
+    /* ── Scattered category symbols (decorative texture) ──
+       All four MAGI specialisation marks, sprinkled faintly behind each
+       column — each studio spans every discipline, so all four appear. The
+       deco layer sits under the content (which is lifted to z-index 1); the
+       column's overflow:hidden clips symbols that bleed off the edges, which
+       is what gives the scatter its organic feel. */
+    .studio-deco {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .studio-deco img {
+      position: absolute;
+      /* Keeps the symbols' own brand colours (no grayscale) — at 0.07 with
+         grayscale on top they were effectively invisible on white. */
+      opacity: 0.2;
+    }
+    /* Four scatter slots — reused per column, but each column assigns a
+       different symbol to each slot (see markup), so no two columns look alike. */
+    .studio-deco img.d1 { width: 150px; top: -26px;  right: -30px; transform: rotate(14deg);  }
+    .studio-deco img.d2 { width: 58px;  top: 40%;    left: -14px;  transform: rotate(-10deg); }
+    .studio-deco img.d3 { width: 92px;  bottom: 90px; right: -22px; transform: rotate(22deg);  }
+    .studio-deco img.d4 { width: 46px;  bottom: 24px; left: 22px;   transform: rotate(-6deg);  }
+
+    /* ── Oversized numeral hero ── */
+    .studio-numwrap {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 40px 30px 20px;
+    }
+
+    .studio-num {
+      font-size: 118px;
+      font-weight: 700;
+      line-height: 0.8;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+    }
+
+    .studio-level {
+      align-self: flex-start;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    /* flex column so .studio-media (margin-top:auto, below) can be pinned to
+       the bottom of the text block — see the note there for why. */
+    .studio-body {
+      position: relative;
+      z-index: 1;
+      padding: 0 30px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .studio-name {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--black);
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+    .studio-sub {
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      color: var(--dim);
+      margin-bottom: 16px;
+    }
+
+    .studio-desc {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--secondary);
+      margin-bottom: 22px;
+    }
+
+    /* ── Focus tags ── */
+    .studio-focus {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .studio-focus .tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    /* ── Studio image ──
+       Fixed 16:9 so all three line up across the row regardless of each
+       source photo's native ratio. The grey fill shows while the image loads
+       (and behind any transparent PNG).
+       margin-top:auto (not a fixed value) pins it to the BOTTOM of the text
+       block instead — the grid already stretches all three columns to equal
+       height, so anchoring every image to the same bottom edge is what makes
+       them align across the row regardless of how many lines each studio's
+       description happens to wrap to. A fixed margin only accounted for the
+       gap immediately above the image, not the column-height differences.
+       No extra floor gap needed here — .studio-focus's own margin-bottom
+       (24px) already guarantees a minimum, since an auto margin can't
+       collapse below a preceding sibling's real margin. */
+    .studio-media {
+      margin-top: auto;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      border: 1px solid var(--line);
+      background: var(--bg-hover);
+    }
+
+    @media (max-width: 900px) {
+      .studios-grid { grid-template-columns: 1fr; }
+      .studio-num { font-size: 96px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────── -->
+  <nav class="nav" id="site-nav">
+    <a class="nav-wordmark" href="index.html" aria-label="MAGI Portal — Home">
+      <img class="nav-wordmark-icon" src="logo/MAGI_favicon.png" alt="MAGI" />
+    </a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a class="nav-link" href="latest.html">Latest</a>
+      <a class="nav-link active" href="studios.html">Studios</a>
+      <a class="nav-link" href="alumni.html">Alumni</a>
+      <a class="nav-link" href="staff.html">Staff</a>
+      <a class="nav-link" href="sponsors.html">Partners</a>
+      <div class="nav-expo">
+        <a class="nav-link nav-expo-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
+        <span class="nav-expo-accent" aria-hidden="true"></span>
+        <div class="nav-expo-menu">
+          <a class="nav-expo-item is-current" href="https://magiexpo2025.com/" target="_blank" rel="noopener">
+            <span class="nav-expo-year">2025</span><span class="nav-expo-name">Orbits</span>
+          </a>
+          <a class="nav-expo-item" href="https://magiexpo.github.io/2024/" target="_blank" rel="noopener">
+            <span class="nav-expo-year">2024</span><span class="nav-expo-name">Banquet of Oddities</span>
+          </a>
+          <a class="nav-expo-item" href="https://pasteleftdane.github.io/" target="_blank" rel="noopener">
+            <span class="nav-expo-year">2022</span><span class="nav-expo-name">MAGIc</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
+      <a class="nav-link" href="research.html">Archive</a>
+      <a class="nav-link" href="studio.html">Board</a>
+    </div>
+    <!-- Sits outside .nav-right so the mobile hamburger doesn't swallow it —
+         on mobile it's ordered up next to the toggle (see style.css). -->
+    <div class="nav-search" id="nav-search">
+      <input class="nav-search-input" type="text" id="nav-search-input" placeholder="Search…" aria-label="Search the site" autocomplete="off" />
+      <button class="nav-search-btn" id="nav-search-btn" type="button" aria-label="Search" aria-expanded="false">
+        <span class="nav-search-label-wrap">
+          <span class="nav-search-label">Search</span>
+          <span class="nav-search-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+        </span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── PAGE HEADER ───────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <h1 class="page-title">Studios</h1>
+      <p class="page-desc">The core of the program is a sequence of three studios. Each is a working environment where you develop your own practice through briefs — building from exploratory foundations to major, industry-facing projects.</p>
+    </div>
+  </div>
+
+  <!-- ── STUDIOS GRID ──────────────────────────────── -->
+  <section class="studios-grid">
+
+    <!-- Studio 1 -->
+    <div class="studio-col" data-studio="1">
+      <div class="studio-deco" aria-hidden="true">
+        <img class="d1" src="logo/research-symbol.png" alt="" />
+        <img class="d2" src="logo/anim-symbol.png" alt="" />
+        <img class="d3" src="logo/games-symbol.png" alt="" />
+        <img class="d4" src="logo/interactivity-symbol.png" alt="" />
+      </div>
+      <div class="studio-numwrap">
+        <span class="studio-num">1</span>
+        <div>
+          <span class="studio-level">Foundation</span>
+        </div>
+      </div>
+      <div class="studio-body">
+        <div class="studio-name">AGI Studio 1</div>
+        <div class="studio-sub">Animation, Games &amp; Interactivity</div>
+        <p class="studio-desc">Work in your chosen area of practice, responding to self-initiated or client briefs. Conceptualise, develop and produce a range of exploratory works that showcase where your practice sits.</p>
+        <div class="studio-focus">
+          <span class="tag">Chosen practice</span>
+          <span class="tag">Exploratory works</span>
+          <span class="tag">Brief-driven</span>
+        </div>
+        <img class="studio-media" src="media/events/STUDIO/stu1.png" alt="AGI Studio 1 work" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- Studio 2 -->
+    <div class="studio-col" data-studio="2">
+      <div class="studio-deco" aria-hidden="true">
+        <img class="d1" src="logo/games-symbol.png" alt="" />
+        <img class="d2" src="logo/interactivity-symbol.png" alt="" />
+        <img class="d3" src="logo/research-symbol.png" alt="" />
+        <img class="d4" src="logo/anim-symbol.png" alt="" />
+      </div>
+      <div class="studio-numwrap">
+        <span class="studio-num">2</span>
+        <div>
+          <span class="studio-level">Industry</span>
+        </div>
+      </div>
+      <div class="studio-body">
+        <div class="studio-name">AGI Studio 2</div>
+        <div class="studio-sub">Animation, Games &amp; Interactivity</div>
+        <p class="studio-desc">Experiment in your specialisation within small project teams and real or simulated industry contexts. Local and international perspectives on contemporary digital media practice come into focus.</p>
+        <div class="studio-focus">
+          <span class="tag">Team projects</span>
+          <span class="tag">Industry context</span>
+          <span class="tag">Global perspectives</span>
+        </div>
+        <img class="studio-media" src="media/events/ACMI/kora1.jpg" alt="AGI Studio 2 work" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- Studio 3 -->
+    <div class="studio-col" data-studio="3">
+      <div class="studio-deco" aria-hidden="true">
+        <img class="d1" src="logo/interactivity-symbol.png" alt="" />
+        <img class="d2" src="logo/research-symbol.png" alt="" />
+        <img class="d3" src="logo/anim-symbol.png" alt="" />
+        <img class="d4" src="logo/games-symbol.png" alt="" />
+      </div>
+      <div class="studio-numwrap">
+        <span class="studio-num">3</span>
+        <div>
+          <span class="studio-level">Major Project</span>
+        </div>
+      </div>
+      <div class="studio-body">
+        <div class="studio-name">AGI Studio 3</div>
+        <div class="studio-sub">Animation, Games &amp; Interactivity</div>
+        <p class="studio-desc">Produce major, complex works individually or in teams. Investigate the context of problems — location, social issues, ethics and sustainability — applying future-oriented, global industry practice.</p>
+        <div class="studio-focus">
+          <span class="tag">Major works</span>
+          <span class="tag">Ethics &amp; sustainability</span>
+          <span class="tag">Future-oriented</span>
+        </div>
+        <!-- Note the uppercase .JPG — GitHub Pages is case-sensitive -->
+        <img class="studio-media" src="media/events/mdw6.JPG" alt="AGI Studio 3 work" loading="lazy" />
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── FOOTER ────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logos">
+          <img src="logo/magi-logo-white.png" alt="MAGI" class="footer-magi" />
+          <span class="footer-logos-divider">/</span>
+          <img src="logo/RMIT_Black 000.avif" alt="RMIT University" class="footer-rmit" />
+        </div>
+        <div class="footer-brand-sub">MAGI Portal — Master of Animation, Games &amp; Interactivity</div>
+      </div>
+      <div class="footer-info">
+        <div class="footer-info-title">RMIT University</div>
+        <div class="footer-info-line">School of Design</div>
+        <div class="footer-info-line">Melbourne, Australia</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-apply-row">
+          <a class="footer-apply" href="https://www.rmit.edu.au/study-with-us/levels-of-study/postgraduate-study/masters-by-coursework/master-of-animation-games-and-interactivity-mc232" target="_blank" rel="noopener">Apply</a>
+          <span class="footer-follow">Follow Us —</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="https://www.instagram.com/rmit.magistudio/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a class="footer-social" href="https://au.linkedin.com/in/magi-studio-9abb08270" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a class="footer-social" href="#" target="_blank" rel="noopener" aria-label="Vimeo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 7.4c-.1 2.3-1.7 5.4-4.8 9.4C14 21 11.4 23 9.3 23c-1.3 0-2.4-1.2-3.3-3.6L4.2 13c-.7-2.4-1.4-3.6-2.2-3.6-.2 0-.8.4-1.9 1.1L0 9.4c1.2-1 2.4-2.1 3.5-3 1.6-1.3 2.8-2 3.6-2.1 1.9-.2 3 1.1 3.5 3.8.5 2.9.8 4.7 1 5.3.5 2.4 1.1 3.6 1.8 3.6.5 0 1.3-.8 2.3-2.4 1-1.6 1.6-2.8 1.6-3.7 0-1.6-.9-2.4-2.8-2.4-.7 0-1.4.2-2.1.5 1.4-4.5 4-6.7 7.9-6.5 2.9.1 4.3 1.9 4.2 5.4z"/></svg>
+          </a>
+          <a class="footer-social" href="#" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 6.4a2.8 2.8 0 0 0-2-2C18.9 4 12 4 12 4s-6.9 0-8.5.4a2.8 2.8 0 0 0-2 2C1 8 1 12 1 12s0 4 .5 5.6a2.8 2.8 0 0 0 2 2C5.1 20 12 20 12 20s6.9 0 8.5-.4a2.8 2.8 0 0 0 2-2C23 16 23 12 23 12s0-4-.5-5.6zM10 15.5v-7l6 3.5-6 3.5z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">Copyright © 2026 MAGI Portal — RMIT Melbourne</div>
+      <a class="footer-email" href="mailto:magi@rmit.edu.au">magi@rmit.edu.au</a>
+    </div>
+  </footer>
+
+  <script src="nav-toggle.js"></script>
+  <script src="search.js"></script>
+</body>
+</html>
