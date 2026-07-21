@@ -74,17 +74,20 @@
       }
     },
     {
-      group: 'Alumni', page: 'alumni.html', sel: '.alumni-cell',
+      group: 'Alumni', page: 'alumni.html', sel: '.alum',
       pick: (el) => {
-        const title = txt(el, '.alumni-card-title');
+        const title = txt(el, '.alum-panel-name');
         return {
           title,
-          kind:  txt(el, '.alumni-card-spec') || 'Work',
-          desc:  txt(el, '.alumni-card-desc'),
-          extra: txt(el, '.alumni-card-name') + ' ' + txt(el, '.alumni-card-year'),
-          thumb: src(el, '.alumni-thumb img'),
+          kind:  txt(el, '.alum-panel-meta') || 'Alum',
+          desc:  txt(el, '.alum-panel-role'),
+          // The collapsed detail (bio, roles, showcases) is in the DOM even
+          // when closed, so it's searchable — someone can find an alum by a
+          // project or studio name without it cluttering the result row.
+          extra: txt(el, '.alum-detail-inner'),
+          thumb: src(el, '.alum-hero-img'),
           initials: initials(title),
-          href:  'alumni.html'
+          href:  'alumni.html' + (el.id ? '#' + el.id : '')
         };
       }
     },

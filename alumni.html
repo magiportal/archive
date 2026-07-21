@@ -9,115 +9,208 @@
   <link rel="stylesheet" href="style.css" />
   <style>
 
-    .alumni-intro {
-      padding: 48px 48px 40px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 40px;
+    /* ── ALUMNI COLUMN ────────────────────────────────
+       Single centred column at ~65% of the page. Each alum is one .alum
+       block: hero image with an overlaid corner panel, then a click-to-open
+       detail section. Adding another alum = copying one .alum block; the
+       toggle script picks it up automatically. */
+    .alum-col {
+      width: 65%;
+      margin: 0 auto;
+      padding: 54px 0 90px;
     }
 
-    .alumni-intro-text { max-width: 520px; }
+    .alum { margin-bottom: 72px; }
+    .alum:last-child { margin-bottom: 0; }
 
-    .alumni-cohort-select { display: flex; border: 1px solid var(--line); }
+    /* ── Hero + overlaid corner panel ── */
+    .alum-hero { position: relative; }
 
-    .cohort-btn {
-      font-family: 'Satoshi', sans-serif;
-      font-size: 11px;
+    .alum-hero-img {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
+      object-position: center 28%;   /* keeps faces off the panel */
+      display: block;
+      background: var(--bg-hover);
+    }
+
+    /* Anchored to the image's bottom-left, overlapping it */
+    .alum-panel {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      max-width: 74%;
+      background: var(--black);
+      color: var(--white);
+      padding: 15px 26px 19px;
+    }
+
+    .alum-panel-meta {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 9px;
+      /* Reserves room so a long discipline list can't run under the
+         absolutely-positioned grad label sitting on the same line — normal
+         flow doesn't know to avoid it otherwise. */
+      padding-right: 108px;
+    }
+
+    .alum-panel-name {
+      font-size: 23px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      margin-bottom: 7px;
+    }
+
+    .alum-panel-role {
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    /* Pinned to the panel's own top-right corner (.alum-panel is already
+       position:absolute, so it's a positioning context for this too) */
+    .alum-panel-grad {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 9px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--dim);
-      padding: 8px 18px;
-      border-right: 1px solid var(--line);
-      cursor: pointer;
-      transition: color 0.1s, background 0.1s;
-      user-select: none;
-      background: none;
-      border-top: none;
-      border-bottom: none;
-      border-left: none;
+      color: rgba(255, 255, 255, 0.45);
     }
 
-    .cohort-btn:last-child { border-right: none; }
-    .cohort-btn:hover { color: var(--black); }
-    .cohort-btn.active { background: var(--black); color: var(--white); }
-
-    .alumni-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border-left: 1px solid var(--line);
-    }
-
-    .alumni-cell {
-      border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      flex-direction: column;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-
-    .alumni-cell:hover { background: var(--bg-hover); }
-
-    .alumni-thumb {
+    /* ── Click-to-open toggle ── */
+    .alum-more {
       width: 100%;
-      aspect-ratio: 16 / 9;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: #f0f0f0;
-      position: relative;
-    }
-
-    .alumni-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.4s ease;
-    }
-
-    .alumni-cell:hover .alumni-thumb img { transform: scale(1.02); }
-
-    .alumni-spec-dot {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    .alumni-info {
-      padding: 16px 20px 20px;
-      border-top: 1px solid var(--line);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .alumni-card-title { font-size: 14px; font-weight: 500; color: var(--black); line-height: 1.3; }
-    .alumni-card-name  { font-size: 12px; color: var(--secondary); }
-    .alumni-card-desc  { font-size: 11px; color: var(--muted); line-height: 1.6; margin-top: 2px; }
-
-    .alumni-card-meta {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 8px;
+      gap: 12px;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 0;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--black);
+      cursor: pointer;
+      transition: color 0.12s;
+    }
+    .alum-more:hover { color: var(--dim); }
+    .alum-more-icon {
+      font-size: 15px;
+      line-height: 1;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .alum.is-open .alum-more-icon { transform: rotate(45deg); }   /* + becomes × */
+
+    /* ── Expanding detail ──
+       Same 0fr → 1fr grid technique the Archive rows use, so the open/close
+       eases to the content's real height without hardcoding one. */
+    .alum-detail-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .alum.is-open .alum-detail-wrap { grid-template-rows: 1fr; }
+    .alum-detail { overflow: hidden; }
+    .alum-detail-inner { padding: 28px 0 2px; }
+
+    /* Bio on the left, folio link pinned top-right of the same row */
+    .alum-intro {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 34px;
     }
 
-    .alumni-card-year { font-size: 10px; letter-spacing: 0.1em; color: var(--dim); }
-    .alumni-card-spec { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; padding: 2px 8px 3px; }
+    .alum-bio {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--secondary);
+      max-width: 62ch;
+    }
 
-    [data-spec="research"]      .alumni-spec-dot { background: var(--col-research); }
-    [data-spec="research"]      .alumni-card-spec { background: var(--col-research); color: #4a5200; }
-    [data-spec="animation"]     .alumni-spec-dot { background: var(--col-animation); }
-    [data-spec="animation"]     .alumni-card-spec { background: var(--col-animation); color: #fff; }
-    [data-spec="games"]         .alumni-spec-dot { background: var(--col-games); }
-    [data-spec="games"]         .alumni-card-spec { background: var(--col-games); color: #003a4a; }
-    [data-spec="interactivity"] .alumni-spec-dot { background: var(--col-interactivity); }
-    [data-spec="interactivity"] .alumni-card-spec { background: var(--col-interactivity); color: #fff; }
+    .alum-folio {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--black);
+      border: 1px solid var(--line);
+      padding: 9px 14px;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+    .alum-folio:hover {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    .alum-sec + .alum-sec { margin-top: 32px; }
+
+    .alum-sec-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--faint);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 4px;
+    }
+
+    .alum-item {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 18px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .alum-item:last-child { border-bottom: none; }
+
+    .alum-item-year {
+      font-size: 11px;
+      color: var(--dim);
+      font-variant-numeric: tabular-nums;
+      padding-top: 1px;
+    }
+    .alum-item-role {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--black);
+      line-height: 1.4;
+      margin-bottom: 3px;
+    }
+    .alum-item-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      .alum-col { width: 88%; padding: 34px 0 64px; }
+      .alum-panel { position: relative; max-width: none; padding: 16px 20px 20px; }
+      .alum-panel-name { font-size: 20px; }
+      .alum-item { grid-template-columns: 48px 1fr; gap: 14px; }
+      /* No room for a side-by-side row — folio drops under the bio */
+      .alum-intro { flex-direction: column; gap: 20px; }
+    }
 
   </style>
 </head>
@@ -172,151 +265,107 @@
     </div>
   </nav>
 
-  <div class="alumni-intro">
-    <div class="alumni-intro-text">
-
+  <!-- ── PAGE HEADER ───────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-inner">
       <h1 class="page-title">Alumni</h1>
-      <p class="page-desc">Works and practitioners from the MAGI program. A living record of practice across animation, games, interactivity and research.</p>
-    </div>
-    <div class="alumni-cohort-select">
-      <button class="cohort-btn active" data-cohort="2026">2026</button>
-      <button class="cohort-btn" data-cohort="2025">2025</button>
-      <button class="cohort-btn" data-cohort="2024">2024</button>
-      <button class="cohort-btn" data-cohort="2023">2023</button>
+      <p class="page-desc">Practitioners from the MAGI program — where their work has taken them since.</p>
     </div>
   </div>
 
-  <section class="alumni-grid">
+  <!-- ── ALUMNI ────────────────────────────────────────
+       Template block: duplicate one .alum for each new alum. Keep the
+       panel copy minimal — detail lives behind the toggle. -->
+  <div class="alum-col">
 
-    <div class="alumni-cell" data-spec="games">
-      <div class="alumni-thumb">
-        <img src="media/s3634079-remnants-of-our-days.webp" alt="Remnants of Our Days" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Remnants of Our Days</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A Unity HDRP gacha installation critiquing predatory design systems through accumulated weight and consequence.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2026</span>
-          <span class="alumni-card-spec">Games</span>
+    <!-- Kora Lee -->
+    <article class="alum" id="kora-lee">
+      <div class="alum-hero">
+        <img class="alum-hero-img" src="media/events/ACMI/kora6.jpg" alt="Kora Lee" />
+        <div class="alum-panel">
+          <div class="alum-panel-grad">Graduated 2025</div>
+          <div class="alum-panel-meta">Games · Animation · Illustration · VR</div>
+          <h2 class="alum-panel-name">Kora Lee</h2>
+          <p class="alum-panel-role">Game designer, animator and illustrator working across storytelling, creative mechanics and immersive experiences.</p>
         </div>
       </div>
-    </div>
 
-    <div class="alumni-cell" data-spec="animation">
-      <div class="alumni-thumb">
-        <img src="media/s4017090-love-in-the-form-of-an-egg.webp" alt="Love in the Form of an Egg" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Love in the Form of an Egg</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">An experimental 2D animated short exploring unconventional forms of love and connection through character and motion.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Animation</span>
+      <button class="alum-more" type="button" aria-expanded="false" aria-controls="kora-lee-detail">
+        <span>More</span>
+        <span class="alum-more-icon" aria-hidden="true">+</span>
+      </button>
+
+      <div class="alum-detail-wrap">
+        <div class="alum-detail">
+          <div class="alum-detail-inner" id="kora-lee-detail">
+
+            <div class="alum-intro">
+              <p class="alum-bio">Kora Lee is a game designer, animator and illustrator with a focus on storytelling, creative mechanics, and immersive experiences. She is a versatile, analytical and interdisciplinary practitioner, adept at collaborating effectively with professionals across creative and technical fields. Eager to push her boundaries, she enjoys exploring new technologies like AR, VR, and motion interaction to enhance animation and game experiences.</p>
+              <a class="alum-folio" href="https://leekora.wixsite.com/artportfo" target="_blank" rel="noopener">View Folio ↗</a>
+            </div>
+
+            <div class="alum-sec">
+              <div class="alum-sec-title">Selected Experience</div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2025</div>
+                <div>
+                  <div class="alum-item-role">Game Programmer &amp; Technical Artist — <em>Infinite Bloom</em> (VR)</div>
+                  <div class="alum-item-desc">Led a team of three building an exploratory gesture-based VR game in C# with the XR Interaction Toolkit and Meta SDK, directing animation, environment and level design. Accepted to the PAX Rising Showcase and the DiGRAA Conference.</div>
+                </div>
+              </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2025</div>
+                <div>
+                  <div class="alum-item-role">2D Animator (Freelance) — Dream Engine Games</div>
+                  <div class="alum-item-desc">Produced 2D rigged character animation for the opening scene of <em>Rotaeno</em> v2.6, a rhythm mobile game with 100k+ downloads on Google Play.</div>
+                </div>
+              </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2024</div>
+                <div>
+                  <div class="alum-item-role">Animation Director — <em>Here and There</em> (2D)</div>
+                  <div class="alum-item-desc">Directed a 2D digital animation across storyboarding, animation, colouring and compositing. Recognised for storytelling at the RMIT MAGI Expo.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alum-sec">
+              <div class="alum-sec-title">Selected Showcases</div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2026</div>
+                <div>
+                  <div class="alum-item-role">ACMI Residency</div>
+                  <div class="alum-item-desc">Selected project — <em>Infinite Bloom</em> (VR)</div>
+                </div>
+              </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2026</div>
+                <div>
+                  <div class="alum-item-role">Taipei Game Show</div>
+                  <div class="alum-item-desc">Exhibiting project — <em>Infinite Bloom</em> (VR)</div>
+                </div>
+              </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2025</div>
+                <div>
+                  <div class="alum-item-role">PAX Aus Rising Showcase</div>
+                  <div class="alum-item-desc">Exhibiting project — <em>Infinite Bloom</em> (VR)</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
-    </div>
+    </article>
 
-    <div class="alumni-cell" data-spec="interactivity">
-      <div class="alumni-thumb">
-        <img src="media/S4078320-tethered-thoughts.webp" alt="Tethered Thoughts" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Tethered Thoughts</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A physical computing installation making the invisible weight of mental labour tangible through interaction and environmental response.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Interactivity</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="alumni-cell" data-spec="animation">
-      <div class="alumni-thumb">
-        <img src="media/s4120309-te-hkoi.webp" alt="Te Hkoi" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Te Hkoi</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A 3D animated narrative drawing on cultural heritage and character-driven storytelling to explore identity and belonging.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Animation</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="alumni-cell" data-spec="animation">
-      <div class="alumni-thumb">
-        <img src="media/S4125361-bunny-flip.webp" alt="Bunny Flip" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Bunny Flip</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A kinetic 2D animated short exploring play, reversibility, and the joy of motion through a single recurring character.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Animation</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="alumni-cell" data-spec="games">
-      <div class="alumni-thumb">
-        <img src="media/s4148738-mind-tilt.webp" alt="Mind Tilt" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Mind Tilt</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A physical game exploring balance, decision-making, and the psychology of play through a tangible tilting mechanic.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Games</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="alumni-cell" data-spec="animation">
-      <div class="alumni-thumb">
-        <img src="media/S4183453-state-of-mind.webp" alt="State of Mind" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">State of Mind</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A hand-drawn animated narrative exploring internal states of consciousness, anxiety and stillness through line and mark-making.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Animation</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="alumni-cell" data-spec="research">
-      <div class="alumni-thumb">
-        <img src="media/s4210724-natures-influence.webp" alt="Nature's Influence" />
-        <div class="alumni-spec-dot"></div>
-      </div>
-      <div class="alumni-info">
-        <div class="alumni-card-title">Nature's Influence</div>
-        <div class="alumni-card-name">Student Name</div>
-        <div class="alumni-card-desc">A practice-led research project examining how natural systems and ecological thinking can reshape digital media practice.</div>
-        <div class="alumni-card-meta">
-          <span class="alumni-card-year">2025</span>
-          <span class="alumni-card-spec">Research</span>
-        </div>
-      </div>
-    </div>
-
-  </section>
+  </div>
 
   <footer class="footer">
     <div class="footer-top">
@@ -351,10 +400,15 @@
   </footer>
 
   <script>
-    document.querySelectorAll('.cohort-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.cohort-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+    // ── ALUMNI "MORE" TOGGLES ─────────────────────────
+    // Delegated, so alum blocks added later need no extra wiring.
+    document.querySelectorAll('.alum-more').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const alum = btn.closest('.alum');
+        if (!alum) return;
+        const open = alum.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.querySelector('span').textContent = open ? 'Less' : 'More';
       });
     });
   </script>

@@ -18,12 +18,15 @@
 })();
 
 // ── EXPO DROPDOWN (previous years) ──────────────────
-// No caret — the "EXPO ↗" link itself is the trigger. On hover-capable
-// devices the dropdown already opens via CSS :hover, and a click just
-// navigates through as normal. On touch (no hover), the first tap opens the
-// dropdown instead of navigating (tap a year, or tap EXPO again, to go).
+// No caret — the "EXPO ↗" link itself is the trigger, and on hover-capable
+// devices the dropdown already opens via CSS :hover. But the link's own href
+// points at the current year, same as the "2025 · Orbits" row inside the
+// tray — so a click used to navigate straight through, which both double-ups
+// with that row AND meant clicking EXPO again could never close the tray
+// (you'd just be relaunched to the same site instead). The button is now a
+// pure open/close toggle on every device; the tray's own year rows are the
+// one real way to navigate anywhere.
 (function () {
-  const noHover = window.matchMedia('(hover: none)').matches;
   document.querySelectorAll('.nav-expo').forEach(wrap => {
     const link = wrap.querySelector('.nav-expo-link');
     if (!link) return;
@@ -31,14 +34,10 @@
       wrap.classList.toggle('open', open);
       link.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
-    if (noHover) {
-      link.addEventListener('click', (e) => {
-        if (!wrap.classList.contains('open')) {
-          e.preventDefault();
-          setOpen(true);
-        }
-      });
-    }
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      setOpen(!wrap.classList.contains('open'));
+    });
     document.addEventListener('click', (e) => {
       if (wrap.classList.contains('open') && !wrap.contains(e.target)) setOpen(false);
     });
