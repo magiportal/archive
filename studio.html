@@ -723,7 +723,8 @@
 
     .pin-btn {
       position: fixed;
-      bottom: 32px;
+      /* Clear of the canvas hint (bottom: 24px) rather than crowding it */
+      bottom: 76px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
@@ -1206,6 +1207,7 @@
   </div>
 
   <script src="moderation.js"></script>
+  <script src="gate-auth.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     // ── PASSWORD GATE ──────────────────────────────────
@@ -1223,8 +1225,25 @@
 
       if (sessionStorage.getItem(GATE_KEY) === '1') { unlock(); return; }
 
-      function attempt() {
-        if (input.value === 'magistu2026') {
+      // Hashing costs ~150ms, so guard against a double-Enter firing twice.
+      let busy = false;
+      async function attempt() {
+        if (busy) return;
+        busy = true;
+        let tier = null;
+        try {
+          tier = await MAGIGate.verify(input.value);
+        } catch (e) {
+          // Only outside a secure context (e.g. file://) — don't claim the
+          // password was wrong when we simply couldn't check it.
+          error.textContent = 'Can\'t verify here — open this page over https.';
+          busy = false;
+          return;
+        }
+        busy = false;
+        // MAGI tier only: the sound-design password must not open the Board,
+        // so we check the tier rather than just "did anything match".
+        if (tier === 'magi') {
           sessionStorage.setItem(GATE_KEY, '1');
           unlock();
         } else {
@@ -1448,7 +1467,10 @@
 
     async function loadCards() {
       showStatus('Loading…');
-      const { data, error } = await db.from(TABLE).select('*').order('date', { ascending: true });
+      // Removed cards are soft-deleted (see studio-setup.sql) so a malicious
+      // wipe stays recoverable — they're filtered out here rather than gone.
+      const { data, error } = await db.from(TABLE).select('*')
+        .is('deleted_at', null).order('date', { ascending: true });
       if (data) {
         cards = data.map(row => ({ ...row, tags: row.tags ? row.tags.split(',').filter(Boolean) : [] }));
       }
@@ -1471,8 +1493,11 @@
       if (error) console.error('updateCard error:', error);
     }
 
+    // Soft delete: the table has no DELETE policy at all, so this is both the
+    // only way a card can go and a reversible one. The previous version is
+    // captured in studio_cards_history by trigger.
     async function deleteCard(id) {
-      const { error } = await db.from(TABLE).delete().eq('id', id);
+      const { error } = await db.from(TABLE).update({ deleted_at: new Date().toISOString() }).eq('id', id);
       if (error) console.error('deleteCard error:', error);
     }
 
@@ -1502,6 +1527,15 @@
               applyFilters();
             }
           } else if (eventType === 'UPDATE') {
+            // A soft delete arrives as an UPDATE, so it's handled here rather
+            // than in the DELETE branch below.
+            if (record.deleted_at) {
+              cards = cards.filter(x => x.id !== record.id);
+              const gone = inner.querySelector(`[data-id="${record.id}"]`);
+              if (gone) gone.remove();
+              applyFilters();
+              return;
+            }
             const idx = cards.findIndex(x => x.id === record.id);
             if (idx !== -1) {
               cards[idx] = { ...record, tags: record.tags ? record.tags.split(',').filter(Boolean) : [] };

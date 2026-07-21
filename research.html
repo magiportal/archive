@@ -1044,6 +1044,8 @@
 
   </style>
   <script src="moderation.js"></script>
+  <script src="gate-auth.js"></script>
+  <script src="owner-token.js"></script>
 </head>
 <body>
 
@@ -1600,8 +1602,8 @@
       // Browsing the archive is public; opening a player (watch / listen / read) requires the
       // password. The prompt renders inline inside the expanded row. It shares the same session
       // key as the Community Board, so entering it on either page unlocks media on both.
+      // The password itself lives (hashed) in gate-auth.js — see MAGIGate.
       const GATE_KEY   = 'magi-studio-auth';
-      const PASSWORD   = 'magistu2026';
       const isUnlocked = () => sessionStorage.getItem(GATE_KEY) === '1';
 
       // Once the password is accepted, turn every already-built gate into its real player.
@@ -1636,8 +1638,23 @@
         const error  = g.querySelector('.rp-gate-error');
         const cancel = g.querySelector('.rp-gate-cancel');
 
-        const attempt = () => {
-          if (input.value === PASSWORD) {
+        // Hashing costs ~150ms, so guard against a double-Enter firing twice.
+        let busy = false;
+        const attempt = async () => {
+          if (busy) return;
+          busy = true;
+          let tier = null;
+          try {
+            tier = await MAGIGate.verify(input.value);
+          } catch (e) {
+            // Only outside a secure context (e.g. file://).
+            error.textContent = 'Can\'t verify here — open this page over https.';
+            busy = false;
+            return;
+          }
+          busy = false;
+          // MAGI tier only — sound-design students don't reach the Archive.
+          if (tier === 'magi') {
             sessionStorage.setItem(GATE_KEY, '1');
             unlockAll();
           } else {
@@ -1692,8 +1709,10 @@
       const BUCKET   = 'archive';
       const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-      const GATE_KEY = 'magi-studio-auth';   // shared with the Board / Sound Collab
-      const PASSWORD = 'magistu2026';
+      // MAGI tier only. Sound Collab also accepts a separate sound-design
+      // password stored under 'magi-sound-auth' — deliberately NOT checked
+      // here, so sound students can't reach the Archive.
+      const GATE_KEY = 'magi-studio-auth';
       const isUnlocked = () => sessionStorage.getItem(GATE_KEY) === '1';
 
       const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20MB cap for PDF/image
@@ -1704,11 +1723,12 @@
       const esc = (s) => (s==null?'':String(s)).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2,8));
 
-      // Ownership (lets the posting browser delete its own item) — same soft model as Sound Collab.
-      const tokenKey = id => 'arch-own-' + id;
-      const getToken = id => { try { return localStorage.getItem(tokenKey(id)); } catch(e){ return null; } };
-      const setToken = (id,t) => { try { localStorage.setItem(tokenKey(id), t); } catch(e){} };
-      const isOwner = row => !!row.owner_token && getToken(row.id) === row.owner_token;
+      // Ownership (lets the posting browser delete its own item) — same model
+      // as Sound Collab: this browser keeps the raw token, the row stores only
+      // its hash, and archive_delete() in the database does the real check.
+      // The table has no DELETE policy, so that function is the only way out.
+      const OWN_PREFIX = 'arch-own-';
+      const isOwner = row => MAGIOwner.isOwner(OWN_PREFIX, row.id, row);
 
       let items = [];
 
@@ -1821,12 +1841,18 @@
         const id = del.dataset.archDel;
         const row = items.find(x => x.id === id);
         if (!confirm('Delete "'+(row ? row.title : 'this item')+'" from the archive? This can\'t be undone.')) return;
+        // Row first, file second: the row delete is the one that can be
+        // refused, and binning the upload before knowing that would orphan the
+        // file under a listing that's still there.
+        const { data, error } = await db.rpc('archive_delete', {
+          p_id: id, p_token: MAGIOwner.tokenFor(OWN_PREFIX, id),
+        });
+        if (error) { console.error(error); alert('Could not delete — see console.'); return; }
+        if (data === 0) { alert('This item isn\'t unlocked on this device — only the browser that posted it can remove it.'); return; }
         if (row && row.media_url && row.media_url.includes('/storage/v1/object/public/'+BUCKET+'/')) {
           const path = row.media_url.split('/storage/v1/object/public/'+BUCKET+'/')[1];
           if (path) db.storage.from(BUCKET).remove([decodeURIComponent(path)]).catch(()=>{});
         }
-        const { error } = await db.from('archive_items').delete().eq('id', id);
-        if (error) { console.error(error); alert('Could not delete — see console.'); return; }
         items = items.filter(x => x.id !== id);
         render();
       });
@@ -1903,7 +1929,14 @@
         // Gate: uploading persists to the shared archive, so it needs the password.
         if (!isUnlocked()) {
           gateField.style.display = '';
-          if (gateInput.value === PASSWORD) { sessionStorage.setItem(GATE_KEY, '1'); gateHint.textContent = ''; }
+          let tier = null;
+          try {
+            tier = await MAGIGate.verify(gateInput.value);
+          } catch (e) {
+            gateHint.textContent = 'Can\'t verify here — open this page over https.';
+            return;
+          }
+          if (tier === 'magi') { sessionStorage.setItem(GATE_KEY, '1'); gateHint.textContent = ''; }
           else { gateHint.textContent = 'Enter the archive password to upload.'; gateInput.focus(); return; }
         }
         // Moderation
@@ -1935,7 +1968,17 @@
           media_url = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
         }
 
-        const id = uid(), token = uid();
+        // Mint the ownership token before inserting: this browser keeps the
+        // token, the row carries only its hash.
+        const id = uid();
+        let hash;
+        try {
+          ({ hash } = await MAGIOwner.mint(OWN_PREFIX, id));
+        } catch (e) {
+          alert('Can\'t verify here — open this page over https.');
+          submitBtn.disabled = false; submitBtn.textContent = 'Add to Archive';
+          return;
+        }
         const row = {
           id, type,
           title: title || (picked ? picked.name.replace(/\.[^.]+$/, '') : 'Untitled'),
@@ -1944,12 +1987,11 @@
           year: new Date().getFullYear(),
           spec: 'Uploaded',
           media_url,
-          owner_token: token,
+          owner_hash: hash,
         };
         const { error } = await db.from('archive_items').insert(row);
         submitBtn.disabled = false; submitBtn.textContent = 'Add to Archive';
         if (error) { console.error(error); alert('Could not add to the archive — see console.'); return; }
-        setToken(id, token);
         close(); reset();
       });
 

@@ -10,10 +10,11 @@
 //     Queried over the PostgREST endpoint directly, so pages that don't
 //     already load the supabase-js library don't need to.
 //
-// GATING: the back-facing tables are student-only (same shared password as
-// the Board / Archive / Sound Collab). We only query them once that gate is
-// unlocked — otherwise searching would leak gated titles and abstracts to
-// the public. Locked visitors get a note saying so.
+// GATING: the back-facing tables are student-only, and there are two tiers —
+// the MAGI password reaches everything, the Sound Collab one reaches only the
+// sound tables. Search has to mirror that exactly, or it becomes a way to read
+// gated content the gate itself would refuse. So each table is queried only
+// under the tier that owns it. Visitors get a note about what's excluded.
 (function () {
   const wrap  = document.getElementById('nav-search');
   const input = document.getElementById('nav-search-input');
@@ -21,15 +22,24 @@
 
   const SUPA_URL = 'https://hzzhuikzvdfcizkuelte.supabase.co';
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6emh1aWt6dmRmY2l6a3VlbHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDgxOTUsImV4cCI6MjA5MjMyNDE5NX0.jYE-ruAQ9c-5Q2en9G5jKcV1xWEcGsCQhSPuB5wy8d0';
-  const GATE_KEY = 'magi-studio-auth';
+  const MAGI_KEY  = 'magi-studio-auth';   // Archive + Board + Sound Collab
+  const SOUND_KEY = 'magi-sound-auth';    // Sound Collab only
   const MIN_CHARS = 2;
 
-  const unlocked = () => { try { return sessionStorage.getItem(GATE_KEY) === '1'; } catch (e) { return false; } };
+  const has = (k) => { try { return sessionStorage.getItem(k) === '1'; } catch (e) { return false; } };
+  const magiUnlocked  = () => has(MAGI_KEY);
+  const soundUnlocked = () => has(MAGI_KEY) || has(SOUND_KEY);   // MAGI implies sound
+  const anyUnlocked   = () => soundUnlocked();
   const esc = (s) => (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
   // ── RESULTS PANEL (built here so the 9 pages don't each carry the markup) ──
   const panel = document.createElement('div');
-  panel.className = 'search-results modal-overlay';
+  // `no-page-fade` opts this out of the global page fade-in (it manages its own
+  // opacity). It used to borrow `modal-overlay` for that, which collided on the
+  // Board — studio.html styles that class as a real dark modal backdrop, and
+  // its inline <style> wins on source order, so the results panel came out
+  // translucent-black and vertically centred instead of a full white sheet.
+  panel.className = 'search-results no-page-fade';
   panel.id = 'search-results';
   panel.innerHTML =
     '<div class="search-results-inner">' +
@@ -186,11 +196,15 @@
   }
 
   async function loadLive(raw) {
-    if (!unlocked()) return [];
+    if (!anyUnlocked()) return [];
     const q = clean(raw);
     if (!q) return [];   // term was nothing but punctuation
     const out = [];
-    const jobs = [
+
+    // MAGI-only tables. A sound-design student holds SOUND_KEY alone, so these
+    // stay out of their results entirely — matching what the Archive and Board
+    // pages themselves would do if they walked over to them.
+    const magiJobs = !magiUnlocked() ? [] : [
       rest('archive_items', '*', like(q, ['title', 'authors', 'abstract', 'source', 'spec']))
         .then(rows => rows.forEach(r => out.push({
           group: 'Media Database',
@@ -202,6 +216,21 @@
           initials: initials(r.title),
           href:  'research.html#' + r.id
         }))),
+      rest('studio_cards', '*', like(q, ['title', 'body', 'author', 'tags']))
+        .then(rows => rows.forEach(r => out.push({
+          group: 'Community Board',
+          title: r.title || 'Untitled',
+          kind:  r.type || 'Card',
+          desc:  r.body || '',
+          extra: [r.author, r.date].filter(Boolean).join(' · '),
+          thumb: null,
+          initials: initials(r.title),
+          href:  'studio.html'
+        })))
+    ];
+
+    // Sound tables — reachable on either tier.
+    const soundJobs = [
       rest('sound_projects', '*', like(q, ['title', 'description', 'author', 'sounds_needed']))
         .then(rows => rows.forEach(r => out.push({
           group: 'Sound Collab',
@@ -223,19 +252,10 @@
           initials: initials(r.name),
           thumb: r.avatar_url || null,
           href:  'soundcollab.html'
-        }))),
-      rest('studio_cards', '*', like(q, ['title', 'body', 'author', 'tags']))
-        .then(rows => rows.forEach(r => out.push({
-          group: 'Community Board',
-          title: r.title || 'Untitled',
-          kind:  r.type || 'Card',
-          desc:  r.body || '',
-          extra: [r.author, r.date].filter(Boolean).join(' · '),
-          thumb: null,
-          initials: initials(r.title),
-          href:  'studio.html'
         })))
     ];
+
+    const jobs = [...magiJobs, ...soundJobs];
     // One failing table (e.g. not created yet) shouldn't sink the whole search.
     await Promise.allSettled(jobs);
     return out;
@@ -338,10 +358,17 @@
         esc(g) + (g === 'All' ? '' : ' <span class="search-tab-n">' + groups[g].length + '</span>') +
       '</button>').join('');
 
-    noteEl.innerHTML = unlocked() ? '' :
-      'Showing public pages only. The Media Database, Sound Collab and Board are student-only — ' +
-      '<a href="research.html">enter the password</a> to include them in search.';
-    noteEl.style.display = unlocked() ? 'none' : '';
+    // Three states, since access now has two tiers: fully open (MAGI), sound
+    // tier only, and locked out. Each says exactly what's missing and where
+    // to unlock it, rather than a generic "some things are hidden".
+    const note =
+      magiUnlocked()  ? '' :
+      soundUnlocked() ? 'Showing public pages and Sound Collab. The Media Database and Board are ' +
+                        'MAGI-only — <a href="research.html">enter the MAGI password</a> to include them.'
+                      : 'Showing public pages only. The Media Database, Sound Collab and Board are ' +
+                        'student-only — <a href="research.html">enter the password</a> to include them in search.';
+    noteEl.innerHTML = note;
+    noteEl.style.display = note ? '' : 'none';
 
     renderGroups();
   }

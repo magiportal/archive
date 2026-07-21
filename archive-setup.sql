@@ -20,14 +20,44 @@ create table if not exists public.archive_items (
   spec        text,          -- sub-label, e.g. "Session Recording", "Exegesis"
   media_url   text,          -- video/audio LINK, or the Storage URL of a PDF/image
   duration    text,          -- optional, e.g. "4m 20s"
-  owner_token text,          -- lets the posting browser delete its own item
   created_at  timestamptz default now()
 );
 
--- ── RLS (open / trust-based, same posture as the rest of the site) ──
+-- ── OWNERSHIP ────────────────────────────────────────────────
+-- The posting browser keeps a random token in its own localStorage and stores
+-- only SHA-256(token) here. Deletion goes through archive_delete() below,
+-- which re-hashes the token you present and compares. The hash is safe to
+-- expose in a publicly-readable row because the token is a random UUID; the
+-- old plaintext owner_token was not, so it is dropped rather than migrated.
+alter table public.archive_items add column if not exists owner_hash text;
+alter table public.archive_items drop column if exists owner_token;
+
+-- ── RLS ──────────────────────────────────────────────────────
+-- Read and insert are open (browsing is public; uploading is gated on the
+-- password client-side). There is deliberately no UPDATE or DELETE policy, so
+-- RLS denies both — removal only happens via the owner-checked function below.
 alter table public.archive_items enable row level security;
-drop policy if exists "archive_all" on public.archive_items;
-create policy "archive_all" on public.archive_items for all using (true) with check (true);
+drop policy if exists "archive_all"    on public.archive_items;
+drop policy if exists "archive_read"   on public.archive_items;
+drop policy if exists "archive_insert" on public.archive_items;
+create policy "archive_read"   on public.archive_items for select to anon using (true);
+create policy "archive_insert" on public.archive_items for insert to anon with check (true);
+
+-- Returns 1 if the token owned the row and it was deleted, else 0.
+create or replace function public.archive_delete(p_id text, p_token text)
+returns int language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  delete from public.archive_items a
+  where a.id = p_id
+    and a.owner_hash is not null
+    and a.owner_hash = encode(sha256(convert_to(coalesce(p_token, ''), 'UTF8')), 'hex');
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+revoke all    on function public.archive_delete(text, text) from public;
+grant execute on function public.archive_delete(text, text) to anon;
 
 -- ── Realtime ────────────────────────────────────────────────
 do $$

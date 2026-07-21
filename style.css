@@ -94,13 +94,15 @@ html, body {
 }
 
 /* fade page content, but never elements that manage their own visibility
-   (e.g. fixed modal/dialog overlays that default to opacity:0) */
-body > :not(.nav):not(.modal-overlay) {
+   (e.g. fixed modal/dialog overlays that default to opacity:0).
+   `.no-page-fade` is the explicit opt-out for shared widgets; `.modal-overlay`
+   is kept because per-page modals already use that name for their backdrops. */
+body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
   animation: pageFadeIn 0.4s ease both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body > :not(.nav):not(.modal-overlay) { animation: none; }
+  body > :not(.nav):not(.modal-overlay):not(.no-page-fade) { animation: none; }
   ::view-transition-old(root),
   ::view-transition-new(root) { animation: none; }
 }
@@ -2448,7 +2450,7 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 }
 /* ── SEARCH RESULTS PANEL ─────────────────────────────
    Full-viewport results below the nav, driven by the nav search box.
-   Injected by search.js, so no per-page markup. `modal-overlay` opts it
+   Injected by search.js, so no per-page markup. `no-page-fade` opts it
    out of the global page fade-in (which would fight its own opacity). */
 
 .search-results {

@@ -814,7 +814,7 @@
         <button class="sc-modal-close" id="gate-close">×</button>
       </div>
       <div class="sc-modal-body sc-gate-box">
-        <p class="sc-hint" style="text-align:center">Posting and collaborating is for MAGI students &amp; staff. Enter the password to continue — you'll only need to do this once.</p>
+        <p class="sc-hint" style="text-align:center">Posting and collaborating is open to MAGI and Digital Media Sound Design students &amp; staff. Enter your cohort's password to continue — you'll only need to do this once.</p>
         <div class="sc-gate-row">
           <input type="password" id="gate-in" placeholder="Enter password" autocomplete="off" />
           <button id="gate-go">→</button>
@@ -827,6 +827,8 @@
   <div class="sc-status modal-overlay" id="sc-status"></div>
 
   <script src="moderation.js"></script>
+  <script src="gate-auth.js"></script>
+  <script src="owner-token.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
   (function () {
@@ -839,9 +841,23 @@
     const MAX_SAMPLES       = 3;                 // sound bites per designer listing
     const MAX_SAMPLE_BYTES  = 8 * 1024 * 1024;    // 8MB — plenty for a short clip, not a full mix
 
-    const GATE_KEY = 'magi-studio-auth';   // shared with the Board & Archive
-    const PASSWORD = 'magistu2026';
-    const isUnlocked = () => sessionStorage.getItem(GATE_KEY) === '1';
+    // ── ACCESS TIERS ────────────────────────────────
+    // Two audiences, two tiers, deliberately NOT equivalent:
+    //
+    //   MAGI  tier → Sound Collab + Archive + Board
+    //   Sound tier → Sound Collab ONLY
+    //
+    // They're stored under separate session keys so the Archive and Board can
+    // keep checking MAGI_KEY alone and stay closed to sound-design students,
+    // while this page accepts either. Entering the MAGI password here also
+    // unlocks the other two — same key, so it carries across.
+    //
+    // The passwords are no longer here in plaintext: gate-auth.js holds them
+    // as PBKDF2 hashes and does the comparison.
+    const MAGI_KEY  = MAGIGate.MAGI_KEY;    // shared with the Board & Archive
+    const SOUND_KEY = MAGIGate.SOUND_KEY;   // this page only
+    const isUnlocked = () =>
+      sessionStorage.getItem(MAGI_KEY) === '1' || sessionStorage.getItem(SOUND_KEY) === '1';
 
     let projects = [], designers = [], assignments = [];
 
@@ -862,17 +878,21 @@
       return null;
     };
 
-    // ── OWNERSHIP (trust-based: no logins/passwords stored) ──
-    // When you post, we generate a random token, save it on the row, and cache it in
-    // *your* browser's localStorage. Edit/Delete only show automatically here, in the
-    // browser that posted it. On any other device, typing the matching contact email
-    // unlocks the same controls (see the "Manage this listing" modal) — the row's own
-    // token is compared, never a password. Since the tables use open RLS like the rest
-    // of the site, this is a convenience gate for the cohort, not real access control.
-    const tokenKey = (kind, id) => 'sc-own-' + kind + '-' + id;
-    const getLocalToken = (kind, id) => { try { return localStorage.getItem(tokenKey(kind, id)); } catch (e) { return null; } };
-    const setLocalToken = (kind, id, token) => { try { localStorage.setItem(tokenKey(kind, id), token); } catch (e) {} };
-    const isOwner = (kind, item) => !!item.owner_token && getLocalToken(kind, item.id) === item.owner_token;
+    // ── OWNERSHIP (no logins: the posting browser holds a token) ──
+    // When you post, we mint a random token, keep it in *your* browser's
+    // localStorage, and store only its SHA-256 on the row. Edit/Delete show
+    // automatically here, in the browser that posted it. On any other device,
+    // typing the matching contact email adopts ownership (see the "Manage this
+    // listing" modal).
+    //
+    // This is enforced in the database, not just here: the tables have no
+    // UPDATE or DELETE policy at all, so every change goes through the
+    // sc_* functions in soundcollab-setup.sql, which re-hash the token you
+    // present and compare before touching a row. Hiding the buttons is now
+    // just the UI half of a rule the server also keeps.
+    const ownPrefix     = (kind) => 'sc-own-' + kind + '-';
+    const isOwner       = (kind, item) => MAGIOwner.isOwner(ownPrefix(kind), item.id, item);
+    const ownerTokenFor = (kind, id)   => MAGIOwner.tokenFor(ownPrefix(kind), id);
 
     const forProject  = (pid) => assignments.filter(a => a.project_id === pid);
     const forDesigner = (did) => assignments.filter(a => a.designer_id === did);
@@ -1090,10 +1110,28 @@
       if (gateEl.classList.contains('is-open')) closeGate();
       $$('.sc-overlay.is-open').forEach(closeModal);
     });
-    function gateTry() {
+    // Hashing costs ~150ms, so a fast double-Enter could otherwise fire two
+    // checks at once — this flag keeps one attempt in flight at a time.
+    let gateBusy = false;
+    async function gateTry() {
       const input = $('#gate-in');
-      if (input.value === PASSWORD) {
-        sessionStorage.setItem(GATE_KEY, '1');
+      if (gateBusy) return;
+      gateBusy = true;
+      // Which tier matched decides what else the visitor can reach: the MAGI
+      // password carries over to the Archive and Board, the sound one doesn't.
+      // MAGIGate.unlock sets the right session key for whichever one matched.
+      let tier = null;
+      try {
+        tier = await MAGIGate.unlock(input.value);
+      } catch (e) {
+        // Only happens outside a secure context (e.g. opened via file://) —
+        // say so rather than claiming the password was wrong.
+        $('#gate-err').textContent = 'Can\'t verify here — open this page over https.';
+        gateBusy = false;
+        return;
+      }
+      gateBusy = false;
+      if (tier) {
         const a = pendingAction;
         closeGate();
         if (a) a();
@@ -1214,16 +1252,28 @@
         slots: Math.min(2, Math.max(1, parseInt($('#p-slots').value, 10) || 1)),
         media_url: $('#p-media').value.trim(),
       };
-      let error, newId, ownerToken;
+      // Edits go through sc_update_project (the table has no UPDATE policy);
+      // it returns the number of rows it was allowed to touch — 0 means this
+      // browser isn't holding the owner token.
+      let error, newId;
       if (editing) {
-        ({ error } = await db.from('sound_projects').update(row).eq('id', editing.id));
+        const { data, error: rpcErr } = await db.rpc('sc_update_project', {
+          p_id: editing.id, p_token: ownerTokenFor('project', editing.id), p_patch: row,
+        });
+        error = rpcErr;
+        if (!error && data === 0) {
+          btn.disabled = false; btn.textContent = 'Save changes';
+          status('This listing isn\'t unlocked on this device.');
+          return;
+        }
       } else {
-        newId = uid(); ownerToken = uid();
-        ({ error } = await db.from('sound_projects').insert({ id: newId, status: 'open', owner_token: ownerToken, ...row }));
+        newId = uid();
+        // Mint first: the row stores the hash, this browser keeps the token.
+        const { hash } = await MAGIOwner.mint(ownPrefix('project'), newId);
+        ({ error } = await db.from('sound_projects').insert({ id: newId, status: 'open', owner_hash: hash, ...row }));
       }
       btn.disabled = false; btn.textContent = editing ? 'Save changes' : 'Post project';
       if (error) { console.error(error); status('Could not save — see console.'); return; }
-      if (!editing) setLocalToken('project', newId, ownerToken);
       closeModal($('#modal-project'));
       resetProjectForm();
       status(editing ? 'Project updated.' : 'Project posted.');
@@ -1266,16 +1316,26 @@
         avatar_url: newAvatar || (editing ? editing.avatar_url : null),
         sample_urls: finalSamples.join(','),
       };
-      let error, newId, ownerToken;
+      // Same shape as the project save above — owner-checked function for
+      // edits, plain insert (with the hash) for new listings.
+      let error, newId;
       if (editing) {
-        ({ error } = await db.from('sound_designers').update(row).eq('id', editing.id));
+        const { data, error: rpcErr } = await db.rpc('sc_update_designer', {
+          p_id: editing.id, p_token: ownerTokenFor('designer', editing.id), p_patch: row,
+        });
+        error = rpcErr;
+        if (!error && data === 0) {
+          btn.disabled = false; btn.textContent = 'Save changes';
+          status('This listing isn\'t unlocked on this device.');
+          return;
+        }
       } else {
-        newId = uid(); ownerToken = uid();
-        ({ error } = await db.from('sound_designers').insert({ id: newId, owner_token: ownerToken, ...row }));
+        newId = uid();
+        const { hash } = await MAGIOwner.mint(ownPrefix('designer'), newId);
+        ({ error } = await db.from('sound_designers').insert({ id: newId, owner_hash: hash, ...row }));
       }
       btn.disabled = false; btn.textContent = editing ? 'Save changes' : 'Add listing';
       if (error) { console.error(error); status('Could not save — see console.'); return; }
-      if (!editing) setLocalToken('designer', newId, ownerToken);
       closeModal($('#modal-designer'));
       resetDesignerForm();
       status(editing ? 'Listing updated.' : 'You\'re listed.');
@@ -1369,8 +1429,14 @@
       const btn = e.target.closest('[data-unclaim]');
       if (!btn) return;
       if (!confirm('Withdraw from this project? The MAGI student will see it as open again.')) return;
-      const { error } = await db.from('sound_assignments').delete().eq('id', btn.dataset.unclaim);
+      // We're inside the designer's own edit modal, so it's the designer token
+      // that proves this withdrawal is theirs to make. sc_delete_assignment
+      // also accepts the project owner's token, for the other side of the pair.
+      const { data, error } = await db.rpc('sc_delete_assignment', {
+        p_id: btn.dataset.unclaim, p_token: ownerTokenFor('designer', editingDesignerId),
+      });
       if (error) { console.error(error); status('Could not withdraw — see console.'); return; }
+      if (data === 0) { status('This listing isn\'t unlocked on this device.'); return; }
       // Update locally right away rather than waiting on the realtime round-trip.
       assignments = assignments.filter(a => a.id !== btn.dataset.unclaim);
       populateDesignerClaims(editingDesignerId);
@@ -1379,11 +1445,14 @@
     });
 
     async function deleteRow(kind, id) {
-      const table = kind === 'project' ? 'sound_projects' : 'sound_designers';
+      const fn    = kind === 'project' ? 'sc_delete_project' : 'sc_delete_designer';
       const label = kind === 'project' ? 'project' : 'designer listing';
       if (!confirm('Delete this ' + label + '? This can\'t be undone.')) return;
-      const { error } = await db.from(table).delete().eq('id', id);
+      // Deletion is owner-checked in the database — the table itself has no
+      // DELETE policy, so this function is the only way a row can go.
+      const { data, error } = await db.rpc(fn, { p_id: id, p_token: ownerTokenFor(kind, id) });
       if (error) { console.error(error); status('Could not delete — see console.'); return; }
+      if (data === 0) { status('This listing isn\'t unlocked on this device.'); return; }
       status(kind === 'project' ? 'Project deleted.' : 'Listing deleted.');
     }
 
@@ -1422,22 +1491,34 @@
       if (!pendingManage) return;
       const { kind, id } = pendingManage;
       const item = (kind === 'project' ? projects : designers).find(x => x.id === id);
-      const typed = $('#mg-contact').value.trim().toLowerCase();
-      if (!item || !item.contact || !typed || item.contact.trim().toLowerCase() !== typed) {
+      const typed = $('#mg-contact').value.trim();
+      if (!item || !typed) {
         $('#mg-err').textContent = 'That doesn\'t match the contact this was posted with.';
         return;
       }
-      // Legacy row with no owner_token yet (e.g. seeded directly in the database) —
-      // the first person to prove the matching contact adopts ownership going forward.
-      let token = item.owner_token;
-      if (!token) {
-        token = uid();
-        const table = kind === 'project' ? 'sound_projects' : 'sound_designers';
-        const { error } = await db.from(table).update({ owner_token: token }).eq('id', id);
-        if (error) { console.error(error); $('#mg-err').textContent = 'Could not unlock — see console.'; return; }
-        item.owner_token = token;
+      // The old token can't be recovered from the row any more — only its hash
+      // is stored. So unlocking here mints a *fresh* token for this browser and
+      // asks the database to install its hash, which sc_claim only does if the
+      // contact really matches. The check is server-side now; the comparison we
+      // used to do here could simply have been skipped by a hostile caller.
+      const token = uid();
+      let hash;
+      try {
+        hash = await MAGIOwner.sha256Hex(token);
+      } catch (e) {
+        $('#mg-err').textContent = 'Can\'t verify here — open this page over https.';
+        return;
       }
-      setLocalToken(kind, id, token);
+      const { data, error } = await db.rpc('sc_claim', {
+        p_kind: kind, p_id: id, p_contact: typed, p_hash: hash,
+      });
+      if (error) { console.error(error); $('#mg-err').textContent = 'Could not unlock — see console.'; return; }
+      if (data === 0) {
+        $('#mg-err').textContent = 'That doesn\'t match the contact this was posted with.';
+        return;
+      }
+      MAGIOwner.remember(ownPrefix(kind), id, token, hash);
+      item.owner_hash = hash;
       closeModal($('#modal-manage'));
       pendingManage = null;
       render();

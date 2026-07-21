@@ -117,8 +117,12 @@ window.MAGIModeration = (function () {
     document.head.appendChild(style);
 
     overlay = document.createElement('div');
-    // `modal-overlay` keeps it out of the site's page-load fade-in rule.
-    overlay.className = 'mgmod-overlay modal-overlay';
+    // `no-page-fade` keeps it out of the site's page-load fade-in rule.
+    // Not `modal-overlay`: studio.html styles that name as its own backdrop,
+    // including opacity:0 / pointer-events:none, which this overlay never
+    // overrides (it toggles `.open`, not `.is-open`) — so on the Board the
+    // dialog opened invisible and unclickable.
+    overlay.className = 'mgmod-overlay no-page-fade';
     overlay.innerHTML =
       '<div class="mgmod-box">' +
         '<div class="mgmod-head"><span class="mgmod-title">Held for review</span>' +

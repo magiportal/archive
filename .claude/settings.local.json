@@ -13,7 +13,15 @@
       "Bash(awk -F: '$1>2200')",
       "Bash(ls -la \"/c/Users/adria/Downloads/\" 2>/dev/null | grep -i satoshi *)",
       "Bash(unzip -o -q Satoshi_Complete.zip -d Satoshi_Complete_extracted)",
-      "Bash(grep -v ':1$')"
+      "Bash(grep -v ':1$')",
+      "Bash(node --check search.js)",
+      "Bash(node \"C:/Users/adria/AppData/Local/Temp/claude/C--Users-adria-OneDrive-Documents-2-RMIT-MAGI-MAGI-CENTRAL/1dbef99e-4f96-46c6-96a2-f7b765d47858/scratchpad/tiers.js\")",
+      "Bash(node --check gate-auth.js)",
+      "Bash(git log *)",
+      "Bash(gh repo *)",
+      "Bash(which psql *)",
+      "Bash(grep -v \"magistu2026\\\\` / \\\\`magisound2026\")",
+      "Bash(node -e \"new \\(require\\('vm'\\).Script\\)\\(require\\('fs'\\).readFileSync\\('search.js','utf8'\\)\\); console.log\\('search.js parses OK'\\)\")"
     ]
   }
 }
