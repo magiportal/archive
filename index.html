@@ -180,34 +180,75 @@
 
     <div class="news-grid">
 
-      <div class="news-card news-card-featured">
-        <div class="news-tag">Exhibition</div>
-        <div class="news-title">MAGI EXPO 2026 — Call for Works</div>
-        <div class="news-body">Submissions are now open for the 2026 end-of-year exhibition. All current students are invited to submit their Studio 3 major projects for consideration.</div>
-        <div class="news-meta"><span class="news-date">15 Apr 2026</span><a class="news-link" href="#">Read more ›</a></div>
+      <!-- Each card: .news-thumb is a 3:2 image with the tag pinned top-left
+           and the title overlaid bottom-left; a short .news-desc and the
+           date/link .news-meta sit directly below the thumb. -->
+      <!-- The featured EXHIBITION card keeps the old full-bleed treatment: the
+           trailer fills the whole card at low opacity with the label/title/copy
+           laid over it — NOT the thumbnail-overlay style the other three use. -->
+      <div class="news-card news-card-featured" id="cfw-card">
+        <!-- Ambient EXPO trailer. Loads only when the card is in view
+             (preload=none + IntersectionObserver in the script below), muted +
+             looped, and is skipped entirely on reduced-motion or data-saver —
+             so it never blocks page load. Point data-src at the web-optimised
+             encode, NOT the 98MB original (see notes). -->
+        <video class="news-bg-video" id="cfw-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" data-src="media/video/expotrailer-web-trim.mp4"></video>
+        <!-- No tag chip, no description — just the two-line title, vertically
+             centred over the video (flex:1, same filler role .news-body used
+             to play). The fuller description still lives behind "Read more",
+             unchanged. -->
+        <div class="news-title-stack">
+          <span class="news-title-main">MAGI EXPO 2026</span>
+          <span class="news-title-sub">Call for Works</span>
+        </div>
+        <div class="news-meta"><span class="news-date">15 Apr 2026</span><a class="news-link" href="#" id="cfw-open" aria-expanded="false" aria-controls="cfw-detail">Read more ›</a></div>
+
+        <!-- Extra detail + submission link. Absolutely positioned over the
+             whole card (see .news-more-wrap) rather than pushed into the flex
+             flow, so opening it can NEVER change the card's — and therefore
+             the whole row's, since all four cards share one grid row — height.
+             That was the actual bug in the previous version: the row briefly
+             grew taller for every card, not just this one, whenever this
+             opened. -->
+        <div class="news-more-wrap" id="cfw-detail" aria-hidden="true">
+          <div class="news-more-inner">
+            <button class="news-more-close" id="cfw-close" type="button" aria-label="Close">&times;</button>
+            <div class="news-more-tag">Exhibition</div>
+            <div class="news-more-title">MAGI EXPO 2026 — Call for Works</div>
+            <p class="news-more-text">Submissions are now open for the 2026 end-of-year exhibition. All current students are invited to submit their Studio 3 major projects for consideration.</p>
+            <p class="news-more-text">Submissions are handled internally through the MAGI channel on Microsoft Teams — not on this site. The link below opens that channel; you'll need to be a member of the MAGI Teams channel to reach the submission post.</p>
+            <a class="news-submit-btn" href="https://teams.microsoft.com/l/channel/19%3AifunTGoLAO0fSCWNnBvf07lg-F6XKcW46lOsPWAwLQk1%40thread.tacv2/General?groupId=f598d78f-62eb-48ae-9d3d-7055eb1f0ead&amp;tenantId=d1323671-cdbe-4417-b4d4-bdb24b51316b" target="_blank" rel="noopener">Submit via Microsoft Teams ↗</a>
+          </div>
+        </div>
       </div>
 
       <div class="news-card">
-        <div class="news-img"><img src="media/events/EPIC/thewomb.png" alt="EPIC Workshop — Winter 2026" /></div>
-        <div class="news-tag">Workshop</div>
-        <div class="news-title">EPIC Workshop — Winter 2026</div>
-        <div class="news-body">MAGI and MDIT team up to solve, explore, and swim — yes, swim — through this season's most ambitious projects. Held in the VXLab (Building 91), using tech like the Nova Ball and VR headsets.</div>
+        <div class="news-thumb">
+          <img src="media/events/EPIC/thewomb.png" alt="EPIC Workshop — Winter 2026" />
+          <span class="news-thumb-tag">Workshop</span>
+          <div class="news-thumb-titlewrap"><span class="news-thumb-title">EPIC Workshop — Winter 2026</span></div>
+        </div>
+        <div class="news-desc">MAGI and MDIT team up in the VXLab this season — a cross-disciplinary sprint from brief to working prototype.</div>
         <div class="news-meta"><span class="news-date">Winter 2026</span><a class="news-link" href="latest.html#epic">Read more ›</a></div>
       </div>
 
       <div class="news-card">
-        <div class="news-img news-img-rotated"><img src="media/events/acmi-audience-lab.png" alt="ACMI Audience Lab" /></div>
-        <div class="news-tag">Event</div>
-        <div class="news-title">ACMI Audience Lab</div>
-        <div class="news-body">Three MAGI student works selected for public exhibition at Federation Square, running through May.</div>
+        <div class="news-thumb news-thumb-rotated">
+          <img src="media/events/acmi-audience-lab.png" alt="ACMI Audience Lab" />
+          <span class="news-thumb-tag">Event</span>
+          <div class="news-thumb-titlewrap"><span class="news-thumb-title">ACMI Audience Lab</span></div>
+        </div>
+        <div class="news-desc">Three student works, public exhibition at Fed Square — interactive and generative pieces for a general audience.</div>
         <div class="news-meta"><span class="news-date">1 May 2026</span><a class="news-link" href="latest.html#acmi">Read more ›</a></div>
       </div>
 
       <div class="news-card">
-        <div class="news-img"><img src="media/events/mdw1.JPG" alt="Melbourne Design Week — MAGI" /></div>
-        <div class="news-tag">Collaboration</div>
-        <div class="news-title">Melbourne Design Week x MAGI</div>
-        <div class="news-body">MAGI presented student installations and interactive works at Melbourne Design Week — Australia's largest design event, presented by Creative Victoria — bringing practice-led research into a public setting.</div>
+        <div class="news-thumb">
+          <img src="media/events/mdw1.JPG" alt="Melbourne Design Week — MAGI" />
+          <span class="news-thumb-tag">Collaboration</span>
+          <div class="news-thumb-titlewrap"><span class="news-thumb-title">Melbourne Design Week x MAGI</span></div>
+        </div>
+        <div class="news-desc">Student installations at Australia's largest design event — practice-led work shown in a public setting.</div>
         <div class="news-meta"><span class="news-date">2025</span><a class="news-link" href="sponsors.html">See our partners ›</a></div>
       </div>
 
@@ -574,6 +615,64 @@
           if (openBtn) placeAfterRowOf(openBtn, panelFor(openBtn));
         }, 150);
       });
+    })();
+  </script>
+
+  <script>
+    // ── CALL FOR WORKS — in-card reveal ─────────────────────────────────
+    // "Read more" opens the extra detail + Teams link as an overlay ON TOP of
+    // the card (see .news-more-wrap: position:absolute, inset:0). Being
+    // absolutely positioned takes it out of the card's own flex layout
+    // entirely, so its content height can never push the card — or the grid
+    // row all four cards share — taller. That's the actual fix for the
+    // earlier bug, where opening it visibly grew the whole row.
+    (function () {
+      const wrap  = document.getElementById('cfw-detail');
+      const link  = document.getElementById('cfw-open');
+      const close = document.getElementById('cfw-close');
+      if (!wrap || !link) return;
+
+      function setOpen(open) {
+        wrap.classList.toggle('is-open', open);
+        wrap.setAttribute('aria-hidden', open ? 'false' : 'true');
+        link.setAttribute('aria-expanded', open ? 'true' : 'false');
+        link.textContent = open ? 'Close ✕' : 'Read more ›';
+      }
+
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        setOpen(link.getAttribute('aria-expanded') !== 'true');
+      });
+      if (close) close.addEventListener('click', () => setOpen(false));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && link.getAttribute('aria-expanded') === 'true') setOpen(false);
+      });
+    })();
+
+    // ── CALL FOR WORKS — ambient background video ───────────────────────
+    // Kept cheap on purpose: the file is fetched only when the card scrolls
+    // into view (preload=none + a lazy src), plays muted, and pauses whenever
+    // it leaves the viewport so it isn't decoding off-screen. Reduced-motion
+    // and data-saver users never load it at all — the card just stays dark.
+    (function () {
+      const v = document.getElementById('cfw-video');
+      if (!v) return;
+      const conn = navigator.connection || {};
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) return;
+
+      let started = false;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            if (!started) { started = true; v.src = v.dataset.src; v.load(); }
+            v.play().catch(() => {});    // autoplay can still be refused; harmless
+          } else {
+            v.pause();
+          }
+        });
+      }, { threshold: 0.2 });
+      io.observe(v);
     })();
   </script>
 

@@ -25,7 +25,12 @@
       "Bash(awk -F: '$1>1580')",
       "Bash(node -e \"try{require.resolve\\('jsdom'\\);console.log\\('jsdom available'\\)}catch\\(e\\){console.log\\('no jsdom'\\)}\")",
       "Bash(npm ls *)",
-      "Bash(node \"C:/Users/adria/AppData/Local/Temp/claude/C--Users-adria-OneDrive-Documents-2-RMIT-MAGI-MAGI-CENTRAL/2d511dfb-baf4-44c4-828d-49470e58f924/scratchpad/check-search.js\")"
+      "Bash(node \"C:/Users/adria/AppData/Local/Temp/claude/C--Users-adria-OneDrive-Documents-2-RMIT-MAGI-MAGI-CENTRAL/2d511dfb-baf4-44c4-828d-49470e58f924/scratchpad/check-search.js\")",
+      "Bash(ffmpeg -version)",
+      "Bash(winget install *)",
+      "Bash(node \"C:/Users/adria/AppData/Local/Temp/claude/C--Users-adria-OneDrive-Documents-2-RMIT-MAGI-MAGI-CENTRAL/2d511dfb-baf4-44c4-828d-49470e58f924/scratchpad/check-news.js\")",
+      "Bash([ -f \"$FF\" ])",
+      "Bash(/c/Users/adria/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1.2-full_build/bin/ffprobe.exe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height,pix_fmt -of default=noprint_wrappers=1 media/video/expotrailer-web-trim.mp4)"
     ]
   }
 }

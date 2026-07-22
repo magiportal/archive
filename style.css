@@ -495,17 +495,59 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   border-bottom: 1px solid #e0e0e0;
+  /* Floor so the row can't shrink indefinitely as the window narrows. Meta,
+     gaps and padding are fixed px amounts that DON'T shrink along with the
+     aspect-ratio-driven row height below — so past a certain width, the
+     leftover for .news-desc (thumb 65% + meta + gaps subtracted from a
+     shrinking row) runs out and hits 0 before the row itself is actually
+     that short, and text starts overlapping neighbouring elements instead of
+     just clipping cleanly. Below this floor the row simply stops tracking
+     40/9 exactly — the featured video crops slightly via its existing
+     object-fit:cover rather than fitting edge-to-edge — which is the
+     graceful trade-off, over letting text collide. Reset to none on the
+     mobile scroller (see that breakpoint), where cards are auto-height and
+     this isn't the mechanism keeping things apart. */
+  min-height: 320px;
+  /* Sized so the featured (2fr-of-5) column comes out at exactly 16:9 — the
+     trailer's native ratio — with no cropping or letterboxing needed.
+     width:height of that column at 16:9 means grid width:height = 40:9
+     (since the column is 2/5 of the grid width: (2/5)*(9/16) = 9/40, and the
+     ratio is the inverse of that fraction). All four cards stretch to this
+     row height by default (align-items: stretch); the other three fix
+     .news-thumb at exactly half of it and let .news-desc's flex:1 absorb the
+     rest above .news-meta (see those rules) — same "fill whatever's left"
+     mechanism the featured card's body uses on its own, which is why "Read
+     more" lands at the same height on every card. This stays pinned
+     even while Call for Works'
+     "Read more" is open — its extra content is an absolute overlay
+     (.news-more-wrap), not part of the card's flex flow, so it can never
+     push this row taller. Reset to auto on the mobile scroller, where the
+     row is a single card's natural height instead of four sharing one row. */
+  aspect-ratio: 40 / 9;
 }
 
 .news-card {
+  /* Padding lives in vars so .news-thumb can bleed to the card edges with a
+     matching negative margin at every breakpoint (see .news-thumb). */
+  --news-pad-x: 24px;
+  --news-pad-y: 24px;
+  position: relative;   /* anchors .news-more-wrap on the featured card */
   border-right: 1px solid #e0e0e0;
-  padding: 24px;
+  padding: var(--news-pad-y) var(--news-pad-x);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   background: #0a0a0a;
   transition: background 0.1s;
+  /* The grid row height is fixed (see .news-grid, sized to the featured
+     video's own aspect ratio) rather than growing to fit content, so these
+     four cards must fit inside it instead of the row growing to fit them.
+     overflow:hidden is the backstop if desc/meta ever overrun. min-height:0
+     lets a flex child shrink below its content size at all — without it
+     flexbox refuses to compress a column past that. */
+  overflow: hidden;
+  min-height: 0;
 }
 
 .news-card:hover { background: #141414; }
@@ -515,15 +557,36 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
    read as a stray line at the right edge of the screen. */
 .news-card:last-child { border-right: none; }
 
-.news-img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
+/* ── THUMBNAIL: 3:2 landscape crop, tag top-left, title bottom-left ──
+   Locked to a thumbnail ratio instead of stretching to fill the card —
+   the shared row height is set by the featured 16:9 trailer, so without
+   this the three 1fr columns end up near-square. 3:2 is taller than 16:9
+   but still rectangular; flex-shrink lets it compress on short rows so
+   desc + meta are never clipped. Bleeds to the card's top/side edges via
+   negative margin = the card's own padding. */
+.news-thumb {
+  position: relative;
+  /* Fixed at exactly half the card's content-box height (i.e. half the row
+     height, since all four cards stretch to the same row) — flex-basis:50%
+     resolves against that content box regardless of what .news-desc needs.
+     .news-desc is the flexible one now (flex:1, see below): it absorbs
+     whatever's left after this fixed 50% and .news-meta's own height, which
+     is also why meta's position is untouched by this change — the same
+     "whatever's left above meta always gets fully absorbed" guarantee, just
+     with desc alone doing the absorbing instead of splitting it with thumb.
+     A flex-basis PERCENTAGE, not a fixed aspect-ratio, is what makes this
+     scale correctly with viewport width without reintroducing the earlier
+     bug (aspect-ratio sizing off the thumb's own width independent of the
+     row's real height, which left dead space that varied per card). */
+  flex: 0 0 65%;
+  min-height: 0;
   overflow: hidden;
-  margin-bottom: 12px;
-  flex-shrink: 0;
+  margin: calc(-1 * var(--news-pad-y)) calc(-1 * var(--news-pad-x)) 0;
 }
 
-.news-img img {
+.news-thumb img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -531,33 +594,84 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
 }
 
 /* portrait image rotated to landscape */
-.news-img-rotated {
-  position: relative;
-}
-
-.news-img-rotated img {
-  position: absolute;
+.news-thumb-rotated img {
+  width: 170%;
+  height: 170%;
   top: 50%;
   left: 50%;
-  width: 170%;
-  height: auto;
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
-.news-tag { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #999; }
-/* 13px matches the section header above it (.bar-title-link) and the other
-   two card-title styles on this page (.sel-title, .rec-compact-title) — it
-   used to run at 17px, outsizing its own section label. */
-.news-title { font-size: 13px; font-weight: 500; color: #fff; line-height: 1.4; }
-.news-body { font-size: 13px; color: #bbb; line-height: 1.8; flex: 1; }
+.news-thumb-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  background: #000;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+}
+
+.news-thumb-titlewrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 10px 12px;
+}
+
+.news-thumb-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fff;
+  /* Soft shadow keeps the title readable on light photos now that the
+     old bottom fade-gradient is gone. */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 10px rgba(0, 0, 0, 0.45);
+}
+
+/* Summary sits directly under the thumb (no margin-top:auto — that used
+   to pin it to the card bottom and leave a gap). line-clamp allows ~3
+   lines so the copy can run a sentence longer than a one-liner. */
+.news-desc {
+  /* Bumped from 12px/1.5 now that shrinking the thumb's share (see
+     .news-thumb) freed up real vertical room for this. */
+  font-size: 14px;
+  color: #aaa;
+  line-height: 1.6;
+  /* Extra breathing room above this specifically (the card's own `gap`
+     already puts 8px between every child — this adds to that, just between
+     thumb and desc, without touching the desc→meta spacing). */
+  margin-top: 14px;
+  /* The sole flexible filler now: .news-thumb is fixed at 50%, so this grows
+     to take up everything else that's left above .news-meta. */
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
 
 .news-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
   border-top: 1px solid #e0e0e0;
-  padding-top: 12px;
+  padding-top: 10px;
+  flex-shrink: 0;   /* date + link must stay visible even if the card is tight */
+  /* The real bottom-anchor: .news-desc (flex:1, .news-thumb is now a fixed
+     50%) — or, on the featured card, .news-body — always grows to absorb
+     ALL leftover height, so meta lands at the same height on every card.
+     margin-top:auto here is just a defensive backstop (a no-op as long as
+     that flex:1 is in place and correctly absorbing the leftover space). */
+  margin-top: auto;
 }
 
 .news-date { font-size: 11px; letter-spacing: 0.08em; color: #999; }
@@ -568,6 +682,159 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
 }
 
 .news-link:hover { opacity: 0.6; }
+
+/* ── FEATURED EXHIBITION CARD — full-bleed low-opacity video ──
+   Unlike the other three cards (image thumbnail with the tag/title pinned as
+   overlays), this one keeps the older treatment: the trailer fills the whole
+   card, dimmed, with the label/title/copy laid over it as plain text. The
+   card is 16:9 (the grid's 40/9 ratio sizes this 2fr column to exactly that),
+   so the 16:9 clip fills it with no cropping. */
+.news-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: var(--news-video-opacity, 0.3);
+  z-index: 0;
+  pointer-events: none;
+}
+/* Lift every card child above the video — except the reveal overlay, which
+   manages its own stacking (position:absolute, z-index:2). */
+.news-card-featured > :not(.news-bg-video):not(.news-more-wrap) {
+  position: relative;
+  z-index: 1;
+}
+/* Two-line title, vertically centred over the video — takes over .news-body's
+   old job as the flex:1 filler between the top of the card and .news-meta, so
+   removing the tag/description doesn't disturb where "Read more" sits. */
+.news-title-stack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;   /* centres both lines horizontally within the card */
+  text-align: center;
+  gap: 8px;
+}
+.news-title-main {
+  /* Explicit family + 700, matching the rest of the site's UI type. 700 (not
+     800) because Satoshi only ships weights 300/400/500/700 (see the
+     @font-face block near the top of this file) — 800 has no matching face,
+     so the browser would fake a synthetic bold instead of rendering the
+     real one. */
+  font-family: 'Satoshi', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: #fff;
+}
+.news-title-sub {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* ── CALL FOR WORKS — overlay reveal ───────────────
+   Extra description + the Teams submission link, opened by "Read more".
+   position:absolute + inset:0 takes this OUT of the card's flex layout
+   entirely — its content height has no way to affect the card's size or the
+   grid row it shares with the other three cards, which is the actual fix for
+   the earlier bug where opening it grew the whole row. It sits directly on
+   the card (.news-card has position:relative), above the thumbnail, and
+   fades/scales in rather than pushing anything. pointer-events:none while
+   closed so it can't intercept clicks meant for the thumb behind it. */
+.news-more-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  background: rgba(6, 6, 6, 0.96);
+  opacity: 0;
+  transform: scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.news-more-wrap.is-open {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.news-more-inner {
+  position: relative;
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;    /* safety valve if a narrow/short viewport can't fit it */
+  padding: 30px 40px;
+}
+
+.news-more-close {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #999;
+  cursor: pointer;
+  padding: 6px;
+}
+.news-more-close:hover { color: #fff; }
+
+.news-more-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 10px;
+}
+.news-more-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.news-more-text {
+  font-size: 13px;
+  line-height: 1.75;
+  color: #bbb;
+  margin-bottom: 14px;
+  max-width: 52ch;
+}
+.news-more-text:last-of-type { margin-bottom: 20px; }
+
+.news-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #111;
+  background: #fff;
+  text-decoration: none;
+  padding: 12px 22px;
+  transition: background 0.14s, color 0.14s;
+}
+.news-submit-btn:hover { background: #5b5fc7; color: #fff; }   /* Teams purple */
+
+@media (max-width: 760px) {
+  .news-more-inner { padding: 26px 22px; }
+  .news-more-title { font-size: 17px; }
+}
 
 /* ── MEDIA GALLERY ───────────────────────────────── */
 
@@ -1082,7 +1349,7 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
    add extra vertical space inside spec-inner and news cards */
 .spec-inner { padding: 28px 24px 36px; }
 
-.news-card { padding: 28px; }
+.news-card { --news-pad-x: 28px; --news-pad-y: 28px; }
 
 .spec-label {
   font-size: 9px;
@@ -2599,15 +2866,60 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;                 /* Firefox */
+    /* The desktop rule pins this to 40/9 so the 2fr-of-5 featured column
+       lands at the video's own 16:9. That fraction is meaningless here —
+       cards are 80% width each, stacked in a scroller, not sharing one grid
+       row — so it's released back to natural, per-card content height. */
+    aspect-ratio: auto;
+    /* Same reasoning: the desktop min-height is a floor against the
+       aspect-ratio-driven row shrinking too far; there's no shared row here
+       to floor, cards just take whatever their own content needs. */
+    min-height: 0;
   }
   .news-grid::-webkit-scrollbar { display: none; }  /* WebKit */
   .news-card {
+    --news-pad-x: 22px;
+    --news-pad-y: 24px;
     flex: 0 0 80%;
     min-width: 0;
     scroll-snap-align: start;
-    padding: 24px 22px;
+    /* Desktop clips + line-clamps text to fit the pinned row height; the
+       scroller has no such constraint, so give the full copy back its room.
+       :not(.news-card-featured) — that card still needs overflow:hidden to
+       contain the ambient video (see .news-card-featured), which otherwise
+       loses to this rule on specificity ties + source order. */
   }
+  /* .news-thumb keeps its own overflow:hidden regardless (it's what clips the
+     image/video to the thumb box); this only relaxes the CARD's overflow,
+     which existed to stop text overrunning the fixed desktop row height —
+     moot here since the card's height is auto again (see .news-grid above).
+     news-card-featured is excluded: it still needs to clip so its
+     .news-more-wrap overlay doesn't visually spill past the card corners. */
+  .news-card:not(.news-card-featured) { overflow: visible; }
   .news-card:last-child { border-right: none; }
+
+  /* The desktop rule's flex:0 0 65% is a PERCENTAGE flex-basis, which only
+     resolves against a definite container height — the card here is auto
+     height (see .news-grid above), so that percentage can't resolve and
+     falls back to being treated as flex-basis:auto. Since .news-thumb's only
+     content is an absolutely-positioned image (no in-flow height at all),
+     that collapsed it to near-zero — the actual cause of the mobile squish:
+     a barely-visible thumbnail with .news-desc's now-unclamped text filling
+     all the space. flex:0 0 auto + a fixed aspect-ratio gives it a real,
+     self-contained size instead of depending on a percentage the layout
+     can't provide here. */
+  .news-thumb {
+    flex: 0 0 auto;
+    aspect-ratio: 3 / 2;
+  }
+  .news-desc {
+    /* display:block (rather than just resetting line-clamp) is what actually
+       undoes the desktop rule — -webkit-line-clamp only has an effect inside
+       display:-webkit-box, so leaving that in place and merely changing the
+       clamp value is unreliable across browsers. */
+    display: block;
+    overflow: visible;
+  }
 
   /* ── SELECTED WORKS ───────────────────────────────── */
   .sel-grid { grid-template-columns: 1fr 1fr; gap: 16px; padding: 22px; }
