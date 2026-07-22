@@ -117,6 +117,29 @@
       }
     },
     {
+      // Featured works on the home page. Only `.sel-card-btn` cards are
+      // indexed — those are the ones with a real artist and write-up behind
+      // them; the remaining placeholder cards would just add noise.
+      group: 'Selected Works', page: 'index.html', sel: '.sel-card-btn',
+      pick: (el) => {
+        const title = txt(el, '.sel-title');
+        // The write-up lives in a sibling panel, not inside the card, so it's
+        // reached through aria-controls rather than a descendant selector.
+        const panel = el.ownerDocument.getElementById(el.getAttribute('aria-controls') || '');
+        return {
+          title,
+          kind:  txt(el, '.sel-badge') || 'Selected Work',
+          desc:  panel ? txt(panel, '.sel-detail-bio') : '',
+          // The row is titled by the work, so the artist and year go in extra
+          // — that way searching a student's name still finds their piece.
+          extra: txt(el, '.sel-student'),
+          thumb: src(el, '.sel-thumb img'),
+          initials: initials(title),
+          href:  'index.html' + (el.id ? '#' + el.id : '#archive')
+        };
+      }
+    },
+    {
       group: 'Partners', page: 'sponsors.html', sel: '.partner',
       pick: (el) => {
         const title = txt(el, '.partner-name');
@@ -264,11 +287,17 @@
   // ── MATCHING ──────────────────────────────────────────────
   // Supabase already filtered its rows server-side; this scores everything so
   // title hits outrank body hits, and filters the static half.
+  // Lowercase AND strip accents, so "capicu" finds "Capicú" and "moshkina"
+  // still works if someone types it with a diacritic. Names and work titles
+  // here carry accents that visitors won't necessarily reproduce.
+  const fold = (s) => (s == null ? '' : String(s))
+    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
   function score(item, q) {
-    const t = (item.title || '').toLowerCase();
-    const d = (item.desc  || '').toLowerCase();
-    const k = (item.kind  || '').toLowerCase();
-    const x = (item.extra || '').toLowerCase();
+    const t = fold(item.title);
+    const d = fold(item.desc);
+    const k = fold(item.kind);
+    const x = fold(item.extra);
     if (t.startsWith(q)) return 100;
     if (t.includes(q))   return 80;
     if (k.includes(q))   return 50;
@@ -277,7 +306,9 @@
     return 0;
   }
 
-  const GROUP_ORDER = ['Media Database', 'News & Events', 'Alumni', 'Staff', 'Sound Collab', 'Community Board', 'Partners'];
+  // Doubles as a whitelist — the render and tab code both filter through it, so
+  // a group missing from this list never reaches the results at all.
+  const GROUP_ORDER = ['Media Database', 'News & Events', 'Selected Works', 'Alumni', 'Staff', 'Sound Collab', 'Community Board', 'Partners'];
 
   const CHEV = '<svg class="sr-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
 
@@ -394,7 +425,7 @@
   let seq = 0;
   async function run(q) {
     const mine = ++seq;
-    const ql = q.toLowerCase();
+    const ql = fold(q);   // must match how score() folds the item fields
 
     groupsEl.innerHTML = '<div class="search-empty">Searching…</div>';
     titleEl.innerHTML = 'Search results for &ldquo;' + esc(q) + '&rdquo;';

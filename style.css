@@ -1435,8 +1435,199 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
 
 .sel-card.dimmed { opacity: 0.15; pointer-events: none; }
 
+/* Cards that open the detail panel below (currently just the featured Saros
+   card) are buttons rather than links — reset the button chrome back to how
+   the anchor cards look, and add a ring so the open one reads as selected. */
+.sel-card-btn {
+  position: relative;          /* anchors the open-state pointer below */
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.sel-card-btn .sel-thumb { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.sel-card-btn[aria-expanded="true"] .sel-thumb {
+  box-shadow: 0 0 0 3px var(--frame, var(--black));
+}
+.sel-card-btn[aria-expanded="true"] .sel-overlay { opacity: 1; }
+
+/* The open card stays put instead of taking the hover lift. That lift moves
+   only .sel-thumb, while the pointer below is anchored to the button — so on
+   hover the card slid up and left a white sliver between its frame and the
+   triangle. Anchoring the open card removes the cause; the overlap below
+   covers the box-shadow ring's seam as well. */
+.sel-card-btn[aria-expanded="true"] .sel-thumb { transform: none; }
+
+/* Downward pointer marking which card is currently open. Takes the card's own
+   frame colour, so it reads as belonging to that work. Its top is tucked 2px
+   inside the card (14px tall, sitting 12px proud) so no gap can open up along
+   the frame, and it still clears the 16px grid gap at the tightest breakpoint. */
+.sel-card-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 14px solid var(--frame, var(--black));
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top center;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+.sel-card-btn[aria-expanded="true"]::after {
+  opacity: 1;
+  transform: translateX(-50%) scaleY(1);
+}
+
+/* ── FEATURED WORK DETAIL (expands under whichever card opened it) ──
+   Lives INSIDE .sel-grid as a grid item (see the HTML) rather than after the
+   grid as a section-level block. grid-column: 1 / -1 forces it to break onto
+   its own full-width row wherever it sits in DOM order — and JS keeps it
+   positioned right after the open card — so it appears directly under that
+   card at every breakpoint, including the single-column mobile layout,
+   instead of trailing after all four cards regardless of which was clicked. */
+.sel-detail-wrap {
+  grid-column: 1 / -1;
+  /* display:none, not a 0fr grid — a collapsed grid item still occupies a
+     full row, which broke the 4-across desktop layout into 2+2 even when
+     shut. `is-shown` puts it back in flow, then `is-open` animates it; JS
+     sequences the two so the open/close still eases. */
+  display: none;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sel-detail-wrap.is-shown { display: grid; }
+.sel-detail-wrap.is-open  { grid-template-rows: 1fr; }
+.sel-detail { overflow: hidden; }
+
+/* Switching straight from one featured work to another shouldn't replay the
+   drop-down — the section is already open, only its contents are changing.
+   `is-instant` kills the height transition so the swap doesn't collapse and
+   re-expand, and `is-fading` cross-fades the contents across the swap. The
+   drop-down itself is kept for opening from closed and for closing. */
+.sel-detail-wrap.is-instant { transition: none; }
+.sel-detail-wrap.is-fading .sel-detail-inner { opacity: 0; }
+
+/* The grid's own gap supplies the space above and below, so this only needs
+   to keep the text off the cards. */
+.sel-detail-inner {
+  display: flex;
+  gap: 32px;
+  padding: 4px 0 8px;
+  opacity: 1;
+  transition: opacity 0.16s ease;
+}
+
+/* No forced aspect-ratio and no object-fit: the thumbnail sets its own height
+   from its natural proportions, so it is never cropped or stretched. The flex
+   row would otherwise stretch this to the text column's height, hence
+   align-self; line-height:0 stops the inline-image baseline gap. */
+.sel-detail-video {
+  position: relative;
+  flex: 0 0 320px;
+  align-self: flex-start;
+  overflow: hidden;
+  display: block;
+  line-height: 0;
+  background: #000;
+}
+.sel-detail-video img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.sel-detail-video:hover img { transform: scale(1.04); opacity: 0.85; }
+
+.sel-detail-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;              /* the wrapper zeroes it out for the image */
+  color: #fff;
+  background: rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+}
+
+.sel-detail-text { flex: 1; min-width: 0; }
+
+.sel-detail-meta {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 10px;
+}
+
+/* The category · year, highlighted in the card's own frame colour. Padding
+   and a negative margin keep the highlight from nudging surrounding text or
+   growing the line height — same font-size as the rest of .sel-detail-meta,
+   just with a coloured chip behind it. */
+.sel-detail-meta-tag {
+  background: var(--frame, var(--black));
+  color: var(--frame-text, #fff);
+  padding: 3px 6px;
+  margin: -3px -2px;
+  border-radius: 2px;
+}
+
+.sel-detail-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+
+.sel-detail-work {
+  font-size: 13px;
+  color: var(--dim);
+  margin-bottom: 14px;
+}
+
+.sel-detail-bio {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--secondary);
+  max-width: 62ch;
+  margin-bottom: 18px;
+}
+
+.sel-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--black);
+  border: 1px solid var(--line);
+  padding: 9px 14px;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.sel-detail-link:hover {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
 @media (max-width: 880px) {
   .sel-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 28px 24px 32px; }
+  .sel-detail-inner { flex-direction: column; gap: 18px; }
+  /* Stacked now, so align-self governs width rather than height — it must not
+     stay flex-start or the thumbnail would shrink to its own content width. */
+  .sel-detail-video { flex-basis: auto; width: 100%; align-self: stretch; }
 }
 
 /* ── WORKS LIST ──────────────────────────────────── */

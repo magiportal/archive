@@ -225,38 +225,105 @@
 
     <div class="sel-grid">
 
-      <a class="sel-card" data-spec="games" href="alumni.html" style="--frame:var(--col-games);--frame-text:#003a4a">
+      <button class="sel-card sel-card-btn" type="button" id="work-au" data-spec="games" style="--frame:var(--col-games);--frame-text:#003a4a" aria-expanded="false" aria-controls="sel-detail-au">
         <div class="sel-thumb">
           <span class="sel-badge">Games</span>
-          <img src="media/s3634079-remnants-of-our-days.webp" alt="Remnants of Our Days" />
+          <img src="media/events/ACMI/capicu1.png" alt="Capicú" />
           <div class="sel-overlay">
-            <span class="sel-title">Remnants of Our Days</span>
-            <span class="sel-student">Student Name · 2026</span>
+            <span class="sel-title">Capicú</span>
+            <span class="sel-student">Esthefania Morantes · 2026</span>
           </div>
         </div>
-      </a>
+      </button>
 
-      <a class="sel-card" data-spec="animation" href="alumni.html" style="--frame:var(--col-animation);--frame-text:#fff">
+      <div class="sel-detail-wrap" id="sel-detail-au" style="--frame:var(--col-games);--frame-text:#003a4a">
+        <div class="sel-detail">
+          <div class="sel-detail-inner">
+            <a class="sel-detail-video" href="https://www.youtube.com/watch?v=fWtqP0_TEkQ" target="_blank" rel="noopener" aria-label="Watch AU (Capicú) on YouTube">
+              <img src="https://img.youtube.com/vi/fWtqP0_TEkQ/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/fWtqP0_TEkQ/hqdefault.jpg"
+                   alt="AU (Capicú) — still" />
+              <span class="sel-detail-play" aria-hidden="true">▶</span>
+            </a>
+            <div class="sel-detail-text">
+              <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Games · 2026</span></div>
+              <h3 class="sel-detail-name">Esthefania Morantes</h3>
+              <p class="sel-detail-work"><em>Capicú</em></p>
+              <p class="sel-detail-bio">When was the last time your family was all together? Come with me on a sandbox-platformer journey through my memories. I'll walk you through my experience growing up in Venezuela, the context behind why we had to leave everything behind, and how we've rebuilt our lives somewhere new. Never forgetting our roots, always excited for where we'll go next.</p>
+              <a class="sel-detail-link" href="https://esthef.itch.io/capicu" target="_blank" rel="noopener">See more ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="sel-card sel-card-btn" type="button" id="work-saros" data-spec="animation" style="--frame:var(--col-animation);--frame-text:#fff" aria-expanded="false" aria-controls="sel-detail-saros">
         <div class="sel-thumb">
           <span class="sel-badge">Animation</span>
-          <img src="media/s4017090-love-in-the-form-of-an-egg.webp" alt="Love in the Form of an Egg" />
+          <img src="https://img.youtube.com/vi/J2dG_VsuSs8/hqdefault.jpg" alt="Saros" />
           <div class="sel-overlay">
-            <span class="sel-title">Love in the Form of an Egg</span>
-            <span class="sel-student">Student Name · 2025</span>
+            <span class="sel-title">Saros</span>
+            <span class="sel-student">Sofia Moshkina · 2025</span>
           </div>
         </div>
-      </a>
+      </button>
 
-      <a class="sel-card" data-spec="interactivity" href="alumni.html" style="--frame:var(--col-interactivity);--frame-text:#fff">
+      <!-- Expanding "featured work" detail — one per featured card, each
+           opened by the button whose aria-controls names it. These live INSIDE
+           the grid (grid-column: 1 / -1, see style.css) rather than after it,
+           so they break onto their own full-width row; JS moves the open one
+           to sit after the last card in its card's row, which keeps the
+           4-across desktop row intact while landing directly under the card
+           on the narrower layouts. -->
+      <div class="sel-detail-wrap" id="sel-detail-saros" style="--frame:var(--col-animation);--frame-text:#fff">
+        <div class="sel-detail">
+          <div class="sel-detail-inner">
+            <a class="sel-detail-video" href="https://www.youtube.com/watch?v=J2dG_VsuSs8" target="_blank" rel="noopener" aria-label="Watch Saros on YouTube">
+              <img src="https://img.youtube.com/vi/J2dG_VsuSs8/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/J2dG_VsuSs8/hqdefault.jpg"
+                   alt="Saros — still" />
+              <span class="sel-detail-play" aria-hidden="true">▶</span>
+            </a>
+            <div class="sel-detail-text">
+              <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Animation · 2025</span></div>
+              <h3 class="sel-detail-name">Sofia Moshkina</h3>
+              <p class="sel-detail-work"><em>Saros</em></p>
+              <p class="sel-detail-bio">Two young girls find themselves trapped under the oppressive rule of the Temple, a totalitarian regime that feeds on fear and obedience. As the system works relentlessly to break their bond, the girls must cling to each other and resist the forces determined to erase their dignity. Their courage becomes a testament to a love strong enough to survive even the harshest attempts to destroy it.</p>
+              <a class="sel-detail-link" href="https://polykromica.com/saros" target="_blank" rel="noopener">See more ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="sel-card sel-card-btn" type="button" id="work-echoes" data-spec="interactivity" style="--frame:var(--col-interactivity);--frame-text:#fff" aria-expanded="false" aria-controls="sel-detail-echoes">
         <div class="sel-thumb">
           <span class="sel-badge">Interactivity</span>
-          <img src="media/S4078320-tethered-thoughts.webp" alt="Tethered Thoughts" />
+          <img src="https://img.youtube.com/vi/2pwidF2pE9A/hqdefault.jpg" alt="Echoes of Mending" />
           <div class="sel-overlay">
-            <span class="sel-title">Tethered Thoughts</span>
-            <span class="sel-student">Student Name · 2025</span>
+            <span class="sel-title">Echoes of Mending</span>
+            <span class="sel-student">Jade Ng · 2026</span>
           </div>
         </div>
-      </a>
+      </button>
+
+      <div class="sel-detail-wrap" id="sel-detail-echoes" style="--frame:var(--col-interactivity);--frame-text:#fff">
+        <div class="sel-detail">
+          <div class="sel-detail-inner">
+            <a class="sel-detail-video" href="https://www.youtube.com/watch?v=2pwidF2pE9A" target="_blank" rel="noopener" aria-label="Watch Echoes of Mending on YouTube">
+              <img src="https://img.youtube.com/vi/2pwidF2pE9A/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/2pwidF2pE9A/hqdefault.jpg"
+                   alt="Echoes of Mending — still" />
+              <span class="sel-detail-play" aria-hidden="true">▶</span>
+            </a>
+            <div class="sel-detail-text">
+              <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Interactivity · 2026</span></div>
+              <h3 class="sel-detail-name">Jade Ng</h3>
+              <p class="sel-detail-work"><em>Echoes of Mending</em></p>
+              <p class="sel-detail-bio"><em>Echoes of Mending</em> is an interactive projection-mapped dollhouse exploring themes of self-understanding and self-acceptance. Participants interact with miniature furniture through touching, opening, repairing, and exploring. These physical actions act as symbolic gestures that gradually transform each room and reveal animated responses within the space. By combining miniature environments, hand-drawn animation, projection mapping, and tactile interaction, the project investigates how symbolic play can emerge through material engagement and personal interpretation.</p>
+              <a class="sel-detail-link" href="https://jitthongng.my.canva.site/interactivitivities" target="_blank" rel="noopener">See more ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <a class="sel-card" data-spec="research" href="alumni.html" style="--frame:var(--col-research);--frame-text:#4a5200">
         <div class="sel-thumb">
@@ -355,6 +422,160 @@
   <script src="search.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+  <script>
+    // ── SELECTED WORKS — featured-work toggles ──────────────────────────
+    // Each featured card is a button naming its own panel via aria-controls,
+    // so adding another featured work is markup only — no JS change needed.
+    // Opening one closes any other, so only a single panel is ever expanded.
+    (function () {
+      const grid = document.querySelector('.sel-grid');
+      if (!grid) return;
+      const buttons = Array.from(document.querySelectorAll('.sel-card-btn'));
+      if (!buttons.length) return;
+
+      const DURATION = 340;              // keep in step with the CSS transitions
+      const FADE     = 160;              // .sel-detail-inner opacity transition
+      const closeTimers = new WeakMap();
+      let switchTimer = null;            // pending cross-fade between two works
+
+      // Matches the site's mobile breakpoint (where the nav becomes a burger).
+      // Below it the panel sits directly beneath its own card rather than at
+      // the end of a shared row, so switching moves it somewhere else on the
+      // page — see the click handler.
+      const isMobile = window.matchMedia('(max-width: 760px)');
+      const panelFor = btn => document.getElementById(btn.getAttribute('aria-controls'));
+
+      // Panel stills ask for maxresdefault (a true 1280x720, so no letterbox
+      // bars baked in). YouTube 404s that name for uploads which never got one,
+      // so fall back to hqdefault, which always exists — at 480x360 it's 4:3
+      // and may show bars, but the CSS sizes to whatever arrives rather than
+      // cropping it. Bailing out when src already equals the fallback stops a
+      // loop if that request fails too.
+      document.querySelectorAll('.sel-detail-video img[data-fallback]').forEach(img => {
+        img.addEventListener('error', () => {
+          const fb = img.dataset.fallback;
+          if (!fb || img.src === fb) return;
+          img.src = fb;
+        });
+      });
+
+      // A panel spans the full width, so it breaks the row wherever it sits.
+      // Putting it straight after the clicked card would strand the rest of
+      // that card's row — on desktop, clicking card 2 left columns 3 and 4
+      // empty. So it goes after the LAST card in the clicked card's row: card
+      // 4 on the 4-up desktop grid, card 2 on the 2-up, and the card itself
+      // when there's a single column. The column count comes from the computed
+      // template rather than measured offsets, so this stays correct even when
+      // a panel is already in the grid affecting layout.
+      function placeAfterRowOf(btn, panel) {
+        const cards = Array.from(grid.querySelectorAll('.sel-card'));
+        const cols  = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
+        const i     = cards.indexOf(btn);
+        if (i === -1) return;
+        const lastInRow = Math.min(cards.length - 1, Math.floor(i / cols) * cols + cols - 1);
+        cards[lastInRow].insertAdjacentElement('afterend', panel);
+      }
+
+      function close(btn, { animate = true } = {}) {
+        const panel = panelFor(btn);
+        if (!panel) return;
+        btn.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('is-open', 'is-fading');
+        clearTimeout(closeTimers.get(btn));
+        if (animate) {
+          // Drop out of the grid only once it has finished collapsing —
+          // otherwise it would vanish instantly instead of easing shut.
+          closeTimers.set(btn, setTimeout(() => panel.classList.remove('is-shown'), DURATION));
+        } else {
+          panel.classList.remove('is-shown');
+        }
+      }
+
+      // Opening from nothing: the full drop-down.
+      function openAnimated(btn, panel) {
+        clearTimeout(closeTimers.get(btn));
+        placeAfterRowOf(btn, panel);
+        panel.classList.remove('is-fading');
+        panel.classList.add('is-shown');
+        void panel.offsetHeight;         // commit the 0fr start so it animates
+        panel.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Swapping in while the section is already open: jump straight to full
+      // height with the height transition suppressed, so the panel doesn't
+      // collapse and re-expand, then fade the contents in.
+      function openInstant(btn, panel) {
+        clearTimeout(closeTimers.get(btn));
+        placeAfterRowOf(btn, panel);
+        panel.classList.add('is-instant', 'is-fading', 'is-shown');
+        void panel.offsetHeight;
+        panel.classList.add('is-open');
+        void panel.offsetHeight;         // land at full height before transitions return
+        panel.classList.remove('is-instant');
+        btn.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => panel.classList.remove('is-fading'));
+      }
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const panel = panelFor(btn);
+          if (!panel) return;
+          clearTimeout(switchTimer);
+
+          if (btn.getAttribute('aria-expanded') === 'true') { close(btn); return; }
+
+          const openBtn = buttons.find(b => b !== btn && b.getAttribute('aria-expanded') === 'true');
+          if (!openBtn) { openAnimated(btn, panel); return; }
+
+          // Switching works while one is already open. On mobile the panel
+          // lives under its own card, so the incoming one appears somewhere
+          // else entirely — a cross-fade would fade out in one place and in at
+          // another. Drop it down there instead, closing the old one outright.
+          if (isMobile.matches) {
+            close(openBtn, { animate: false });
+            openAnimated(btn, panel);
+            return;
+          }
+
+          // Wider layouts: both panels land at the end of the same row, so the
+          // section can stay expanded and just change its contents — fade the
+          // current ones out, swap underneath while nothing is visible, then
+          // fade the new ones in. No second drop-down.
+          panelFor(openBtn).classList.add('is-fading');
+          switchTimer = setTimeout(() => {
+            close(openBtn, { animate: false });
+            openInstant(btn, panel);
+          }, FADE);
+        });
+      });
+
+      // Arriving on index.html#work-saros — from a search result, or a shared
+      // link — opens that work, so the visitor lands on the write-up they
+      // picked rather than just the card. Routing it through click() keeps the
+      // scroll and animation behaviour identical to opening it by hand.
+      function openFromHash() {
+        const id = (location.hash || '').slice(1);
+        if (!id) return;
+        const target = buttons.find(b => b.id === id);
+        if (target && target.getAttribute('aria-expanded') !== 'true') target.click();
+      }
+      openFromHash();
+      window.addEventListener('hashchange', openFromHash);
+
+      // A resize can change the column count, and so which card ends the row.
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const openBtn = buttons.find(b => b.getAttribute('aria-expanded') === 'true');
+          if (openBtn) placeAfterRowOf(openBtn, panelFor(openBtn));
+        }, 150);
+      });
+    })();
+  </script>
 
   <script>
     // ── RECENT MEDIA — live from the Archive's Supabase table ──────────
