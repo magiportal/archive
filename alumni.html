@@ -456,7 +456,7 @@
           <div class="alum-detail-inner" id="nhu-bui-detail">
 
             <div class="alum-intro">
-              <p class="alum-bio">Nhu Bui is an Associate Lecturer in the Master of Animation, Games &amp; Interactivity (MAGI) Program and a PhD Candidate in Design at RMIT University, with strong academic rigour and industry practice across UX/UI design, digital media and extended reality (XR) technologies. Her research sits at the intersection of XR, digital heritage, sensory ethnography and community-engaged design. Growing up in Saigon, Vietnam and now based in Naarm (Melbourne), she is driven by a commitment to safeguarding intangible cultural heritage — everyday practices, memories, gestures, atmospheres and craft-based knowledge — through 3D, AR/VR and interactive media methods.</p>
+              <p class="alum-bio">Nhu Bui is an Associate Lecturer in the Master of Animation, Games & Interactivity (MAGI) Program and a PhD Candidate in Design at RMIT University. Her research sits at the intersection of extended reality (XR), digital heritage, sensory ethnography, and community-engaged design. Growing up in Saigon, Vietnam and now based in Naarm (Melbourne), she is driven by a commitment to safeguarding intangible cultural heritage, namely everyday practices, memories, gestures, atmospheres, and craft-based knowledge, through innovative 3D, AR/VR, and interactive media methods.</p>
               <a class="alum-folio" href="https://nhubui.myportfolio.com/" target="_blank" rel="noopener">View Folio ↗</a>
             </div>
 
@@ -486,6 +486,37 @@
                   <div class="alum-item-desc">MAGI RMIT Award.</div>
                 </div>
               </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Uyen Nguyen — bio/awards pending, placeholder shell only. Update
+         alum-panel-meta, alum-panel-role and alum-bio once info arrives;
+         the detail section currently has no awards/folio, so those blocks
+         are omitted rather than left empty. -->
+    <article class="alum" id="uyen-nguyen">
+      <div class="alum-hero">
+        <img class="alum-hero-img" src="media/alumni/uyennguyen.jpg" alt="Uyen Nguyen" />
+        <div class="alum-panel">
+          <div class="alum-panel-meta">Bio coming soon</div>
+          <h2 class="alum-panel-name">Uyen Nguyen</h2>
+        </div>
+      </div>
+
+      <button class="alum-more" type="button" aria-expanded="false" aria-controls="uyen-nguyen-detail">
+        <span>More</span>
+        <span class="alum-more-icon" aria-hidden="true">+</span>
+      </button>
+
+      <div class="alum-detail-wrap">
+        <div class="alum-detail">
+          <div class="alum-detail-inner" id="uyen-nguyen-detail">
+
+            <div class="alum-intro">
+              <p class="alum-bio">Full bio coming soon.</p>
             </div>
 
           </div>
@@ -528,6 +559,23 @@
   </footer>
 
   <script>
+    // ── RANDOMISE ALUMNI ORDER ────────────────────────
+    // Reshuffled on every load so no one is permanently first. Fisher-Yates
+    // over the .alum blocks, re-appended in the new order. Moving a node with
+    // appendChild keeps its event listeners, so the toggle wiring below still
+    // works whether it runs before or after this. Runs synchronously here at
+    // the end of <body>, before first paint, so there's no visible reorder.
+    (function () {
+      const col = document.querySelector('.alum-col');
+      if (!col) return;
+      const alums = [...col.querySelectorAll(':scope > .alum')];
+      for (let i = alums.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [alums[i], alums[j]] = [alums[j], alums[i]];
+      }
+      alums.forEach(a => col.appendChild(a));
+    })();
+
     // ── ALUMNI "MORE" TOGGLES ─────────────────────────
     // Delegated, so alum blocks added later need no extra wiring.
     document.querySelectorAll('.alum-more').forEach(btn => {
