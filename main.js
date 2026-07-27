@@ -757,28 +757,39 @@ function introHints() {
 
 // ── GALLERY RANDOMISE ─────────────────────────────
 
+// w/h are each file's real pixel dimensions. They're written onto the <img> as
+// width/height attributes so the browser can reserve the right space before the
+// picture downloads — without them a masonry column starts at zero height and
+// visibly reflows as each image arrives. They do NOT constrain the display size
+// (the CSS is width:100% / height:auto), they only establish the ratio.
+// If you swap a file for one of different proportions, update these too.
 const galleryPool = [
-  { src: 'media/4178055-saros.webp',                              label: 'Research',     title: 'Saros',                              student: 'Student Name — 2025' },
-  { src: 'media/s3588979-days-days.webp',                         label: 'Animation',    title: 'Days Days',                          student: 'Student Name — 2025' },
-  { src: 'media/s3606172-edwin-earstwhile-medical-examiner.webp', label: 'Animation',    title: 'Edwin Earnswhile, Medical Examiner', student: 'Student Name — 2025' },
-  { src: 'media/s3634079-remnants-of-our-days.webp',              label: 'Games',        title: 'Remnants of Our Days',               student: 'Student Name — 2026' },
-  { src: 'media/s3836345-bleaching.webp',                         label: 'Animation',    title: 'Bleaching',                          student: 'Student Name — 2025' },
-  { src: 'media/s3836345-no-glisten.webp',                        label: 'Animation',    title: 'No Glisten',                         student: 'Student Name — 2025' },
-  { src: 'media/S3902619-planet-body.webp',                       label: 'Interactivity',title: 'Planet Body',                        student: 'Student Name — 2025' },
-  { src: 'media/s4017090-love-in-the-form-of-an-egg.webp',        label: 'Animation',    title: 'Love in the Form of an Egg',         student: 'Student Name — 2025' },
-  { src: 'media/S4078320-tethered-thoughts.webp',                 label: 'Interactivity',title: 'Tethered Thoughts',                  student: 'Student Name — 2025' },
-  { src: 'media/s4120309-te-hkoi.webp',                           label: 'Animation',    title: 'Te Hkoi',                            student: 'Student Name — 2025' },
-  { src: 'media/S4125361-bunny-flip.webp',                        label: 'Animation',    title: 'Bunny Flip',                         student: 'Student Name — 2025' },
-  { src: 'media/s4148098-a-late-bloomer.webp',                    label: 'Animation',    title: 'A Late Bloomer',                     student: 'Student Name — 2025' },
-  { src: 'media/s4148098-hidden-joy.webp',                        label: 'Animation',    title: 'Hidden Joy',                         student: 'Student Name — 2025' },
-  { src: 'media/s4148738-mind-tilt.webp',                         label: 'Games',        title: 'Mind Tilt',                          student: 'Student Name — 2025' },
-  { src: 'media/s4155379-sleep-paralysis.webp',                   label: 'Animation',    title: 'Sleep Paralysis',                    student: 'Student Name — 2025' },
-  { src: 'media/s4160763-other-names-for-zombies-art-book.webp',  label: 'Animation',    title: 'Other Names for Zombies',            student: 'Student Name — 2025' },
-  { src: 'media/s4160763-thick-hands.webp',                       label: 'Interactivity',title: 'Thick Hands',                        student: 'Student Name — 2025' },
-  { src: 'media/S4160839-heyyou.webp',                            label: 'Interactivity',title: 'Hey You',                            student: 'Student Name — 2025' },
-  { src: 'media/s4174970-notrealpizza.webp',                      label: 'Games',        title: 'Not Real Pizza',                     student: 'Student Name — 2025' },
-  { src: 'media/S4183453-state-of-mind.webp',                     label: 'Animation',    title: 'State of Mind',                      student: 'Student Name — 2025' },
-  { src: 'media/s4210724-natures-influence.webp',                 label: 'Research',     title: "Nature's Influence",                 student: 'Student Name — 2025' },
+  { src: 'media/4178055-saros.webp'                             , w: 1194, h:  670, label: 'Research',      title: 'Saros',                              student: 'Sofia Moshkina',          year: 2025, url: 'https://www.behance.net/gallery/235390509/Animation-Portfolio' },
+  { src: 'media/s3588979-days-days.webp'                        , w: 1920, h: 1080, label: 'Animation',     title: 'Days & Days',                        student: 'Olivia Sagona',           year: 2025, url: 'https://YIBBLET.com' },
+  { src: 'media/s3606172-edwin-earstwhile-medical-examiner.webp', w: 1879, h: 1056, label: 'Animation',     title: 'Edwin Earstwhile: Medical Examiner', student: 'Callum Page',             year: 2025, url: 'https://store.steampowered.com/app/2277090/DAEMON_MASQUERADE/' },
+  { src: 'media/s3634079-remnants-of-our-days.webp'             , w: 1920, h: 1080, label: 'Games',         title: 'Remnants of Our Days',               student: 'Linh Thảo Trần (Thea)',   year: 2025, url: 'https://readymag.website/u2780171938/5437788/' },
+  { src: 'media/s3836345-bleaching.webp'                        , w: 1920, h: 1080, label: 'Animation',     title: 'Bleaching',                          student: 'Nguyen Thao Nguyen',      year: 2025, url: 'https://www.itsnhim.com/' },
+  { src: 'media/s3836345-no-glisten.webp'                       , w: 3840, h: 2160, label: 'Animation',     title: 'No Glisten',                         student: 'Nguyen Thao Nguyen',      year: 2025, url: 'https://www.itsnhim.com/' },
+  // Submitted portfolio https://Thereselah.com is dead (Squarespace subscription
+  // expired — the domain resolves but every path 404s), so this one stays
+  // credited but unlinked until a working URL turns up.
+  { src: 'media/S3902619-planet-body.webp'                      , w: 1600, h:  900, label: 'Interactivity', title: 'Planet Body',                        student: 'Holly Therese',           year: 2025, url: '' },
+  { src: 'media/s4017090-love-in-the-form-of-an-egg.webp'       , w: 1890, h: 1074, label: 'Animation',     title: 'Love in the Form of an Egg',         student: 'Connie Hsueh',            year: 2025, url: 'https://hsuehconnie.wixsite.com/cononoanimation' },
+  { src: 'media/S4078320-tethered-thoughts.webp'                , w:  915, h:  515, label: 'Interactivity', title: 'Tethered Thoughts',                  student: 'Felicia Xiao',            year: 2025, url: 'https://www.fx-arts.com' },
+  { src: 'media/s4120309-te-hkoi.webp'                          , w: 1526, h:  858, label: 'Animation',     title: 'Te Hīkoi',                           student: 'Lewis Brewer',            year: 2025, url: 'https://www.lewisbrewer.com' },
+  { src: 'media/S4125361-bunny-flip.webp'                       , w: 2880, h: 1620, label: 'Animation',     title: 'Bunny Flip',                         student: 'Patricia Abigail Wijaya', year: 2025, url: 'https://www.artstation.com/reinnx7' },
+  { src: 'media/s4148098-a-late-bloomer.webp'                   , w: 1920, h: 1080, label: 'Animation',     title: 'A Late Bloomer',                     student: 'Jit Thong (Jade) Ng',     year: 2025, url: 'https://www.behance.net/gallery/207650239/Animation-Artworks-Portfolio-Ng-Jit-Thong' },
+  { src: 'media/s4148098-hidden-joy.webp'                       , w:  800, h:  450, label: 'Animation',     title: 'Hidden Joy',                         student: 'Jit Thong (Jade) Ng',     year: 2025, url: 'https://www.behance.net/gallery/207650239/Animation-Artworks-Portfolio-Ng-Jit-Thong' },
+  { src: 'media/s4148738-mind-tilt.webp'                        , w: 1778, h: 1000, label: 'Games',         title: 'Mind Tilt',                          student: 'Zhefeng Wang (Daniel)',   year: 2025, url: 'https://www.linkedin.com/in/zhefeng-wang-61171b220/' },
+  { src: 'media/s4155379-sleep-paralysis.webp'                  , w: 2750, h: 1547, label: 'Animation',     title: 'Sleep Paralysis',                    student: 'Jahanvi Borkar',          year: 2025, url: 'https://janhviborkar8.artstation.com/' },
+  { src: 'media/s4160763-other-names-for-zombies-art-book.webp' , w: 1845, h: 1029, label: 'Animation',     title: 'Other Names for Zombies',            student: 'Rachel Roberts',          year: 2025, url: 'https://www.youtube.com/@sixofcloversanimation' },
+  { src: 'media/s4160763-thick-hands.webp'                      , w: 1845, h: 1029, label: 'Interactivity', title: 'Thick Hands',                        student: 'Rachel Roberts',          year: 2025, url: 'https://www.youtube.com/@sixofcloversanimation' },
+  { src: 'media/S4160839-heyyou.webp'                           , w: 1920, h: 1080, label: 'Interactivity', title: 'HeyYou!',                            student: 'Henry Voon',              year: 2025, url: 'https://henryvoon.artstation.com/' },
+  { src: 'media/s4174970-notrealpizza.webp'                     , w: 1920, h: 1080, label: 'Games',         title: '#NotRealPizza',                      student: 'Pannita Khanngern',       year: 2025, url: 'https://www.instagram.com/okpitato/' },
+  { src: 'media/S4183453-state-of-mind.webp'                    , w: 1920, h: 1080, label: 'Animation',     title: 'State of Mind',                      student: 'Cheren Hurst',            year: 2025, url: 'https://www.instagram.com/cherenhurst/' },
+  // Submitted portfolio https://suffixx.portfoliobox.net no longer exists
+  // ("The website was not found" from Portfoliobox), so unlinked for now.
+  { src: 'media/s4210724-natures-influence.webp'                , w: 4080, h: 3072, label: 'Research',      title: "Nature's Influence",                 student: 'Sarah Cohen',             year: 2025, url: '' },
 ];
 
 function shuffle(arr) {
@@ -793,55 +804,113 @@ function shuffle(arr) {
 (function buildGallery() {
   const grid = document.getElementById('gallery-grid');
   if (!grid) return;
-  const picked = shuffle(galleryPool).slice(0, 8);
+
+  const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  const escText = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const ratioOf = (item) => (item.w && item.h) ? item.w / item.h : null;
+  const creditOf = (item) => [item.student, item.year].filter(Boolean).join(' — ');
+
+  // 9 fills three masonry columns evenly; the tail is uneven at 8.
+  const picked = shuffle(galleryPool).slice(0, 9);
+
+  // Drives the label chip's colour in CSS — same four values the rest of the
+  // site keys its category colours off (see .gallery-item[data-spec] there).
+  const specOf = (item) => String(item.label || '').toLowerCase();
+
+  // Points a tile at a work's portfolio, or makes it inert if that work has
+  // none. Always an <a>: an anchor without href behaves like plain text and
+  // isn't focusable, and keeping the element type fixed means a swap can add
+  // or remove the link without rebuilding the tile.
+  function applyLink(el, item) {
+    if (item.url) {
+      el.href = item.url;
+      el.target = '_blank';
+      // noopener stops the opened tab reaching back through window.opener.
+      el.rel = 'noopener noreferrer';
+      el.setAttribute('aria-label', `${item.title} by ${item.student} — opens portfolio in a new tab`);
+    } else {
+      el.removeAttribute('href');
+      el.removeAttribute('target');
+      el.removeAttribute('rel');
+      el.removeAttribute('aria-label');
+    }
+  }
+
   picked.forEach((item, i) => {
-    const el = document.createElement('div');
-    el.className = 'gallery-item' + (i === 7 ? ' gallery-item-full' : '');
+    const el = document.createElement('a');
+    el.className = 'gallery-item';
+    el.dataset.spec = specOf(item);
+    applyLink(el, item);
+    // The first few are above the fold on most screens, so only lazy-load the
+    // rest — lazy-loading everything delays the images that are visible
+    // immediately.
+    const loading = i < 3 ? 'eager' : 'lazy';
     el.innerHTML = `
-      <img src="${item.src}" alt="${item.title}" />
-      <div class="gallery-overlay">
-        <div class="gallery-item-label">${item.label}</div>
-        <div class="gallery-item-title">${item.title}</div>
-        <div class="gallery-item-student">${item.student}</div>
-      </div>`;
+      <div class="gallery-item-media">
+        <img src="${escAttr(item.src)}" alt="${escAttr(item.title)}"
+             width="${item.w || ''}" height="${item.h || ''}" loading="${loading}" decoding="async" />
+      </div>
+      <div class="gallery-item-label">${escText(item.label)}</div>
+      <div class="gallery-item-title">${escText(item.title)}</div>
+      <div class="gallery-item-student">${escText(creditOf(item))}</div>`;
     grid.appendChild(el);
   });
 
-  // track which images are currently shown
+  // Which pool entry each tile is currently showing, so a swap can compare
+  // proportions and so the same picture never appears twice at once.
+  const current = new Map();
+  [...grid.querySelectorAll('.gallery-item')].forEach((el, i) => current.set(el, picked[i]));
   const shown = new Set(picked.map(i => i.src));
 
   function swapRandomItem() {
-    const items = grid.querySelectorAll('.gallery-item');
-    // pick a random non-full-width slot to swap
-    const candidates = Array.from(items).filter(el => !el.classList.contains('gallery-item-full'));
-    const target = candidates[Math.floor(Math.random() * candidates.length)];
+    const items = [...grid.querySelectorAll('.gallery-item')];
+    const target = items[Math.floor(Math.random() * items.length)];
+    const outgoing = current.get(target);
 
-    // pick a random image not currently shown
-    const available = galleryPool.filter(i => !shown.has(i.src));
-    if (!available.length) return;
-    const next = available[Math.floor(Math.random() * available.length)];
+    // Heights are natural now, so an incoming picture with different
+    // proportions would resize the tile and shove everything below it down
+    // the column. Prefer a replacement shaped like the one it replaces;
+    // only fall back to any unused image if nothing close exists.
+    const unused = galleryPool.filter(i => !shown.has(i.src));
+    if (!unused.length) return;
 
-    // fade out
+    const outRatio = ratioOf(outgoing);
+    const sameShape = outRatio
+      ? unused.filter(i => {
+          const r = ratioOf(i);
+          return r && Math.abs(r - outRatio) / outRatio < 0.06;
+        })
+      : [];
+    const pickFrom = sameShape.length ? sameShape : unused;
+    const next = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+
+    const img = target.querySelector('img');
     target.style.transition = 'opacity 0.8s ease';
     target.style.opacity = '0';
 
     setTimeout(() => {
-      // update shown set
-      const oldSrc = target.querySelector('img').src.split('/').pop();
-      shown.delete(target.querySelector('img').getAttribute('src'));
+      shown.delete(outgoing.src);
 
-      // swap content
-      target.querySelector('img').src = next.src;
-      target.querySelector('img').alt = next.title;
+      img.src = next.src;
+      img.alt = next.title;
+      // Keep the intrinsic size in step with the new file, or the browser
+      // reserves space using the previous image's proportions.
+      if (next.w && next.h) { img.width = next.w; img.height = next.h; }
+      else { img.removeAttribute('width'); img.removeAttribute('height'); }
+
+      // Recolour the chip with the incoming work's category, or it keeps the
+      // outgoing one's colour — and repoint the link, or the tile would still
+      // open the previous student's portfolio.
+      target.dataset.spec = specOf(next);
+      applyLink(target, next);
       target.querySelector('.gallery-item-label').textContent = next.label;
       target.querySelector('.gallery-item-title').textContent = next.title;
-      target.querySelector('.gallery-item-student').textContent = next.student;
+      target.querySelector('.gallery-item-student').textContent = creditOf(next);
+
       shown.add(next.src);
+      current.set(target, next);
 
-      // fade back in
       target.style.opacity = '1';
-
-      // schedule next swap — between 8 and 18 seconds
       scheduleSwap();
     }, 800);
   }
@@ -851,7 +920,6 @@ function shuffle(arr) {
     setTimeout(swapRandomItem, delay);
   }
 
-  // kick off the first swap after an initial delay
   scheduleSwap();
 })();
 
@@ -899,7 +967,6 @@ document.querySelectorAll('.nav-link').forEach(link => {
   const panels = [...specs.querySelectorAll('.spec-panel')];
   panels.forEach(panel => {
     panel.addEventListener('click', (e) => {
-      if (e.target.closest('.spec-link')) return;   // let the "View all works" link navigate
       const wasOpen = panel.classList.contains('is-open');
       panels.forEach(p => p.classList.remove('is-open'));
       if (wasOpen) { reveal.classList.remove('show'); reveal.innerHTML = ''; return; }

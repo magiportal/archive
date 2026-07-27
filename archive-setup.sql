@@ -23,6 +23,20 @@ create table if not exists public.archive_items (
   created_at  timestamptz default now()
 );
 
+-- ── FACET COLUMNS (Specialisation / Keywords) ────────────────
+-- These back two of the four filter lists in the research.html sidebar. They
+-- are optional: research.html hides those sections entirely while no row
+-- carries a value, rather than showing an empty or made-up list.
+--
+--   spec_area — one of: Research | Animation | Games | Interactivity.
+--               NOT the same as the existing `spec` column, which is a free
+--               text sub-label ("Session Recording", "Exegesis", "Uploaded")
+--               shown on the result row itself.
+--   keywords  — comma-joined, e.g. 'Installation Art, Critical Design'.
+--               Same convention as the Board's tags column.
+alter table public.archive_items add column if not exists spec_area text;
+alter table public.archive_items add column if not exists keywords  text;
+
 -- ── OWNERSHIP ────────────────────────────────────────────────
 -- The posting browser keeps a random token in its own localStorage and stores
 -- only SHA-256(token) here. Deletion goes through archive_delete() below,

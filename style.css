@@ -737,7 +737,7 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
+ /* text-transform: uppercase; */
   color: #fff;
 }
 
@@ -839,94 +839,104 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
 
 /* ── MEDIA GALLERY ───────────────────────────────── */
 
+/* Masonry via CSS multi-column. The previous version placed items into fixed
+   grid rows (210px / 160px / 420px) and used object-fit:cover to fill them,
+   which is what cropped the images. Here each item keeps its own natural
+   height instead, so nothing is ever cut off — the column flow does the
+   arranging, and the varying image heights are what stagger the columns.
+   Reading order runs down each column rather than across; that's fine for a
+   gallery whose contents are shuffled anyway. */
 .gallery-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.8fr 1fr 1.3fr;
-  grid-template-rows: 210px 160px 420px;
+  columns: 3;
+  column-gap: 34px;
   border-bottom: 1px solid var(--line);
-  gap: 28px;
-  padding: 40px 48px;
+  padding: 44px 48px 20px;
   background: var(--white);
 }
 
-/* explicit placement for editorial layout */
-.gallery-grid .gallery-item:nth-child(1) { grid-column: 1; grid-row: 1; }
-.gallery-grid .gallery-item:nth-child(2) { grid-column: 2; grid-row: 1 / 3; }
-.gallery-grid .gallery-item:nth-child(3) { grid-column: 3; grid-row: 1; }
-.gallery-grid .gallery-item:nth-child(4) { grid-column: 4; grid-row: 1; }
-.gallery-grid .gallery-item:nth-child(5) { grid-column: 1; grid-row: 2; }
-.gallery-grid .gallery-item:nth-child(6) { grid-column: 3; grid-row: 2; }
-.gallery-grid .gallery-item:nth-child(7) { grid-column: 4; grid-row: 2; }
-.gallery-grid .gallery-item:nth-child(8) { grid-column: 1 / -1; grid-row: 3; }
-
+/* Each tile is an <a> to the work's portfolio (opens in a new tab), so the
+   inherited link styling is reset back to the page's own type colours. */
 .gallery-item {
-  position: relative;
+  /* Keeps an item's picture and its caption together — without this, a column
+     break can land between the image and the title that belongs to it. */
+  break-inside: avoid;
+  page-break-inside: avoid;    /* older Firefox */
+  display: inline-block;       /* stops margins collapsing across columns */
+  vertical-align: top;         /* no baseline gap under each tile */
+  width: 100%;
+  margin-bottom: 46px;
+  text-decoration: none;
+  color: inherit;
+}
+/* Only linked tiles get the pointer — a work with no portfolio on file
+   renders as an href-less anchor, which shouldn't look clickable. */
+.gallery-item[href] { cursor: pointer; }
+
+/* The image's own box: clips the hover zoom without cropping the image
+   itself, since the box takes its height from the picture. */
+.gallery-item-media {
   overflow: hidden;
-  cursor: pointer;
-  background: #f0f0f0;
+  background: var(--bg-hover);
 }
 
 .gallery-item img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
+  height: auto;                /* natural aspect ratio — never cropped */
   display: block;
-  transition: transform 0.4s ease, opacity 0.8s ease;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s ease;
 }
 
-.gallery-item:hover img { transform: scale(1.03); }
+/* Hover response only where there's actually somewhere to go. */
+.gallery-item[href]:hover img,
+.gallery-item[href]:focus-visible img { transform: scale(1.035); }
 
-.gallery-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 16px;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.72) 0%,
-    rgba(0, 0, 0, 0.2)  50%,
-    transparent         100%
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
+/* These are links now, so they need a visible keyboard focus ring. */
+.gallery-item[href]:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 4px;
 }
 
-.gallery-item:hover .gallery-overlay { opacity: 1; }
+/* ── Caption, below the image (not an overlay) ── */
+
+/* Each tile carries its specialisation's colour as --chip-* , set from the
+   data-spec attribute JS writes on it. Same four colours and the same ink
+   pairings used by the specialisation panels, staff tags and Selected Works
+   badges, so a category reads identically wherever it appears on the site.
+   The fallback keeps an unrecognised label legible rather than invisible. */
+.gallery-item[data-spec="research"]      { --chip-bg: var(--col-research);      --chip-ink: #4a5200; }
+.gallery-item[data-spec="animation"]     { --chip-bg: var(--col-animation);     --chip-ink: #fff;    }
+.gallery-item[data-spec="games"]         { --chip-bg: var(--col-games);         --chip-ink: #003a4a; }
+.gallery-item[data-spec="interactivity"] { --chip-bg: var(--col-interactivity); --chip-ink: #fff;    }
 
 .gallery-item-label {
+  display: inline-block;
   font-size: 9px;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
-  margin-bottom: 5px;
-  transform: translateY(6px);
-  transition: transform 0.25s ease;
+  padding: 4px 9px 5px;
+  margin-top: 14px;
+  background: var(--chip-bg, var(--bg-hover));
+  color: var(--chip-ink, var(--dim));
 }
 
 .gallery-item-title {
-  font-size: 13px;
+  font-size: 21px;
   font-weight: 500;
-  color: #fff;
-  line-height: 1.3;
-  margin-bottom: 4px;
-  transform: translateY(6px);
-  transition: transform 0.25s ease 0.03s;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  color: var(--black);
+  margin-top: 5px;
+  transition: opacity 0.2s ease;
 }
+
+.gallery-item[href]:hover .gallery-item-title,
+.gallery-item[href]:focus-visible .gallery-item-title { opacity: 0.55; }
 
 .gallery-item-student {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.55);
-  transform: translateY(6px);
-  transition: transform 0.25s ease 0.06s;
-}
-
-.gallery-item:hover .gallery-item-label,
-.gallery-item:hover .gallery-item-title,
-.gallery-item:hover .gallery-item-student {
-  transform: translateY(0);
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
 }
 
 /* ── STAT ──────────────────────────────────────────── */
@@ -1440,18 +1450,6 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
 .spec-work-title   { font-size: 12px; color: var(--black); }
 .spec-work-student { font-size: 11px; color: var(--secondary); white-space: nowrap; }
 .spec-work-year    { font-size: 11px; color: var(--dim); white-space: nowrap; }
-
-.spec-link {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--dim);
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.spec-link:hover { color: var(--black); }
 
 /* ── PANEL HIGHLIGHT STATES ──────────────────────── */
 
@@ -2827,8 +2825,7 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
     background: var(--bg-hover);
   }
   .spec-mreveal.show { display: block; }
-  .spec-mreveal .spec-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; margin-bottom: 14px; }
-  .spec-mreveal .spec-link { font-size: 11px; }
+  .spec-mreveal .spec-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; }
 
   /* ── UPLOAD CTA ─────────────────────────────────────
      Drops below News & Events here, and drops its voice with it: the pale
@@ -2931,14 +2928,18 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   .rec-compact-panel-inner { padding: 6px 18px 20px 18px; }
 
   /* ── GALLERY ──────────────────────────────────────── */
+  /* Two columns instead of three. No aspect-ratio override here — forcing one
+     would crop the images again, which is the thing this layout exists to
+     avoid; heights stay natural at every width. */
   .gallery-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: none;
-    grid-auto-rows: auto;
-    gap: 14px;
-    padding: 24px;
+    columns: 2;
+    column-gap: 16px;
+    padding: 24px 24px 4px;
   }
-  .gallery-grid .gallery-item { grid-column: auto !important; grid-row: auto !important; aspect-ratio: 1 / 1; }
+  .gallery-item { margin-bottom: 26px; }
+  .gallery-item-label { font-size: 9px; margin-top: 11px; }
+  .gallery-item-title { font-size: 15px; margin-top: 4px; }
+  .gallery-item-student { font-size: 10px; margin-top: 4px; }
 
   /* ── FOOTER ───────────────────────────────────────── */
   .footer-top { grid-template-columns: 1fr; padding: 40px 24px 32px; gap: 28px; }

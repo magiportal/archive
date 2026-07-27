@@ -65,7 +65,9 @@
       opacity: 0.2;
     }
     /* Four scatter slots — reused per column, but each column assigns a
-       different symbol to each slot (see markup), so no two columns look alike. */
+       different symbol to each slot (see markup), so no two columns look alike.
+       Purely static decoration: they don't move, and nothing about the
+       scroll-revealed panel below touches them. */
     .studio-deco img.d1 { width: 150px; top: -26px;  right: -30px; transform: rotate(14deg);  }
     .studio-deco img.d2 { width: 58px;  top: 40%;    left: -14px;  transform: rotate(-10deg); }
     .studio-deco img.d3 { width: 92px;  bottom: 90px; right: -22px; transform: rotate(22deg);  }
@@ -173,9 +175,88 @@
       background: var(--bg-hover);
     }
 
+    /* ── Scroll-revealed detail ────────────────────────
+       Opens as the column scrolls into view (see the script at the bottom).
+       The 0fr→1fr grid-rows reveal is the same technique the Alumni and
+       Selected Works sections use — it eases to the content's real height
+       without hardcoding one, and the inner wrapper's overflow:hidden is what
+       clips it while collapsed. Timed to match the deco fall above so the
+       symbols drop as the panel opens, not before or after. */
+    .studio-extra {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .studio-col.is-open .studio-extra { grid-template-rows: 1fr; }
+    .studio-extra-clip { overflow: hidden; }
+    .studio-extra-inner { padding-top: 24px; }
+
+    .studio-extra-title {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--faint);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 12px;
+    }
+
+    .studio-points {
+      list-style: none;
+      margin: 0 0 26px;
+      padding: 0;
+    }
+    .studio-points li {
+      position: relative;
+      padding-left: 16px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--secondary);
+      margin-bottom: 8px;
+    }
+    /* Accent-coloured marker ties each list back to its studio's colour. */
+    .studio-points li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+    }
+
+    .studio-gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .studio-gallery figure { margin: 0; }
+    .studio-gallery img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      border: 1px solid var(--line);
+      background: var(--bg-hover);
+    }
+    .studio-gallery figcaption {
+      font-size: 10px;
+      line-height: 1.4;
+      color: var(--dim);
+      margin-top: 5px;
+    }
+
     @media (max-width: 900px) {
       .studios-grid { grid-template-columns: 1fr; }
       .studio-num { font-size: 96px; }
+    }
+
+    /* Anyone who's asked for less motion gets the content, not the theatrics:
+       panels are open from the start and nothing falls or slides. */
+    @media (prefers-reduced-motion: reduce) {
+      /* Panels start open, so nothing has to expand to reach the content. */
+      .studio-extra { grid-template-rows: 1fr; transition: none; }
     }
 
   </style>
@@ -267,6 +348,26 @@
           <span class="tag">Brief-driven</span>
         </div>
         <img class="studio-media" src="media/events/STUDIO/stu1.png" alt="AGI Studio 1 work" loading="lazy" />
+
+        <div class="studio-extra">
+          <div class="studio-extra-clip">
+            <div class="studio-extra-inner">
+              <div class="studio-extra-title">In this studio</div>
+              <ul class="studio-points">
+                <li>Set your own brief, or respond to a client one.</li>
+                <li>Test techniques and formats before narrowing to a specialisation.</li>
+                <li>Build a body of exploratory work that shows where your practice sits.</li>
+              </ul>
+              <div class="studio-extra-title">Student work</div>
+              <div class="studio-gallery">
+                <figure><img src="media/S4125361-bunny-flip.webp" alt="Bunny Flip" loading="lazy" /><figcaption>Bunny Flip</figcaption></figure>
+                <figure><img src="media/s4148738-mind-tilt.webp" alt="Mind Tilt" loading="lazy" /><figcaption>Mind Tilt</figcaption></figure>
+                <figure><img src="media/S4160839-heyyou.webp" alt="Hey You" loading="lazy" /><figcaption>Hey You</figcaption></figure>
+                <figure><img src="media/s4148098-a-late-bloomer.webp" alt="A Late Bloomer" loading="lazy" /><figcaption>A Late Bloomer</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -294,6 +395,26 @@
           <span class="tag">Global perspectives</span>
         </div>
         <img class="studio-media" src="media/events/ACMI/kora1.jpg" alt="AGI Studio 2 work" loading="lazy" />
+
+        <div class="studio-extra">
+          <div class="studio-extra-clip">
+            <div class="studio-extra-inner">
+              <div class="studio-extra-title">In this studio</div>
+              <ul class="studio-points">
+                <li>Work in small project teams on real or simulated industry briefs.</li>
+                <li>Deepen one specialisation rather than sampling broadly.</li>
+                <li>Situate your practice against local and international work.</li>
+              </ul>
+              <div class="studio-extra-title">Student work</div>
+              <div class="studio-gallery">
+                <figure><img src="media/S4078320-tethered-thoughts.webp" alt="Tethered Thoughts" loading="lazy" /><figcaption>Tethered Thoughts</figcaption></figure>
+                <figure><img src="media/s3634079-remnants-of-our-days.webp" alt="Remnants of Our Days" loading="lazy" /><figcaption>Remnants of Our Days</figcaption></figure>
+                <figure><img src="media/S3902619-planet-body.webp" alt="Planet Body" loading="lazy" /><figcaption>Planet Body</figcaption></figure>
+                <figure><img src="media/s3588979-days-days.webp" alt="Days Days" loading="lazy" /><figcaption>Days Days</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -322,6 +443,26 @@
         </div>
         <!-- Note the uppercase .JPG — GitHub Pages is case-sensitive -->
         <img class="studio-media" src="media/events/mdw6.JPG" alt="AGI Studio 3 work" loading="lazy" />
+
+        <div class="studio-extra">
+          <div class="studio-extra-clip">
+            <div class="studio-extra-inner">
+              <div class="studio-extra-title">In this studio</div>
+              <ul class="studio-points">
+                <li>Produce a major, complex work individually or in a team.</li>
+                <li>Interrogate the context around the problem — place, ethics, sustainability.</li>
+                <li>Work to future-oriented, global industry practice.</li>
+              </ul>
+              <div class="studio-extra-title">Student work</div>
+              <div class="studio-gallery">
+                <figure><img src="media/4178055-saros.webp" alt="Saros" loading="lazy" /><figcaption>Saros</figcaption></figure>
+                <figure><img src="media/s4017090-love-in-the-form-of-an-egg.webp" alt="Love in the Form of an Egg" loading="lazy" /><figcaption>Love in the Form of an Egg</figcaption></figure>
+                <figure><img src="media/s4210724-natures-influence.webp" alt="Nature's Influence" loading="lazy" /><figcaption>Nature's Influence</figcaption></figure>
+                <figure><img src="media/s4160763-thick-hands.webp" alt="Thick Hands" loading="lazy" /><figcaption>Thick Hands</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -369,6 +510,48 @@
       <a class="footer-email" href="mailto:magi@rmit.edu.au">magi@rmit.edu.au</a>
     </div>
   </footer>
+
+  <script>
+    // ── STUDIO COLUMNS — scroll reveal ──────────────────────────────
+    // Each column expands its detail panel downward as it scrolls into view.
+    // That's the only thing .is-open does — the deco symbols behind the
+    // columns are static decoration and are deliberately left alone.
+    (function () {
+      const cols = [...document.querySelectorAll('.studio-col')];
+      if (!cols.length) return;
+
+      // Reduced-motion users get the content immediately; the CSS already
+      // strips the transitions, this just avoids waiting on a scroll that
+      // may never come (e.g. if the whole grid fits on screen).
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        cols.forEach(c => c.classList.add('is-open'));
+        return;
+      }
+
+      // No IntersectionObserver (very old browsers) → show everything rather
+      // than leaving the panels permanently shut.
+      if (!('IntersectionObserver' in window)) {
+        cols.forEach(c => c.classList.add('is-open'));
+        return;
+      }
+
+      // rootMargin pulls the trigger line up to ~75% of the viewport height,
+      // so a column opens as it rises into view rather than only once it's
+      // fully on screen — these columns are taller than the viewport, so a
+      // plain threshold would never fire on smaller windows.
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const i = cols.indexOf(entry.target);
+          // Small stagger left-to-right so the three read as a cascade.
+          setTimeout(() => entry.target.classList.add('is-open'), i * 130);
+          io.unobserve(entry.target);   // one-way: never re-collapses
+        });
+      }, { rootMargin: '0px 0px -25% 0px', threshold: 0 });
+
+      cols.forEach(col => io.observe(col));
+    })();
+  </script>
 
   <script src="nav-toggle.js"></script>
   <script src="search.js"></script>

@@ -1144,87 +1144,30 @@
     <!-- ── SIDEBAR ──────────────────────────────────── -->
     <aside class="research-sidebar" id="research-sidebar">
 
-      <div>
+      <!-- All four facet lists are built from the live archive_items rows —
+           see renderFacets() in the archive script. Counts, values and which
+           sections appear at all are derived from the data, so they stay in
+           sync through the realtime subscription. A section hides itself when
+           no row carries that field (spec_area / keywords are optional
+           columns), rather than showing an empty or invented list. -->
+      <div id="facet-spec" hidden>
         <div class="sidebar-section-title">Specialisation</div>
-        <div class="sidebar-item active">
-          <div class="sidebar-item-left">
-            <div class="sidebar-spec-dot" style="background:var(--col-research)"></div>
-            <span class="sidebar-item-label">Research</span>
-          </div>
-          <span class="sidebar-item-count">12</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left">
-            <div class="sidebar-spec-dot" style="background:var(--col-animation)"></div>
-            <span class="sidebar-item-label">Animation</span>
-          </div>
-          <span class="sidebar-item-count">18</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left">
-            <div class="sidebar-spec-dot" style="background:var(--col-games)"></div>
-            <span class="sidebar-item-label">Games</span>
-          </div>
-          <span class="sidebar-item-count">16</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left">
-            <div class="sidebar-spec-dot" style="background:var(--col-interactivity)"></div>
-            <span class="sidebar-item-label">Interactivity</span>
-          </div>
-          <span class="sidebar-item-count">14</span>
-        </div>
+        <div class="sidebar-list"></div>
       </div>
 
-      <div>
+      <div id="facet-type" hidden>
         <div class="sidebar-section-title">Media Type</div>
-        <div class="sidebar-item active">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">All Media</span></div>
-          <span class="sidebar-item-count">64</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Recordings</span></div>
-          <span class="sidebar-item-count">12</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Lectures</span></div>
-          <span class="sidebar-item-count">9</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Video</span></div>
-          <span class="sidebar-item-count">11</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Audio</span></div>
-          <span class="sidebar-item-count">7</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Documents</span></div>
-          <span class="sidebar-item-count">18</span>
-        </div>
-        <div class="sidebar-item">
-          <div class="sidebar-item-left"><span class="sidebar-item-label">Images</span></div>
-          <span class="sidebar-item-count">7</span>
-        </div>
+        <div class="sidebar-list"></div>
       </div>
 
-      <div>
+      <div id="facet-year" hidden>
         <div class="sidebar-section-title">Year</div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2026</span></div><span class="sidebar-item-count">8</span></div>
-        <div class="sidebar-item active"><div class="sidebar-item-left"><span class="sidebar-item-label">2025</span></div><span class="sidebar-item-count">14</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2024</span></div><span class="sidebar-item-count">16</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2023</span></div><span class="sidebar-item-count">12</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">2022</span></div><span class="sidebar-item-count">10</span></div>
+        <div class="sidebar-list"></div>
       </div>
 
-      <div>
+      <div id="facet-keyword" hidden>
         <div class="sidebar-section-title">Keywords</div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Adversarial Design</span></div><span class="sidebar-item-count">7</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Ambient Play</span></div><span class="sidebar-item-count">5</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Installation Art</span></div><span class="sidebar-item-count">9</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Critical Design</span></div><span class="sidebar-item-count">11</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">Surveillance</span></div><span class="sidebar-item-count">4</span></div>
-        <div class="sidebar-item"><div class="sidebar-item-left"><span class="sidebar-item-label">New Media</span></div><span class="sidebar-item-count">8</span></div>
+        <div class="sidebar-list"></div>
       </div>
 
     </aside>
@@ -1299,6 +1242,23 @@
           <label for="up-author">Author(s)</label>
           <input type="text" id="up-author" placeholder="e.g. Student Name — supervised by Staff Name" />
         </div>
+        <!-- These two populate the Specialisation and Keywords facets in the
+             sidebar. Both optional — an item without them simply doesn't
+             appear under those filters. -->
+        <div class="up-field">
+          <label for="up-spec-area">Specialisation (optional)</label>
+          <select id="up-spec-area">
+            <option value="">— None —</option>
+            <option value="Research">Research</option>
+            <option value="Animation">Animation</option>
+            <option value="Games">Games</option>
+            <option value="Interactivity">Interactivity</option>
+          </select>
+        </div>
+        <div class="up-field">
+          <label for="up-keywords">Keywords (optional)</label>
+          <input type="text" id="up-keywords" placeholder="Comma-separated, e.g. Installation Art, Critical Design" />
+        </div>
         <div class="up-field">
           <label for="up-abstract">Description (optional)</label>
           <textarea id="up-abstract" rows="3" placeholder="A short description of the work."></textarea>
@@ -1345,27 +1305,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    // ── FILTER CHIPS ──────────────────────────────────
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-      chip.addEventListener('click', function() {
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        const filter = this.dataset.filter;
-        document.querySelectorAll('.result-item').forEach(item => {
-          item.style.display = (filter === 'all' || item.dataset.type === filter) ? '' : 'none';
-        });
-      });
-    });
-
-    // ── SIDEBAR ITEMS ─────────────────────────────────
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.addEventListener('click', function() {
-        this.closest('.research-sidebar').querySelectorAll('.sidebar-item').forEach(i => {
-          if (i.parentElement === this.parentElement) i.classList.remove('active');
-        });
-        this.classList.add('active');
-      });
-    });
+    // The filter chips and sidebar facets are wired inside the archive script
+    // further down, where the live `items` array lives — they filter the data
+    // and re-render, rather than just toggling classes / hiding DOM nodes.
 
     // ── FILTERS TOGGLE (mobile) ───────────────────────
     // The button only renders under the mobile breakpoint; on desktop the
@@ -1732,6 +1674,149 @@
 
       let items = [];
 
+      // ── FACETS / FILTERING ───────────────────────────
+      // Everything in the sidebar is derived from the rows actually in the
+      // table — values, counts, and whether a section renders at all. Because
+      // it's all rebuilt inside render(), and the realtime subscription below
+      // calls loadAll() on any insert/update/delete, the sidebar stays in sync
+      // with Supabase without any extra wiring.
+      //
+      // spec_area (specialisation) and keywords are OPTIONAL columns: if no
+      // row carries them, those two sections stay hidden rather than showing
+      // an empty or invented list. See archive-setup.sql for the migration
+      // that adds them.
+      const filters = { type: null, year: null, spec: null, keyword: null };
+
+      const TYPE_LABELS = {
+        recording: 'Recordings', lecture: 'Lectures', video: 'Video',
+        audio: 'Audio', document: 'Documents', image: 'Images',
+      };
+      const SPEC_COLOURS = {
+        Research: 'var(--col-research)', Animation: 'var(--col-animation)',
+        Games: 'var(--col-games)', Interactivity: 'var(--col-interactivity)',
+      };
+
+      // keywords is a comma-joined string, same convention as the Board's tags.
+      const keywordsOf = (row) =>
+        String(row.keywords || '').split(',').map(s => s.trim()).filter(Boolean);
+
+      const facetValue = {
+        type:    (row) => row.type || '',
+        year:    (row) => row.year == null ? '' : String(row.year),
+        spec:    (row) => row.spec_area || '',
+        keyword: keywordsOf,     // multi-valued
+      };
+
+      // True when the row satisfies every active filter EXCEPT `skip`. Passing
+      // a key as `skip` is what makes the counts behave like proper facets:
+      // each list counts against the OTHER filters, so the numbers still mean
+      // something once you've drilled in, instead of freezing at their totals.
+      function matches(row, skip) {
+        for (const key of Object.keys(filters)) {
+          const want = filters[key];
+          if (!want || key === skip) continue;
+          const got = facetValue[key](row);
+          const ok = Array.isArray(got) ? got.includes(want) : got === want;
+          if (!ok) return false;
+        }
+        return true;
+      }
+
+      const visibleItems = () => items.filter(row => matches(row, null));
+      const anyFilter    = () => Object.values(filters).some(Boolean);
+
+      function countsFor(key) {
+        const counts = new Map();
+        items.filter(row => matches(row, key)).forEach(row => {
+          const got = facetValue[key](row);
+          (Array.isArray(got) ? got : [got]).forEach(v => {
+            if (v === '' || v == null) return;
+            counts.set(v, (counts.get(v) || 0) + 1);
+          });
+        });
+        return counts;
+      }
+
+      function facetRow(key, value, label, count, active, dot) {
+        return '<div class="sidebar-item' + (active ? ' active' : '') + '"' +
+                 ' data-facet="' + key + '" data-value="' + esc(value) + '"' +
+                 ' role="button" tabindex="0" aria-pressed="' + (active ? 'true' : 'false') + '">' +
+                 '<div class="sidebar-item-left">' +
+                   (dot ? '<div class="sidebar-spec-dot" style="background:' + dot + '"></div>' : '') +
+                   '<span class="sidebar-item-label">' + esc(label) + '</span>' +
+                 '</div>' +
+                 '<span class="sidebar-item-count">' + count + '</span>' +
+               '</div>';
+      }
+
+      function renderFacet(sectionId, key, { labelOf, sort, allLabel, dotOf } = {}) {
+        const sec = document.getElementById(sectionId);
+        if (!sec) return;
+        const list = sec.querySelector('.sidebar-list');
+        const entries = [...countsFor(key).entries()].sort(sort || ((a, b) => b[1] - a[1]));
+        if (!entries.length) { sec.hidden = true; list.innerHTML = ''; return; }
+        sec.hidden = false;
+
+        let html = '';
+        if (allLabel) {
+          const total = items.filter(row => matches(row, key)).length;
+          html += facetRow(key, '', allLabel, total, !filters[key], null);
+        }
+        for (const [value, count] of entries) {
+          html += facetRow(key, value, labelOf ? labelOf(value) : value,
+                           count, filters[key] === value, dotOf ? dotOf(value) : null);
+        }
+        list.innerHTML = html;
+      }
+
+      function renderFacets() {
+        renderFacet('facet-spec', 'spec', {
+          dotOf: (v) => SPEC_COLOURS[v] || 'var(--faint)',
+          sort: (a, b) => a[0].localeCompare(b[0]),
+        });
+        renderFacet('facet-type', 'type', {
+          allLabel: 'All Media',
+          labelOf: (v) => TYPE_LABELS[v] || (v.charAt(0).toUpperCase() + v.slice(1)),
+        });
+        renderFacet('facet-year', 'year', { sort: (a, b) => b[0].localeCompare(a[0]) });
+        renderFacet('facet-keyword', 'keyword', { sort: (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]) });
+
+        // Keep the top chip row showing the same type selection as the sidebar.
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+          const want = chip.dataset.filter === 'all' ? null : chip.dataset.filter;
+          chip.classList.toggle('active', filters.type === want);
+        });
+      }
+
+      function setFilter(key, value) {
+        if (!(key in filters)) return;
+        // Clicking the active value again clears it, so every facet is its own
+        // toggle and there's no need for a separate "clear" control.
+        filters[key] = (!value || filters[key] === value) ? null : value;
+        render();
+      }
+
+      document.getElementById('research-sidebar').addEventListener('click', (e) => {
+        const el = e.target.closest('.sidebar-item');
+        if (!el) return;
+        setFilter(el.dataset.facet, el.dataset.value);
+      });
+      document.getElementById('research-sidebar').addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const el = e.target.closest('.sidebar-item');
+        if (!el) return;
+        e.preventDefault();
+        setFilter(el.dataset.facet, el.dataset.value);
+      });
+
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const want = chip.dataset.filter === 'all' ? null : chip.dataset.filter;
+          filters.type = want;          // chips are absolute, not a toggle
+          render();
+        });
+      });
+
       // ── LOAD / RENDER ────────────────────────────────
       async function loadAll() {
         const { data, error } = await db.from('archive_items').select('*').order('created_at', { ascending: false });
@@ -1798,11 +1883,22 @@
 
       function render() {
         const listEl = $('#results-list');
-        listEl.innerHTML = items.length
-          ? items.map(itemHtml).join('')
-          : '<div class="results-empty">Nothing in the archive yet — be the first to upload a work.</div>';
-        const n = items.length;
-        $('#results-count').innerHTML = '<strong>'+n+'</strong> '+(n===1?'item':'items')+' in the archive';
+        const shown  = visibleItems();
+        const n = shown.length, total = items.length;
+
+        listEl.innerHTML = shown.length
+          ? shown.map(itemHtml).join('')
+          : (total
+              ? '<div class="results-empty">No items match these filters.</div>'
+              : '<div class="results-empty">Nothing in the archive yet — be the first to upload a work.</div>');
+
+        // Say "n of total" while filtered, so a small number doesn't read as
+        // the archive having shrunk.
+        $('#results-count').innerHTML = anyFilter()
+          ? '<strong>'+n+'</strong> of '+total+' '+(total===1?'item':'items')
+          : '<strong>'+n+'</strong> '+(n===1?'item':'items')+' in the archive';
+
+        renderFacets();
         // Provider thumbnail failed to load → fall back to the coloured type tile.
         listEl.querySelectorAll('.result-thumb img').forEach(img => {
           img.addEventListener('error', () => {
@@ -1872,6 +1968,8 @@
       const titleIn   = document.getElementById('up-title-in');
       const typeSel   = document.getElementById('up-type');
       const authorIn  = document.getElementById('up-author');
+      const specAreaSel = document.getElementById('up-spec-area');
+      const keywordsIn  = document.getElementById('up-keywords');
       const abstractIn= document.getElementById('up-abstract');
       const linkIn    = document.getElementById('up-link');
       const linkField = document.getElementById('up-link-field');
@@ -1903,6 +2001,7 @@
       const reset = () => {
         picked = null; fileIn.value = ''; fileName.textContent = '';
         titleIn.value = ''; authorIn.value = ''; abstractIn.value = ''; linkIn.value = '';
+        specAreaSel.value = ''; keywordsIn.value = '';
         typeSel.value = 'video'; syncType();
       };
 
@@ -1986,6 +2085,13 @@
           abstract: abstractIn.value.trim(),
           year: new Date().getFullYear(),
           spec: 'Uploaded',
+          // Facet fields — normalised here so the sidebar groups cleanly:
+          // empty selections become null rather than '', and keywords are
+          // trimmed/de-duplicated so "a, a ,b" doesn't create three entries.
+          spec_area: specAreaSel.value || null,
+          keywords: [...new Set(
+            keywordsIn.value.split(',').map(s => s.trim()).filter(Boolean)
+          )].join(', ') || null,
           media_url,
           owner_hash: hash,
         };
