@@ -1,0 +1,125 @@
+# ─────────────────────────────────────────────────────────────
+#  MAGI Portal — Apache config for DreamHost (rmitmagi.com)
+#
+#  Upload this to the domain root alongside index.html. DreamHost runs
+#  Apache with .htaccess enabled, so it takes effect immediately.
+# ─────────────────────────────────────────────────────────────
+
+# ── FORCE HTTPS ──────────────────────────────────────────────
+# Not optional for this site. The password gates and the archive's ownership
+# tokens both use crypto.subtle (see gate-auth.js / owner-token.js), and
+# browsers only expose that API in a secure context. Over plain http:// the
+# gates fail closed with "Can't verify here" and nobody can unlock anything.
+# Turn on the free Let's Encrypt cert in the DreamHost panel first, or this
+# redirect will loop into a certificate warning.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # www.rmitmagi.com → rmitmagi.com (one canonical host, so the session keys
+  # the gates write aren't split across two origins)
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+  # http → https
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ── KEEP NON-PUBLIC FILES OUT OF THE WEBROOT ─────────────────
+# Belt and braces: these shouldn't be uploaded at all (see DEPLOY.md), but if
+# one slips through, don't serve it. The .sql files spell out the schema and
+# the RLS policies; SECURITY.md documents the threat model and which
+# passwords are already burned.
+<FilesMatch "\.(sql|md|log|bak|old|orig|yml|yaml|json5)$">
+  Require all denied
+</FilesMatch>
+
+# Dotfiles — .git most of all. A served .git directory lets anyone reconstruct
+# the whole repository, which for this project includes the commits where the
+# old passwords were still in plaintext.
+RedirectMatch 404 /\.(?!well-known/)
+
+# No directory listings for folders without an index (e.g. /media/).
+Options -Indexes
+
+# ── MIME TYPES ───────────────────────────────────────────────
+# Older Apache builds don't know these; without them the browser downloads the
+# file instead of rendering it.
+<IfModule mod_mime.c>
+  AddType image/webp                 .webp
+  AddType image/avif                 .avif
+  AddType video/mp4                  .mp4
+  AddType font/woff2                 .woff2
+  AddType font/woff                  .woff
+  AddType application/pdf            .pdf
+  AddType text/css                   .css
+  AddType application/javascript     .js
+</IfModule>
+
+# ── COMPRESSION ──────────────────────────────────────────────
+# Text only. Images, video and woff2 are already compressed — re-compressing
+# them burns CPU for nothing.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ── CACHING ──────────────────────────────────────────────────
+# Media and fonts are effectively immutable — they get new filenames when they
+# change — so they can cache hard. HTML/CSS/JS are cached briefly instead:
+# there's no build step adding content hashes to those filenames, so a long
+# TTL would strand visitors on an old copy after an edit.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault                        "access plus 1 hour"
+
+  ExpiresByType image/webp              "access plus 1 year"
+  ExpiresByType image/avif              "access plus 1 year"
+  ExpiresByType image/jpeg              "access plus 1 year"
+  ExpiresByType image/png               "access plus 1 year"
+  ExpiresByType image/svg+xml           "access plus 1 year"
+  ExpiresByType video/mp4               "access plus 1 year"
+  ExpiresByType font/woff2              "access plus 1 year"
+  ExpiresByType font/woff               "access plus 1 year"
+
+  ExpiresByType text/html               "access plus 0 seconds"
+  ExpiresByType text/css                "access plus 1 hour"
+  ExpiresByType application/javascript  "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(webp|avif|jpe?g|png|svg|mp4|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # Always revalidate the pages themselves, so a content edit shows up on the
+  # next load rather than whenever a stale cache happens to expire.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # ── SECURITY HEADERS ──
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # Deny framing of our own pages. Note this doesn't restrict the frames the
+  # site itself embeds (Vimeo, YouTube, SoundCloud, the Office viewer) — those
+  # are outbound and unaffected.
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  # HSTS: only safe once HTTPS is confirmed working. Left commented until the
+  # cert is live — enabling it early locks browsers onto https for a year and
+  # is painful to undo if something's misconfigured.
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ── PRETTY URLS (optional) ───────────────────────────────────
+# Lets /alumni serve alumni.html. The existing internal links all use the
+# .html form and keep working either way.
+<IfModule mod_rewrite.c>
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.html -f
+  RewriteRule ^(.+)$ $1.html [L]
+</IfModule>
+
+ErrorDocument 404 /index.html
