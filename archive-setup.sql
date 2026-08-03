@@ -37,6 +37,30 @@ create table if not exists public.archive_items (
 alter table public.archive_items add column if not exists spec_area text;
 alter table public.archive_items add column if not exists keywords  text;
 
+-- ── COMPANION SLIDES ─────────────────────────────────────────
+-- A second attachment alongside media_url, so a recording can carry the deck
+-- that was presented with it. Exists because a session host couldn't screen
+-- share the speaker's slides: the audio and the slides were captured
+-- separately, and the listener needs both at once.
+--
+-- Accepts a PDF or a .pptx, and research.html picks the viewer from the file
+-- extension:
+--   .pdf   — straight into an iframe. Browsers render PDF natively, so it's
+--            fast and depends on nothing external. Hyperlinks in the deck
+--            survive the export and stay clickable, but EMBEDDED VIDEO does
+--            not: PDF export flattens it to a still frame.
+--   .pptx  — rendered through Microsoft's Office viewer
+--            (view.officeapps.live.com), which runs the real PowerPoint, so
+--            hyperlinks and embedded video both keep working. Needs the file
+--            to be publicly reachable, which it is — the archive bucket is
+--            public and has an anon select policy.
+-- Use .pptx when the deck contains video, PDF otherwise.
+--
+-- Either way it's its own iframe rather than being baked into the recording,
+-- which is what lets a viewer move through the deck at their own pace while
+-- the audio keeps playing.
+alter table public.archive_items add column if not exists slides_url text;
+
 -- ── OWNERSHIP ────────────────────────────────────────────────
 -- The posting browser keeps a random token in its own localStorage and stores
 -- only SHA-256(token) here. Deletion goes through archive_delete() below,
@@ -107,3 +131,34 @@ values
    2026, 'Session Recording',
    'https://vimeo.com/1207762435', '4m 20s')
 on conflict (id) do nothing;
+
+-- ── REMOVING AN ITEM (manual, via the dashboard) ─────────────
+-- The page has no working delete control in practice: it only renders for the
+-- browser holding that row's owner token, so removal happens here instead.
+-- RLS backs this up — anon has no delete policy on the table, and the storage
+-- bucket is insert/select only, so nothing can be destroyed with the public
+-- key either way.
+--
+-- It's TWO steps. Deleting the row does not touch Storage, so any uploaded
+-- file (a PDF/image in media_url, or a deck in slides_url) is left behind in
+-- the bucket. Run this first to see what an item is holding:
+--
+--   select id, title, type, media_url, slides_url
+--   from public.archive_items
+--   where id = 'THE-ID';
+--
+-- Anything under .../storage/v1/object/public/archive/<path> is a file YOU
+-- host — delete <path> from Storage → archive as well. External links
+-- (Vimeo, YouTube, SoundCloud) need no cleanup; nothing was uploaded.
+--
+-- To list every self-hosted file still referenced, so you can tell a live
+-- file from an orphan when tidying the bucket:
+--
+--   select id, title,
+--          split_part(media_url,  '/public/archive/', 2) as media_path,
+--          split_part(slides_url, '/public/archive/', 2) as slides_path
+--   from public.archive_items
+--   where media_url like '%/public/archive/%'
+--      or slides_url like '%/public/archive/%';
+--
+-- Then: delete from public.archive_items where id = 'THE-ID';

@@ -35,7 +35,8 @@
       "Bash(node --check main.js)",
       "Read(//c/Users/adria/Downloads/**)",
       "Bash(curl -sL -m 12 -A \"Mozilla/5.0\" \"https://Thereselah.com\")",
-      "Bash(curl -sL -m 12 -A \"Mozilla/5.0\" \"https://suffixx.portfoliobox.net\")"
+      "Bash(curl -sL -m 12 -A \"Mozilla/5.0\" \"https://suffixx.portfoliobox.net\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -m 15 -A \"Mozilla/5.0\" \"https://view.officeapps.live.com/op/embed.aspx?src=https%3A%2F%2Fexample.com%2Ftest.pptx\")"
     ]
   }
 }

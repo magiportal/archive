@@ -505,6 +505,43 @@
     /* real uploaded PDF */
     .rp-doc-frame { height: 68vh; min-height: 420px; background: #333; }
     .rp-doc-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+    /* ── RECORDING + COMPANION SLIDES ──────────────────
+       Media on the left, the deck on the right, each scrolling on its own.
+       They're separate iframes on purpose: the recording carries on playing
+       while the viewer pages through the slides themselves, which is what's
+       needed when the deck was never captured in the recording. */
+    .rp-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: #2b2b2b;
+    }
+    .rp-split > .rp { margin: 0; min-width: 0; }
+    .rp-slides { display: flex; flex-direction: column; min-width: 0; background: #333; }
+    .rp-slides-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: #2b2b2b; color: #fff; padding: 9px 14px; flex-shrink: 0;
+    }
+    .rp-slides-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+    .rp-slides-dl {
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #fff; text-decoration: none; opacity: 0.75; transition: opacity 0.12s;
+    }
+    .rp-slides-dl:hover { opacity: 1; }
+    .rp-slides-frame { flex: 1; min-height: 420px; background: #333; }
+    .rp-slides-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+    @media (max-width: 900px) {
+      /* Side by side is unusable on a phone — stack, deck underneath, and let
+         the page scroll carry it rather than trapping a scroll inside a
+         short iframe. */
+      .rp-split { grid-template-columns: 1fr; }
+      .rp-slides-frame { min-height: 60vh; }
+    }
     /* real uploaded image */
     .rp-image-box { background: #111; text-align: center; }
     .rp-image-box img { max-width: 100%; max-height: 68vh; display: block; margin: 0 auto; }
@@ -1225,6 +1262,15 @@
           <span class="up-hint" id="up-link-hint">Paste a Vimeo or YouTube link — video isn't uploaded, just linked.</span>
         </div>
 
+        <!-- Optional slide deck to sit beside a recording. Only shown for the
+             linked media types; a document item IS the PDF, so it doesn't need
+             a second one. PDF only — browsers can't render .pptx. -->
+        <label class="up-drop up-drop-slides" id="up-slides-drop" style="display:none">
+          <input type="file" id="up-slides-file" accept="application/pdf,.pdf,.ppt,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden />
+          <span class="up-drop-title">Slides (optional)</span>
+          <span class="up-hint" id="up-slides-name">Drop the deck, or click to choose — shown beside the recording so listeners can scroll it while they listen. PDF, or .pptx if the deck has embedded video. Up to 20MB.</span>
+        </label>
+
         <!-- Document / image: a FILE uploaded to Storage -->
         <label class="up-drop" id="up-drop" style="display:none">
           <input type="file" id="up-file" hidden />
@@ -1505,7 +1551,40 @@
             '<a href="#">↓ Download file</a></div>';
         }
 
-        shell.appendChild(rp);
+        // A companion deck (see slides_url in archive-setup.sql) sits beside
+        // the player in its own scroll container. Two independent iframes is
+        // the whole point: the recording keeps playing while the viewer moves
+        // through the slides at their own pace, which is what's needed when
+        // the slides were never captured in the recording itself.
+        const slides = item.dataset.slides;
+        if (slides) {
+          const split = document.createElement('div');
+          split.className = 'rp-split';
+          shell.appendChild(split);
+          split.appendChild(rp);                    // media on the left
+          // A .pptx goes through Microsoft's Office viewer, which renders the
+          // real PowerPoint — so hyperlinks stay clickable and embedded video
+          // still plays. A PDF export can't do either: it flattens video to a
+          // still frame. PDFs render directly, which is faster and has no
+          // third-party dependency, so both paths are worth keeping.
+          const isPptx = /\.pptx?($|\?)/i.test(slides);
+          const viewer = isPptx
+            ? 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(slides)
+            : slides + '#view=FitH';
+          const deck = document.createElement('div');
+          deck.className = 'rp-slides';
+          deck.innerHTML =
+            '<div class="rp-slides-bar"><span class="rp-slides-label">Slides' +
+              (isPptx ? ' · PowerPoint' : '') + '</span>' +
+            '<a class="rp-slides-dl" href="' + esc(slides) + '" target="_blank" rel="noopener">' +
+              (isPptx ? 'Download deck ↓' : 'Open full size ↗') + '</a></div>' +
+            '<div class="rp-slides-frame"><iframe src="' + esc(viewer) + '" ' +
+            'title="Slides — ' + esc(title) + '" loading="lazy" ' +
+            'allow="fullscreen" allowfullscreen></iframe></div>';
+          split.appendChild(deck);
+        } else {
+          shell.appendChild(rp);
+        }
 
         rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -1861,7 +1940,8 @@
         const primary = type === 'audio' ? '▶ Listen' : type === 'document' ? '↓ Full PDF' : type === 'image' ? 'View image' : '▶ Watch';
         const asideP  = type === 'audio' ? '▶ Play'   : type === 'document' ? '↓ PDF'      : type === 'image' ? 'View'       : '▶ Play';
         const cited   = link ? (row.duration || '') : (type === 'document' ? 'PDF' : '');
-        const dataAttr = row.media_url ? (link ? ' data-embed="'+esc(row.media_url)+'"' : ' data-file="'+esc(row.media_url)+'"') : '';
+        const dataAttr = (row.media_url ? (link ? ' data-embed="'+esc(row.media_url)+'"' : ' data-file="'+esc(row.media_url)+'"') : '')
+                       + (row.slides_url ? ' data-slides="'+esc(row.slides_url)+'"' : '');
         const dl = row.media_url ? '<div class="result-action-sep"></div><a class="result-action" href="'+esc(row.media_url)+'" target="_blank" rel="noopener">Download</a>' : '';
         const owner = isOwner(row) ? '<a class="result-aside-link" href="#" data-arch-del="'+esc(row.id)+'">Delete</a>' : '';
         return (
@@ -1975,6 +2055,11 @@
       const linkField = document.getElementById('up-link-field');
       const linkLabel = document.getElementById('up-link-label');
       const linkHint  = document.getElementById('up-link-hint');
+      const slidesDrop = document.getElementById('up-slides-drop');
+      const slidesFile = document.getElementById('up-slides-file');
+      const slidesName = document.getElementById('up-slides-name');
+      const SLIDES_HINT = slidesName.textContent;   // restored on reset
+      let pickedSlides = null;
       const gateField = document.getElementById('up-gate-field');
       const gateInput = document.getElementById('up-gate-input');
       const gateHint  = document.getElementById('up-gate-hint');
@@ -1983,6 +2068,9 @@
 
       function syncType() {
         const t = typeSel.value;
+        // Slides are a companion to linked media only — a document item is
+        // already a PDF, so a second one would be meaningless there.
+        slidesDrop.style.display = isLinkType(t) ? '' : 'none';
         if (isLinkType(t)) {
           linkField.style.display = ''; drop.style.display = 'none';
           if (t === 'audio') { linkLabel.textContent = 'Audio link'; linkIn.placeholder = 'SoundCloud link'; linkHint.textContent = 'Paste a SoundCloud (or similar) link — audio is linked, not uploaded.'; }
@@ -1995,6 +2083,36 @@
       }
       typeSel.addEventListener('change', syncType);
 
+      // ── Slides picker (click + drop) ──
+      // PDF or PPTX. They render through different viewers (see buildPlayer):
+      // a PDF goes straight into an iframe, a PPTX goes through Microsoft's
+      // Office viewer. PPTX is the one to use when the deck contains embedded
+      // video — PDF export flattens video to a still frame, so it can't play.
+      function takeSlides(f) {
+        if (!f) return;
+        const isPdf  = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+        const isPptx = /\.pptx?$/i.test(f.name);
+        if (!isPdf && !isPptx) {
+          alert('Slides must be a PDF or a PowerPoint (.pptx).\n\n' +
+                'PDF is lighter and always loads. Use .pptx if the deck has embedded video, ' +
+                'since PDF export turns video into a still image.');
+          return;
+        }
+        if (f.size > MAX_FILE_BYTES) {
+          alert(f.name + ' is over 20MB. Compress the media in the deck, or host the video ' +
+                'externally and link to it from the slide instead of embedding it.');
+          return;
+        }
+        pickedSlides = f;
+        slidesName.textContent = f.name + (isPptx
+          ? ' — PowerPoint, opens in the Office viewer (keeps links and embedded video)'
+          : ' — PDF, shown beside the recording');
+      }
+      slidesFile.addEventListener('change', () => takeSlides(slidesFile.files[0]));
+      ['dragenter','dragover'].forEach(ev => slidesDrop.addEventListener(ev, e => { e.preventDefault(); slidesDrop.classList.add('dragover'); }));
+      ['dragleave','drop'].forEach(ev => slidesDrop.addEventListener(ev, e => { e.preventDefault(); slidesDrop.classList.remove('dragover'); }));
+      slidesDrop.addEventListener('drop', e => takeSlides(e.dataTransfer.files[0]));
+
       function syncGate() { gateField.style.display = isUnlocked() ? 'none' : ''; }
       const open  = () => { overlay.classList.add('is-open'); syncType(); syncGate(); };
       const close = () => overlay.classList.remove('is-open');
@@ -2002,6 +2120,7 @@
         picked = null; fileIn.value = ''; fileName.textContent = '';
         titleIn.value = ''; authorIn.value = ''; abstractIn.value = ''; linkIn.value = '';
         specAreaSel.value = ''; keywordsIn.value = '';
+        pickedSlides = null; slidesFile.value = ''; slidesName.textContent = SLIDES_HINT;
         typeSel.value = 'video'; syncType();
       };
 
@@ -2067,6 +2186,21 @@
           media_url = db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
         }
 
+        // Companion deck, if one was attached. Uploaded the same way as a
+        // document, just into its own folder so slides are easy to tell apart
+        // from standalone PDF items in the bucket.
+        let slides_url = '';
+        if (isLinkType(type) && pickedSlides) {
+          // Keep the real extension — buildPlayer routes on it (.pdf straight
+          // into an iframe, .pptx through the Office viewer), and the Office
+          // viewer won't touch a file that isn't named like a PowerPoint.
+          const sext = (pickedSlides.name.split('.').pop() || 'pdf').toLowerCase();
+          const spath = 'slides/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + sext;
+          const { error: sErr } = await db.storage.from(BUCKET).upload(spath, pickedSlides, { upsert: false, contentType: pickedSlides.type || undefined });
+          if (sErr) { console.error(sErr); alert('Slides upload failed — see console.'); submitBtn.disabled=false; submitBtn.textContent='Add to Archive'; return; }
+          slides_url = db.storage.from(BUCKET).getPublicUrl(spath).data.publicUrl;
+        }
+
         // Mint the ownership token before inserting: this browser keeps the
         // token, the row carries only its hash.
         const id = uid();
@@ -2093,6 +2227,7 @@
             keywordsIn.value.split(',').map(s => s.trim()).filter(Boolean)
           )].join(', ') || null,
           media_url,
+          slides_url: slides_url || null,
           owner_hash: hash,
         };
         const { error } = await db.from('archive_items').insert(row);
