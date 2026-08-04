@@ -79,7 +79,7 @@
           extra: [...el.querySelectorAll('.staff-tags .tag')].map(t => t.textContent).join(' '),
           thumb: src(el, '.staff-photo'),
           initials: txt(el, '.staff-initials') || initials(name),
-          href:  'staff.html'
+          href:  'staff'
         };
       }
     },
@@ -97,7 +97,7 @@
           extra: txt(el, '.alum-detail-inner'),
           thumb: src(el, '.alum-hero-img'),
           initials: initials(title),
-          href:  'alumni.html' + (el.id ? '#' + el.id : '')
+          href:  'alumni' + (el.id ? '#' + el.id : '')
         };
       }
     },
@@ -112,7 +112,7 @@
           extra: txt(el, '.article-date'),
           thumb: null,
           initials: initials(title),
-          href:  'latest.html' + (el.id ? '#' + el.id : '')
+          href:  'latest' + (el.id ? '#' + el.id : '')
         };
       }
     },
@@ -135,7 +135,7 @@
           extra: txt(el, '.sel-student'),
           thumb: src(el, '.sel-thumb img'),
           initials: initials(title),
-          href:  'index.html' + (el.id ? '#' + el.id : '#archive')
+          href:  '/' + (el.id ? '#' + el.id : '#archive')
         };
       }
     },
@@ -150,7 +150,7 @@
           extra: '',
           thumb: src(el, 'img'),
           initials: initials(title),
-          href:  'sponsors.html'
+          href:  'sponsors'
         };
       }
     }
@@ -237,7 +237,7 @@
           extra: [r.authors, r.year].filter(Boolean).join(' · '),
           thumb: archiveThumb(r),
           initials: initials(r.title),
-          href:  'research.html#' + r.id
+          href:  'archive#' + r.id
         }))),
       rest('studio_cards', '*', like(q, ['title', 'body', 'author', 'tags']))
         .then(rows => rows.forEach(r => out.push({
@@ -248,7 +248,7 @@
           extra: [r.author, r.date].filter(Boolean).join(' · '),
           thumb: null,
           initials: initials(r.title),
-          href:  'studio.html'
+          href:  'board'
         })))
     ];
 
@@ -263,7 +263,7 @@
           extra: [r.author, r.sounds_needed].filter(Boolean).join(' · '),
           thumb: r.image_url || null,
           initials: initials(r.title),
-          href:  'soundcollab.html'
+          href:  'soundcollab'
         }))),
       rest('sound_designers', '*', like(q, ['name', 'bio']))
         .then(rows => rows.forEach(r => out.push({
@@ -274,7 +274,7 @@
           extra: '',
           initials: initials(r.name),
           thumb: r.avatar_url || null,
-          href:  'soundcollab.html'
+          href:  'soundcollab'
         })))
     ];
 
@@ -395,9 +395,9 @@
     const note =
       magiUnlocked()  ? '' :
       soundUnlocked() ? 'Showing public pages and Sound Collab. The Media Database and Board are ' +
-                        'MAGI-only — <a href="research.html">enter the MAGI password</a> to include them.'
+                        'MAGI-only — <a href="archive">enter the MAGI password</a> to include them.'
                       : 'Showing public pages only. The Media Database, Sound Collab and Board are ' +
-                        'student-only — <a href="research.html">enter the password</a> to include them in search.';
+                        'student-only — <a href="archive">enter the password</a> to include them in search.';
     noteEl.innerHTML = note;
     noteEl.style.display = note ? '' : 'none';
 

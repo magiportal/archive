@@ -14,18 +14,18 @@
 
   <!-- ── NAV ──────────────────────────────────────── -->
   <nav class="nav" id="site-nav">
-    <a class="nav-wordmark" href="index.html" aria-label="MAGI Portal — Home">
+    <a class="nav-wordmark" href="/" aria-label="MAGI Portal — Home">
       <img class="nav-wordmark-icon" src="logo/MAGI_favicon.png" alt="MAGI" />
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-links">
-      <a class="nav-link" href="latest.html">Latest</a>
-      <a class="nav-link" href="studios.html">Studios</a>
-      <a class="nav-link" href="alumni.html">Alumni</a>
-      <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="latest">Latest</a>
+      <a class="nav-link" href="studios">Studios</a>
+      <a class="nav-link" href="alumni">Alumni</a>
+      <a class="nav-link" href="staff">Staff</a>
+      <a class="nav-link" href="sponsors">Partners</a>
       <div class="nav-expo">
         <a class="nav-link nav-expo-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
         <span class="nav-expo-accent" aria-hidden="true"></span>
@@ -43,9 +43,9 @@
       </div>
     </div>
     <div class="nav-right">
-      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
-      <a class="nav-link" href="research.html">Archive</a>
-      <a class="nav-link" href="studio.html">Board</a>
+      <a class="nav-link" href="soundcollab">Sound Collab</a>
+      <a class="nav-link" href="archive">Archive</a>
+      <a class="nav-link" href="board">Board</a>
     </div>
     <!-- Sits outside .nav-right so the mobile hamburger doesn't swallow it —
          on mobile it's ordered up next to the toggle (see style.css). -->
@@ -162,7 +162,7 @@
         <div class="upload-title">Submit Your Work</div>
         <div class="upload-desc">Add your project, documentation, or research to the MAGI archive.</div>
       </div>
-      <a class="upload-btn" href="research.html#upload">+ Upload a Work →</a>
+      <a class="upload-btn" href="archive#upload">+ Upload a Work →</a>
     </div>
   </section>
 
@@ -170,8 +170,8 @@
   <section id="news">
 
     <div class="bar">
-      <a class="bar-title bar-title-link" href="latest.html">News &amp; Events</a>
-      <div class="bar-right"><a class="bar-link" href="latest.html">View All ›</a></div>
+      <a class="bar-title bar-title-link" href="latest">News &amp; Events</a>
+      <div class="bar-right"><a class="bar-link" href="latest">View All ›</a></div>
     </div>
 
     <div class="news-grid">
@@ -225,7 +225,7 @@
           <div class="news-thumb-titlewrap"><span class="news-thumb-title">EPIC Workshop — Winter 2026</span></div>
         </div>
         <div class="news-desc">MAGI and MDIT team up in the VXLab this season — a cross-disciplinary sprint from brief to working prototype.</div>
-        <div class="news-meta"><span class="news-date">Winter 2026</span><a class="news-link" href="latest.html#epic">Read more ›</a></div>
+        <div class="news-meta"><span class="news-date">Winter 2026</span><a class="news-link" href="latest#epic">Read more ›</a></div>
       </div>
 
       <div class="news-card">
@@ -235,7 +235,7 @@
           <div class="news-thumb-titlewrap"><span class="news-thumb-title">ACMI Audience Lab</span></div>
         </div>
         <div class="news-desc">Three student works, public exhibition at Fed Square — interactive and generative pieces for a general audience.</div>
-        <div class="news-meta"><span class="news-date">1 May 2026</span><a class="news-link" href="latest.html#acmi">Read more ›</a></div>
+        <div class="news-meta"><span class="news-date">1 May 2026</span><a class="news-link" href="latest#acmi">Read more ›</a></div>
       </div>
 
       <div class="news-card">
@@ -245,10 +245,15 @@
           <div class="news-thumb-titlewrap"><span class="news-thumb-title">Melbourne Design Week x MAGI</span></div>
         </div>
         <div class="news-desc">Student installations at Australia's largest design event — practice-led work shown in a public setting.</div>
-        <div class="news-meta"><span class="news-date">2025</span><a class="news-link" href="sponsors.html">See our partners ›</a></div>
+        <div class="news-meta"><span class="news-date">2025</span><a class="news-link" href="sponsors">See our partners ›</a></div>
       </div>
 
     </div>
+
+    <!-- Swipe hint — mobile only (CSS-hidden on desktop, where the four cards
+         already sit in one visible grid). Dots are built + tracked by the
+         script below; one per card, the active one following the scroller. -->
+    <div class="news-dots" id="news-dots" aria-hidden="true"></div>
 
   </section>
 
@@ -256,8 +261,8 @@
   <section id="archive">
 
     <div class="bar">
-      <a class="bar-title bar-title-link" href="alumni.html">Selected Works</a>
-      <div class="bar-right"><a class="bar-link" href="alumni.html">View All ›</a></div>
+      <a class="bar-title bar-title-link" href="alumni">Selected Works</a>
+      <div class="bar-right"><a class="bar-link" href="alumni">View All ›</a></div>
     </div>
 
     <div class="sel-grid">
@@ -280,7 +285,7 @@
               <img src="https://img.youtube.com/vi/fWtqP0_TEkQ/maxresdefault.jpg"
                    data-fallback="https://img.youtube.com/vi/fWtqP0_TEkQ/hqdefault.jpg"
                    alt="AU (Capicú) — still" />
-              <span class="sel-detail-play" aria-hidden="true">▶</span>
+              <span class="sel-detail-play" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></span>
             </a>
             <div class="sel-detail-text">
               <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Games · 2026</span></div>
@@ -318,7 +323,7 @@
               <img src="https://img.youtube.com/vi/J2dG_VsuSs8/maxresdefault.jpg"
                    data-fallback="https://img.youtube.com/vi/J2dG_VsuSs8/hqdefault.jpg"
                    alt="Saros — still" />
-              <span class="sel-detail-play" aria-hidden="true">▶</span>
+              <span class="sel-detail-play" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></span>
             </a>
             <div class="sel-detail-text">
               <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Animation · 2025</span></div>
@@ -349,7 +354,7 @@
               <img src="https://img.youtube.com/vi/2pwidF2pE9A/maxresdefault.jpg"
                    data-fallback="https://img.youtube.com/vi/2pwidF2pE9A/hqdefault.jpg"
                    alt="Echoes of Mending — still" />
-              <span class="sel-detail-play" aria-hidden="true">▶</span>
+              <span class="sel-detail-play" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></span>
             </a>
             <div class="sel-detail-text">
               <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Interactivity · 2026</span></div>
@@ -380,7 +385,7 @@
               <img src="https://img.youtube.com/vi/NM8zdkS_t2w/maxresdefault.jpg"
                    data-fallback="https://img.youtube.com/vi/NM8zdkS_t2w/hqdefault.jpg"
                    alt="Sultan T. Sloth — still" />
-              <span class="sel-detail-play" aria-hidden="true">▶</span>
+              <span class="sel-detail-play" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></span>
             </a>
             <div class="sel-detail-text">
               <div class="sel-detail-meta">Featured — <span class="sel-detail-meta-tag">Research · 2023</span></div>
@@ -401,8 +406,8 @@
   <section id="recent-recordings">
 
     <div class="bar rec-dark-bar">
-      <a class="bar-title bar-title-link" href="research.html">Recent Media</a>
-      <div class="bar-right"><a class="bar-link" href="research.html">View All ›</a></div>
+      <a class="bar-title bar-title-link" href="archive">Recent Media</a>
+      <div class="bar-right"><a class="bar-link" href="archive">View All ›</a></div>
     </div>
 
     <div class="rec-compact-list" id="rec-media-list">
@@ -413,7 +418,7 @@
   <section id="gallery">
 
     <div class="bar">
-      <a class="bar-title bar-title-link" href="alumni.html">Media Gallery</a>
+      <a class="bar-title bar-title-link" href="alumni">Media Gallery</a>
       <div class="bar-right"><div class="bar-link">View All ›</div></div>
     </div>
 
@@ -690,6 +695,53 @@
       }, { threshold: 0.2 });
       io.observe(v);
     })();
+
+    // ── NEWS & EVENTS — mobile swipe-hint dots ──────────────────────────
+    // One dot per card; the active dot follows the horizontal scroller and a
+    // tap on a dot snaps to that card. The dots row is CSS-hidden on desktop
+    // (all four cards are already visible there), so this only surfaces where
+    // the cards become a swipeable row — but the JS is harmless either way.
+    (function () {
+      const grid = document.querySelector('#news .news-grid');
+      const dots = document.getElementById('news-dots');
+      if (!grid || !dots) return;
+      const cards = Array.from(grid.children).filter(el => el.classList.contains('news-card'));
+      if (cards.length < 2) return;
+
+      // The cards and the grid share the same offsetParent (the grid isn't
+      // positioned), so `card.offsetLeft - grid.offsetLeft` is the card's
+      // position within the scroller's own content coordinates.
+      const cardLeft = (card) => card.offsetLeft - grid.offsetLeft;
+
+      cards.forEach((card, i) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'news-dot' + (i === 0 ? ' is-active' : '');
+        dot.setAttribute('aria-label', 'Go to item ' + (i + 1) + ' of ' + cards.length);
+        dot.addEventListener('click', () => {
+          grid.scrollTo({ left: cardLeft(card), behavior: 'smooth' });
+        });
+        dots.appendChild(dot);
+      });
+
+      const dotEls = Array.from(dots.children);
+      let raf = null;
+      const sync = () => {
+        raf = null;
+        const mid = grid.scrollLeft + grid.clientWidth / 2;
+        let active = 0, best = Infinity;
+        cards.forEach((card, i) => {
+          const center = cardLeft(card) + card.offsetWidth / 2;
+          const d = Math.abs(center - mid);
+          if (d < best) { best = d; active = i; }
+        });
+        dotEls.forEach((d, i) => d.classList.toggle('is-active', i === active));
+      };
+      grid.addEventListener('scroll', () => {
+        if (raf === null) raf = requestAnimationFrame(sync);
+      }, { passive: true });
+      window.addEventListener('resize', sync);
+    })();
   </script>
 
   <script>
@@ -706,7 +758,15 @@
       const esc = (s) => (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const LABELS = { recording:'Recording', lecture:'Lecture', video:'Video', audio:'Audio', document:'Document', image:'Image' };
       const ACTION = { recording:'Watch', lecture:'Watch', video:'Watch', audio:'Listen', document:'PDF', image:'View' };
-      const GLYPH  = { recording:'▶', lecture:'▶', video:'▶', audio:'♪', document:'PDF' };
+      // A flat SVG play icon instead of a bare ▶ character — some platforms
+      // (Windows especially) swap that glyph for their own colour emoji font,
+      // which clashes with the site's flat black-and-white style. fill:
+      // currentColor keeps it matching whatever text colour surrounds it.
+      const iconPlay = () => '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>';
+      // Placeholder tile content when there's no thumbnail: play icon for
+      // anything playable, plain text for a document (a legible abbreviation
+      // rather than needing its own icon).
+      const glyphHtml = (type) => type === 'document' ? 'PDF' : iconPlay();
 
       const fmtDate = (iso) => {
         const d = new Date(iso);
@@ -731,11 +791,10 @@
       function rowHtml(row, i) {
         const type  = row.type || 'document';
         const num   = String(i + 1).padStart(2, '0');
-        const glyph = GLYPH[type] || '▶';
         const src   = thumbSrc(row);
         const thumb = src
-          ? '<div class="rec-compact-thumb" data-glyph="' + esc(glyph) + '"><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
-          : '<div class="rec-compact-thumb rec-thumb-play"><span>' + esc(glyph) + '</span></div>';
+          ? '<div class="rec-compact-thumb" data-t="' + esc(type) + '"><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
+          : '<div class="rec-compact-thumb rec-thumb-play" data-t="' + esc(type) + '">' + glyphHtml(type) + '</div>';
         const meta  = [row.authors, fmtDate(row.created_at)].filter(Boolean).join(' &nbsp;·&nbsp; ');
 
         return (
@@ -755,7 +814,7 @@
                 '<div class="rec-compact-panel-inner">' +
                   (row.abstract ? '<p class="rec-panel-abstract">' + esc(row.abstract) + '</p>' : '') +
                   (row.source ? '<div class="rec-panel-source">' + esc(row.source) + '</div>' : '') +
-                  '<a class="rec-panel-link" href="research.html#' + esc(row.id) + '">View in the Archive →</a>' +
+                  '<a class="rec-panel-link" href="archive#' + esc(row.id) + '">View in the Archive →</a>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -786,7 +845,7 @@
             const box = img.closest('.rec-compact-thumb');
             if (!box) return;
             box.classList.add('rec-thumb-play');
-            box.innerHTML = '<span>' + (box.dataset.glyph || '▶') + '</span>';
+            box.innerHTML = glyphHtml(box.dataset.t || 'video');
           }, { once: true });
         });
       }

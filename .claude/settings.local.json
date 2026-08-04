@@ -38,7 +38,13 @@
       "Bash(curl -sL -m 12 -A \"Mozilla/5.0\" \"https://suffixx.portfoliobox.net\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" -m 15 -A \"Mozilla/5.0\" \"https://view.officeapps.live.com/op/embed.aspx?src=https%3A%2F%2Fexample.com%2Ftest.pptx\")",
       "Bash(nslookup rmitmagi.com 8.8.8.8)",
-      "Bash(mv \"media/events/EPIC/Screenshot 2026-07-10 153208.webp\" \"media/events/EPIC/epic-screenshot.webp\")"
+      "Bash(mv \"media/events/EPIC/Screenshot 2026-07-10 153208.webp\" \"media/events/EPIC/epic-screenshot.webp\")",
+      "Bash(grep -n \"return { load, relayout, bounds }\\\\|MAGINodes.load\\(\\)\\\\|MAGINodes.relayout\\(\\)\\\\|MAGINodes.bounds\" studio.html)",
+      "Bash(awk '/^      function render\\\\\\(\\\\\\) \\\\{/,/^      function lit\\\\\\(/' studio.html)",
+      "Bash(awk '/^      function layout\\\\\\(\\\\\\) \\\\{/,/^        const PASSES/' studio.html)",
+      "Bash(awk '/^        const PASSES = 200;/,/^      \\\\}$/' studio.html)",
+      "Bash(grep -n \"RewriteRule ^studio\\\\|RewriteRule ^research\\\\|RewriteRule ^index\\\\\\\\\\\\\\\\.html\\\\|RewriteRule \\\\^ /%1\\\\|RewriteRule ^\\(.+\\)\\\\$ \\\\$1.html\" .htaccess)",
+      "Bash(grep -n \"// ── Typewriter reveal\" board.html)"
     ]
   }
 }

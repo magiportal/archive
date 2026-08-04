@@ -162,6 +162,298 @@
       transform-origin: 0 0;
     }
 
+    /* ── ARCHIVE NODES ────────────────────────────────
+       Small dots representing items in the Media Database, living in the same
+       coordinate space as the cards (inside .canvas-inner) so pan and zoom
+       apply to them for free.
+
+       These are a VIEW of archive_items, not a copy: nothing about a node is
+       stored. Positions are computed in the browser each load, so dragging
+       them around costs no writes and can't drift out of sync with the
+       archive. A node's only job is to be a visible link to its row. */
+    .node-links {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;   /* lines are decoration; dots take the clicks */
+      z-index: 1;             /* under cards (z-index 10+), over the grid */
+    }
+    /* Lines carry the node's own category colour rather than a flat grey, so a
+       connection reads at a glance without needing extra weight. Dashed keeps
+       them quiet at 1px — a solid line at this opacity starts competing with
+       the card borders. */
+    /* Transit-map routing: a 45° leg out of the node, then a straight run into
+       the card (geometry built in render()). Round joins/caps are what stop
+       the elbow reading as a kink. */
+    .node-link-line {
+      fill: none;
+      stroke: var(--line-col, currentColor);
+      stroke-width: 2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      opacity: 0.55;
+      transition: opacity 0.2s, stroke-width 0.2s;
+    }
+    /* A node with no specialisation gets the grey dashed treatment — present
+       on the map, but visibly not part of a coloured line. */
+    .node-link-line.is-uncat {
+      stroke: #9a9a9a;
+      stroke-width: 1.25;
+      stroke-dasharray: 5 5;
+      opacity: 0.45;
+    }
+    .node-link-line.is-lit { opacity: 1; stroke-width: 3; }
+    .node-link-line.is-uncat.is-lit { stroke-width: 2; opacity: 0.9; }
+
+    /* The category route — the "line" the nodes are stations on. Heavier than
+       a branch and drawn first so it reads as the spine of the network rather
+       than another connector. */
+    .node-route {
+      fill: none;
+      stroke: var(--line-col, currentColor);
+      stroke-width: 3.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      opacity: 0.45;
+    }
+    .node-route.is-uncat {
+      stroke: #9a9a9a;
+      stroke-width: 2;
+      stroke-dasharray: 6 6;
+      opacity: 0.4;
+    }
+
+    .archive-node {
+      position: absolute;
+      z-index: 2;             /* above the lines, below the cards */
+      width: 10px;
+      height: 10px;
+      margin: -5px 0 0 -5px;  /* centre on its x/y rather than corner-anchor */
+      border-radius: 50%;
+      background: var(--node-col, var(--dim));
+      border: 1.5px solid var(--white);
+      cursor: pointer;
+      /* Emphasis on hover comes from a ring, NOT transform:scale — the label
+         is a child, so scaling the dot would scale the text with it and fight
+         the zoom compensation below. */
+      transition: box-shadow 0.15s ease;
+    }
+    .archive-node:hover,
+    .archive-node:focus-visible {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--node-col, #999) 35%, transparent);
+      outline: none;
+      z-index: 5;
+    }
+
+    /* Persistent label. Kept minimal by weight and colour rather than by
+       hiding it: no background plate, no border, just quiet type under the
+       dot. --node-label-scale is the inverse of the canvas zoom (set in
+       applyTransform) so labels hold a roughly constant on-screen size —
+       without it a 0.45 zoom would render these at ~5px. */
+    /* --label-pad is breathing room at both ends of the text. It's applied as
+       padding on the moving span (not on the window), so it travels WITH the
+       text — padding on the window wouldn't help, since overflow clips at the
+       padding edge and the text would still run right up to the visible
+       boundary. The window is 168 + 2*pad wide so the readable area stays
+       168px, which keeps the truncation threshold in overflowOf() honest. */
+    /* --label-gap is how far the label sits from the dot's centre. It has to
+       clear the hover ring, not just the dot: the dot is 10px (5px radius)
+       but :hover adds a 4px ring, and the label's own white plate extends a
+       further 4px via box-shadow. 5 + 4 + 4 = 13px is the exact point where
+       they touch, which is why the ring looked chopped — the plate is a child
+       element, so it paints over the parent's ring. 17px leaves a real gap. */
+    .archive-node { --label-pad: 6px; --label-gap: 17px; }
+
+    .archive-node::after {
+      content: attr(data-label);
+      position: absolute;
+      top: 50%;
+      white-space: nowrap;
+      max-width: calc(168px + var(--label-pad) * 2);
+      padding: 0 var(--label-pad);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--muted);
+      /* Hoverable on purpose: the label is the biggest part of a node's
+         target, and reaching for the title only for the marquee to stop is
+         the obvious wrong behaviour. Hit-testing a pseudo-element counts as
+         hovering its originating <a>, so this also makes the title itself
+         clickable through to the archive item. */
+      transition: color 0.15s;
+    }
+    /* Transit-map convention: the name sits on the outward side of the dot, so
+       labels radiate away from the board's centre instead of all trailing the
+       same way and colliding with the next node along. data-side is set per
+       node in render(). transform-origin matches the side so the zoom
+       compensation expands away from the dot, never across it. */
+    .archive-node[data-side="right"]::after {
+      left: 13px;
+      text-align: left;
+      transform: translateY(-50%) scale(var(--node-label-scale, 1));
+      transform-origin: left center;
+    }
+    .archive-node[data-side="left"]::after {
+      right: 13px;
+      text-align: right;
+      transform: translateY(-50%) scale(var(--node-label-scale, 1));
+      transform-origin: right center;
+    }
+    /* On hover it earns a plate, since that's when it's being read against
+       whatever it happens to overlap. */
+    /* On hover the truncated resting label (::after, above) hands off to
+       .archive-node-full, a fixed-width window the full title scrolls through.
+       Scoped to .has-full-title (set in JS only for titles that actually
+       overflow 168px — see overflowOf()): a short title already shows in
+       full at rest, so hiding it on hover would blank a label with nothing
+       behind it to scroll. */
+    .archive-node.has-full-title:hover::after,
+    .archive-node.has-full-title:focus-visible::after {
+      opacity: 0;
+    }
+
+    /* The window. Matches the resting label's total width (168 readable +
+       padding either side) so nothing jumps when the two swap over — only the
+       content inside starts moving. */
+    .archive-node-full {
+      position: absolute;
+      top: 50%;
+      width: calc(168px + var(--label-pad) * 2);
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: 0 0 0 4px var(--white);
+      opacity: 0;
+      /* Inert while hidden. opacity:0 alone still captures clicks, which would
+         leave an invisible ~180px dead zone over the board swallowing card
+         drags. It only becomes interactive once shown — which is also what
+         keeps the marquee running as the pointer moves onto the text. */
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+      z-index: 6;
+    }
+    .archive-node.has-full-title:hover .archive-node-full,
+    .archive-node.has-full-title:focus-visible .archive-node-full {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* The travelling text itself. The padding rides along with it, which is
+       what keeps the first and last characters clear of the window edges at
+       either extreme of the scroll. */
+    .archive-node-scroll {
+      display: inline-block;
+      white-space: nowrap;
+      padding: 0 var(--label-pad);
+      font-family: 'Satoshi', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: var(--black);
+    }
+
+    /* --scroll-dist (how far it has to travel) and --scroll-time (how long
+       that takes at a fixed reading speed) are both measured per node in JS,
+       so a long title doesn't whip past faster than a short one.
+       `alternate` runs it out and back rather than looping-and-jumping, and
+       the flat holds at each end give a beat to read the start and finish. */
+    @keyframes nodeScrollLeft {
+      0%, 18%   { transform: translateX(0); }
+      82%, 100% { transform: translateX(calc(-1 * var(--scroll-dist, 0px))); }
+    }
+    @keyframes nodeScrollRight {
+      0%, 18%   { transform: translateX(0); }
+      82%, 100% { transform: translateX(var(--scroll-dist, 0px)); }
+    }
+    .archive-node.has-full-title:hover .archive-node-scroll,
+    .archive-node.has-full-title:focus-visible .archive-node-scroll {
+      animation: nodeScrollLeft var(--scroll-time, 3s) ease-in-out infinite alternate;
+    }
+    /* A left-side label hangs off the dot's left, so its text is pinned to the
+       window's RIGHT edge and the hidden remainder sits off to the left —
+       it therefore has to travel the opposite way to reveal it. */
+    .archive-node[data-side="left"] .archive-node-scroll { float: right; }
+    .archive-node[data-side="left"].has-full-title:hover .archive-node-scroll,
+    .archive-node[data-side="left"].has-full-title:focus-visible .archive-node-scroll {
+      animation-name: nodeScrollRight;
+    }
+
+    /* Anchored to the same side as the resting label, so the window opens in
+       the direction the label already ran. */
+    .archive-node[data-side="right"] .archive-node-full {
+      left: 13px;
+      transform: translateY(-50%) scale(var(--node-label-scale, 1));
+      transform-origin: left center;
+    }
+    .archive-node[data-side="left"] .archive-node-full {
+      right: 13px;
+      transform: translateY(-50%) scale(var(--node-label-scale, 1));
+      transform-origin: right center;
+    }
+
+    body.canvas-dark .archive-node-full {
+      background: #1a1a1a; box-shadow: 0 0 0 4px #1a1a1a;
+    }
+    body.canvas-dark .archive-node-scroll { color: #fff; }
+
+    /* Anyone who's asked for less motion gets the full title held still,
+       widened instead of scrolled. */
+    @media (prefers-reduced-motion: reduce) {
+      .archive-node.has-full-title:hover .archive-node-scroll,
+      .archive-node.has-full-title:focus-visible .archive-node-scroll { animation: none; }
+      .archive-node.has-full-title:hover .archive-node-full,
+      .archive-node.has-full-title:focus-visible .archive-node-full { width: auto; }
+    }
+
+    body.canvas-dark .archive-node { border-color: #1a1a1a; }
+    body.canvas-dark .archive-node::after { color: #999; }
+    body.canvas-dark .archive-node:hover::after,
+    body.canvas-dark .archive-node:focus-visible::after {
+      color: #fff; background: #1a1a1a; box-shadow: 0 0 0 4px #1a1a1a;
+    }
+    body.canvas-dark .node-links { color: #888; }
+
+    /* Top-left, just under the toolbar (canvas starts at 104px). Deliberately
+       NOT above the presence panel bottom-left: that panel's height grows with
+       the number of people online, so any fixed bottom offset here collides
+       again as soon as a second person joins. */
+    .node-key {
+      position: fixed;
+      top: 120px;
+      left: 24px;
+      z-index: 100;
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      font-family: 'Satoshi', sans-serif;
+      width: 180px;
+    }
+    .node-key-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--dim);
+    }
+    .node-key-toggle {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font-family: inherit; font-size: 9px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--black); text-decoration: underline;
+    }
+    .node-key-row {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 10px; color: var(--secondary); margin-top: 7px;
+    }
+    .node-key-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .node-key.is-off .node-key-row { display: none; }
+    body.canvas-dark .node-key { background: #1a1a1a; border-color: #333; }
+    body.canvas-dark .node-key-row { color: #bbb; }
+    body.canvas-dark .node-key-toggle { color: #eee; }
+
+    @media (max-width: 760px) { .node-key { display: none; } }
+
     /* ── CARDS ────────────────────────────────────── */
 
     .studio-card {
@@ -1025,18 +1317,18 @@
 
   <!-- ── NAV ────────────────────────────────────── -->
   <nav class="nav" id="site-nav">
-    <a class="nav-wordmark" href="index.html" aria-label="MAGI Portal — Home">
+    <a class="nav-wordmark" href="/" aria-label="MAGI Portal — Home">
       <img class="nav-wordmark-icon" src="logo/MAGI_favicon.png" alt="MAGI" />
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-links">
-      <a class="nav-link" href="latest.html">Latest</a>
-      <a class="nav-link" href="studios.html">Studios</a>
-      <a class="nav-link" href="alumni.html">Alumni</a>
-      <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="latest">Latest</a>
+      <a class="nav-link" href="studios">Studios</a>
+      <a class="nav-link" href="alumni">Alumni</a>
+      <a class="nav-link" href="staff">Staff</a>
+      <a class="nav-link" href="sponsors">Partners</a>
       <div class="nav-expo">
         <a class="nav-link nav-expo-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
         <span class="nav-expo-accent" aria-hidden="true"></span>
@@ -1054,9 +1346,9 @@
       </div>
     </div>
     <div class="nav-right">
-      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
-      <a class="nav-link" href="research.html">Archive</a>
-      <a class="nav-link active" href="studio.html">Board</a>
+      <a class="nav-link" href="soundcollab">Sound Collab</a>
+      <a class="nav-link" href="archive">Archive</a>
+      <a class="nav-link active" href="board">Board</a>
     </div>
     <!-- Sits outside .nav-right so the mobile hamburger doesn't swallow it —
          on mobile it's ordered up next to the toggle (see style.css). -->
@@ -1098,13 +1390,29 @@
 
   <!-- ── CANVAS ─────────────────────────────────── -->
   <div class="studio-canvas" id="studio-canvas">
-    <div class="canvas-inner" id="canvas-inner"></div>
+    <div class="canvas-inner" id="canvas-inner">
+      <!-- Connector lines between archive nodes and the cards they share a
+           keyword with. Inside canvas-inner so it pans/zooms with everything
+           else; the nodes themselves are appended here by JS too. -->
+      <svg class="node-links" id="node-links" aria-hidden="true"></svg>
+    </div>
   </div>
 
   <!-- ── PIN BUTTON ─────────────────────────────── -->
   <button class="pin-btn" id="btn-add-card">+ Pin Work</button>
 
   <div class="canvas-hint" id="canvas-hint">Double-click to pin · Drag to pan · Scroll to zoom</div>
+
+  <!-- Legend for the archive nodes. Populated by JS from whatever
+       specialisations actually appear in the archive, so it never lists a
+       category with nothing behind it. -->
+  <div class="node-key" id="node-key" hidden>
+    <div class="node-key-head">
+      <span>Archive</span>
+      <button class="node-key-toggle" id="node-key-toggle" type="button" aria-pressed="true">Hide</button>
+    </div>
+    <div id="node-key-rows"></div>
+  </div>
 
   <!-- ── CANVAS CONTROLS ─────────────────────────── -->
   <div class="canvas-controls">
@@ -1321,7 +1629,7 @@
       if (ytId) {
         return `<a class="card-thumb card-thumb-yt" href="${c.img}" target="_blank" rel="noopener">
           <img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="${c.title}" />
-          <div class="card-yt-badge">▶ YouTube</div>
+          <div class="card-yt-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="5,3 19,12 5,21"/></svg>YouTube</div>
         </a>`;
       }
       if (isExternalUrl(c.img)) {
@@ -1367,6 +1675,13 @@
 
     function applyTransform() {
       inner.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      // Node labels live inside this transform, so they'd shrink with the
+      // zoom and become unreadable. Feed the inverse scale back in as a
+      // custom property (see .archive-node::after) to hold them at a roughly
+      // constant on-screen size. Clamped so they neither vanish when zoomed
+      // out nor balloon when zoomed right in.
+      const inv = Math.min(2.6, Math.max(0.7, 1 / scale));
+      inner.style.setProperty('--node-label-scale', String(inv));
       reprojectCursors();
     }
 
@@ -1400,10 +1715,18 @@
       const vh = window.innerHeight - 104;
       const xs = cards.map(c => c.x);
       const ys = cards.map(c => c.y);
-      const minX = Math.min(...xs);
-      const maxX = Math.max(...xs) + 280;
-      const minY = Math.min(...ys);
-      const maxY = Math.max(...ys) + 220;
+      let minX = Math.min(...xs);
+      let maxX = Math.max(...xs) + 280;
+      let minY = Math.min(...ys);
+      let maxY = Math.max(...ys) + 220;
+
+      // Fold in the archive nodes so "fit all" actually shows them. Without
+      // this they orbit just outside the cards' box and land off-screen.
+      const nb = window.MAGINodes && MAGINodes.bounds && MAGINodes.bounds();
+      if (nb) {
+        minX = Math.min(minX, nb.minX - 30); maxX = Math.max(maxX, nb.maxX + 30);
+        minY = Math.min(minY, nb.minY - 30); maxY = Math.max(maxY, nb.maxY + 30);
+      }
       const gw = maxX - minX, gh = maxY - minY;
       // fit scale
       scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.min(vw / (gw + 160), vh / (gh + 160))));
@@ -1479,6 +1802,9 @@
       centreOnCards();
       hideStatus();
       subscribeRealtime();
+      // Archive nodes load after the cards, since their positions are derived
+      // from where the cards ended up. One SELECT; nothing is written back.
+      if (window.MAGINodes) MAGINodes.load();
     }
 
     async function saveCard(card) {
@@ -1700,9 +2026,13 @@
 
     // ── RENDER ─────────────────────────────────────────
     function renderAll() {
-      inner.innerHTML = '';
+      // Clear only the cards. The archive-node layer (the <svg> and the node
+      // dots) also lives in .canvas-inner so it inherits pan/zoom — wiping
+      // innerHTML would take it with them and it would never come back.
+      inner.querySelectorAll('.studio-card').forEach(el => el.remove());
       cards.forEach(c => inner.appendChild(makeCardEl(c)));
       applyFilters();
+      if (window.MAGINodes) MAGINodes.relayout();
     }
 
     function makeCardEl(c) {
@@ -1785,6 +2115,9 @@
         el.style.left = c.x + 'px';
         el.style.top  = c.y + 'px';
         broadcastDrag(c.id, c.x, c.y);
+        // Re-aim the archive nodes mid-drag (throttled inside) so the network
+        // flows along with the card instead of catching up once it's dropped.
+        if (window.MAGINodes) MAGINodes.relayout();
       });
 
       document.addEventListener('mouseup', () => {
@@ -1793,10 +2126,498 @@
         el.classList.remove('is-dragging');
         el.style.zIndex = '';
         updateCard(c);
+        // Nodes tied to this card follow it to its new home. Debounced inside,
+        // and purely visual — no writes leave the browser for this.
+        if (window.MAGINodes) MAGINodes.relayout();
       });
 
       return el;
     }
+
+    // ── ARCHIVE NODES ──────────────────────────────────
+    // Renders each Media Database item as a small dot on the board that links
+    // straight to its row in the archive.
+    //
+    // COST TO SUPABASE: one extra SELECT per board load, of four columns.
+    // Nothing here is ever written. Node positions are computed in the browser
+    // from data that already exists, so they're free to move as often as we
+    // like — persisting them is what would have been expensive, since a
+    // settling layout would fire a write per node per frame and realtime would
+    // then rebroadcast every one of those to every other open board.
+    //
+    // A node is a VIEW of an archive row, not a copy: there's no node table,
+    // nothing to keep in sync, and deleting an archive item makes its node
+    // disappear on the next load with no cleanup.
+    window.MAGINodes = (function () {
+      const svg   = document.getElementById('node-links');
+      const keyEl = document.getElementById('node-key');
+      const NODE_TABLE = 'archive_items';
+
+      const SPEC_COLOURS = {
+        Research:      getComputedStyle(document.documentElement).getPropertyValue('--col-research')      || '#c8e800',
+        Animation:     getComputedStyle(document.documentElement).getPropertyValue('--col-animation')     || '#ff20c0',
+        Games:         getComputedStyle(document.documentElement).getPropertyValue('--col-games')         || '#1eceff',
+        Interactivity: getComputedStyle(document.documentElement).getPropertyValue('--col-interactivity') || '#ff6b1a',
+      };
+      const OTHER = '#9a9a9a';
+      const colourFor = (g) => (SPEC_COLOURS[g] || OTHER).trim();
+
+      let items = [];      // { id, title, group, keywords[] , x, y }
+      let visible = true;
+      let relayoutTimer = null;
+      // Board centre, recomputed by homes(). render() measures each node
+      // against it to decide which side its label sits on.
+      let centre = { x: 4000, y: 4000 };
+      // Cluster hub per category, kept from the last layout() so render() can
+      // start each route there.
+      let homePts = {};
+
+      const norm = (s) => String(s || '').toLowerCase().trim();
+      const keywordsOf = (row) =>
+        String(row.keywords || '').split(',').map(norm).filter(Boolean);
+
+      // Deterministic per-id pseudo-random, so every visitor's board settles
+      // into the same arrangement instead of each browser inventing its own.
+      function seeded(id) {
+        let h = 2166136261;
+        for (let i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619); }
+        return ((h >>> 0) % 10000) / 10000;
+      }
+
+      async function load() {
+        try {
+          // select('*') rather than naming columns on purpose: spec_area and
+          // keywords only exist once archive-setup.sql has been re-run, and
+          // naming a column that isn't there fails the WHOLE query — which
+          // would silently leave the board with no nodes at all. This way the
+          // nodes work regardless, and simply cluster/connect better once
+          // those columns are populated.
+          const { data, error } = await db.from(NODE_TABLE).select('*');
+          if (error) throw error;
+          items = (data || []).map(r => ({
+            id: r.id,
+            title: r.title || 'Untitled',
+            // spec_area is the specialisation; fall back to media type so an
+            // item that predates that column still lands in a sensible cluster.
+            group: r.spec_area || r.type || 'Other',
+            keys: keywordsOf(r),
+            x: 0, y: 0,
+          }));
+          console.info('[MAGINodes] loaded ' + items.length + ' archive item(s)');
+        } catch (e) {
+          // Loud, not silent: without this the board just looks unchanged and
+          // there's nothing to go on. The board itself still works fine.
+          console.error('[MAGINodes] could not load archive items —', e.message || e);
+          items = [];
+        }
+        if (!items.length) {
+          console.info('[MAGINodes] no archive items, so no nodes to draw');
+          return;
+        }
+        buildKey();
+        layout();
+        render();
+        // Nodes are positioned after the initial centreOnCards(), so re-fit
+        // once now that they exist. Deliberately not done in relayout() — the
+        // view jumping every time a card is dragged would be maddening.
+        centreOnCards();
+      }
+
+      // Cards a node should gravitate to: those sharing a keyword/tag with it.
+      function anchorsFor(node) {
+        if (!node.keys.length) return [];
+        return cards.filter(c =>
+          (c.tags || []).some(t => node.keys.includes(norm(t)))
+        );
+      }
+
+      // Cluster centre per group, ringed around wherever the cards actually
+      // are — NOT a fixed point on the canvas. centreOnCards() fits the
+      // viewport tightly to the cards' bounding box, so a hardcoded radius
+      // put every node outside the visible area: they rendered correctly and
+      // were simply never on screen. Deriving the ring from the real bounding
+      // box keeps them beside the board at whatever zoom that lands on.
+      function homes() {
+        const groups = [...new Set(items.map(i => i.group))].sort();
+        const out = {};
+        let cx = 4000, cy = 4000, R = 420;
+
+        if (cards.length) {
+          const xs = cards.map(c => c.x), ys = cards.map(c => c.y);
+          const minX = Math.min(...xs), maxX = Math.max(...xs) + 260;
+          const minY = Math.min(...ys), maxY = Math.max(...ys) + 180;
+          cx = (minX + maxX) / 2;
+          cy = (minY + maxY) / 2;
+          // Just outside the cards, so nodes read as orbiting the board
+          // rather than sitting on top of it — but close enough to stay in
+          // frame when the view is fitted to the cards.
+          const half = Math.max(maxX - minX, maxY - minY) / 2;
+          R = Math.max(300, half + 190);
+        }
+        centre = { x: cx, y: cy };
+
+        groups.forEach((g, i) => {
+          const a = (i / groups.length) * Math.PI * 2 - Math.PI / 2;
+          out[g] = { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
+        });
+        return out;
+      }
+
+      // A short relaxation pass, not a live physics loop. It runs to a settled
+      // state and stops — a perpetual simulation would spin the CPU (and drain
+      // battery) for a board that's mostly sitting still.
+      // Works out where every node SHOULD be (n.tx / n.ty). It never moves
+      // anything itself — animate() eases the live positions toward these, so
+      // a re-layout flows instead of teleporting.
+      function layout() {
+        const home = homes();
+        homePts = home;      // kept by render(): each route starts at its hub
+        const first = !items.some(n => n.placed);
+
+        items.forEach(n => {
+          if (first) {
+            // Opening scatter around the cluster hub.
+            const h = home[n.group];
+            const a = seeded(n.id) * Math.PI * 2;
+            const r = 90 + seeded(n.id + 'r') * 190;
+            n.tx = h.x + Math.cos(a) * r;
+            n.ty = h.y + Math.sin(a) * r;
+          } else {
+            // Re-settle from where the node currently is, so the relaxation
+            // nudges it rather than restarting from the seeded scatter — that
+            // would make every node jump on any card move.
+            n.tx = n.x;
+            n.ty = n.y;
+          }
+          n.anchors = anchorsFor(n);
+        });
+
+        const PASSES = 200;
+        for (let pass = 0; pass < PASSES; pass++) {
+          // The pull toward home eases off across the run (annealing). At
+          // constant strength it fights the separation step forever and nodes
+          // never fully settle apart; letting it fade means clustering wins
+          // early and spacing wins at the end.
+          const pull = 0.06 * (1 - 0.85 * (pass / PASSES));
+          items.forEach(n => {
+            const h = home[n.group];
+            let gx = h.x, gy = h.y;
+            // Pulled toward the cards it shares keywords with — this is what
+            // makes nodes drift when a post is moved.
+            if (n.anchors.length) {
+              let ax = 0, ay = 0;
+              n.anchors.forEach(c => { ax += c.x + 130; ay += c.y + 90; });
+              ax /= n.anchors.length; ay /= n.anchors.length;
+              gx = ax * 0.72 + h.x * 0.28;
+              gy = ay * 0.72 + h.y * 0.28;
+            }
+            n.tx += (gx - n.tx) * pull;
+            n.ty += (gy - n.ty) * pull;
+          });
+          // Keep dots — and now their always-visible labels — from colliding.
+          // The radius is set by the LABEL, not the 10px dot: a label runs up
+          // to ~170px wide, so spacing tuned to the dot alone would leave the
+          // text overlapping even though the dots looked fine. Vertical
+          // spacing can be tighter since labels are short in that axis.
+          // Wide and flat, matching the label box (max 170px across, ~14px
+          // tall) rather than the 10px dot. Tuned against simulated archives
+          // of 3–60 items: a squarer zone left text overlapping even though
+          // the dots themselves looked well spaced.
+          const RX = 190, RY = 26;
+          for (let i = 0; i < items.length; i++) {
+            for (let j = i + 1; j < items.length; j++) {
+              const a = items[i], b = items[j];
+              let dx = b.tx - a.tx, dy = b.ty - a.ty;
+              // Two nodes at the exact same spot have no direction to
+              // separate along — nudge them apart deterministically.
+              if (dx === 0 && dy === 0) { dx = 0.13; dy = 0.07; }
+              const nx = dx / RX, ny = dy / RY;
+              const nd2 = nx * nx + ny * ny;
+              if (nd2 > 1) continue;
+              const nd = Math.sqrt(nd2) || 0.01;
+              const push = (1 - nd) / nd;
+              a.tx -= dx * push * 0.5; a.ty -= dy * push * 0.5;
+              b.tx += dx * push * 0.5; b.ty += dy * push * 0.5;
+            }
+          }
+        }
+
+        // First layout: adopt the targets outright. Animating from an
+        // unset position would fling every node in from the canvas origin.
+        items.forEach(n => {
+          if (!n.placed) { n.x = n.tx; n.y = n.ty; n.placed = true; }
+        });
+      }
+
+      // Transit-map routing between two points: a 45° leg out of the node,
+      // then a straight run along the dominant axis into the card. Rail
+      // diagrams avoid arbitrary angles precisely because 45s and straights
+      // stay readable when many lines share the same area.
+      function metroPath(x1, y1, x2, y2) {
+        const dx = x2 - x1, dy = y2 - y1;
+        const adx = Math.abs(dx), ady = Math.abs(dy);
+        const d = Math.min(adx, ady);                 // length of the 45° leg
+        const ex = x1 + Math.sign(dx) * d;
+        const ey = y1 + Math.sign(dy) * d;
+        // Nearly axis-aligned already — an elbow would be a pointless wiggle.
+        if (d < 6) return 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2;
+        return 'M' + x1 + ',' + y1 + ' L' + ex + ',' + ey + ' L' + x2 + ',' + y2;
+      }
+
+      // Orders a category's nodes into a route: start at the cluster hub, then
+      // repeatedly hop to the nearest node not yet visited. A greedy chain
+      // rather than a sort, because sorting by x or angle produces routes that
+      // double back on themselves — nearest-neighbour keeps the line reading
+      // as one continuous run, which is the whole point of the transit look.
+      function routeFor(group) {
+        const pool = items.filter(i => i.group === group);
+        if (!pool.length) return [];
+        const hub = homePts[group] || centre;
+        const out = [{ x: hub.x, y: hub.y }];
+        const left = pool.slice();
+        let cur = hub;
+        while (left.length) {
+          let bi = 0, bd = Infinity;
+          left.forEach((n, i) => {
+            const d = (n.x - cur.x) ** 2 + (n.y - cur.y) ** 2;
+            if (d < bd) { bd = d; bi = i; }
+          });
+          cur = left.splice(bi, 1)[0];
+          out.push({ x: cur.x, y: cur.y });
+        }
+        return out;
+      }
+
+      // Chains metroPath() across a whole route, so every leg keeps to 45s and
+      // straights instead of only the first pair.
+      function metroRoute(pts) {
+        if (pts.length < 2) return '';
+        let d = '';
+        for (let i = 1; i < pts.length; i++) {
+          const seg = metroPath(pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y);
+          d += (i === 1 ? seg : ' ' + seg.replace(/^M[^L]*/, '').trim());
+        }
+        return d;
+      }
+
+      // Elements are built ONCE and then repositioned every frame. Recreating
+      // them per frame (the old approach) is what made movement snap: a fresh
+      // element has no history to animate from, and it also throws away hover
+      // state mid-gesture.
+      const NS = 'http://www.w3.org/2000/svg';
+      let nodeEls = new Map();   // id -> <a>
+      let routeEls = new Map();  // group -> <path>
+      let branchEls = [];        // { path, node, card }
+
+      function build() {
+        inner.querySelectorAll('.archive-node').forEach(el => el.remove());
+        svg.innerHTML = '';
+        nodeEls = new Map(); routeEls = new Map(); branchEls = [];
+        if (!visible) return;
+
+        // Routes first, so they sit behind the branches and dots.
+        [...new Set(items.map(i => i.group))].forEach(group => {
+          const uncat = !SPEC_COLOURS[group];
+          const route = document.createElementNS(NS, 'path');
+          route.setAttribute('class', 'node-route' + (uncat ? ' is-uncat' : ''));
+          if (!uncat) route.style.setProperty('--line-col', colourFor(group));
+          svg.appendChild(route);
+          routeEls.set(group, route);
+        });
+
+        items.forEach(n => {
+          const uncat = !SPEC_COLOURS[n.group];
+          n.anchors.forEach(c => {
+            const path = document.createElementNS(NS, 'path');
+            path.setAttribute('class', 'node-link-line' + (uncat ? ' is-uncat' : ''));
+            if (!uncat) path.style.setProperty('--line-col', colourFor(n.group));
+            path.dataset.node = n.id;
+            svg.appendChild(path);
+            branchEls.push({ path, node: n, card: c });
+          });
+
+          const el = document.createElement('a');
+          el.className = 'archive-node';
+          el.style.setProperty('--node-col', colourFor(n.group));
+          el.dataset.label = n.title;
+          el.dataset.node  = n.id;
+          // The whole point: a node is a link into the archive. research.html
+          // already scrolls to (and opens) the item named in the hash.
+          el.href = 'archive#' + n.id;
+          el.setAttribute('aria-label', n.title + ' — open in the Media Database');
+
+          // Only titles that genuinely overflow get the scroller — a short
+          // one already reads in full at rest, so moving it would be motion
+          // for its own sake. .has-full-title is what the CSS keys off to
+          // decide whether to swap the resting ::after out at all.
+          const overflow = overflowOf(n.title);
+          if (overflow > 0) {
+            el.classList.add('has-full-title');
+
+            const full = document.createElement('span');
+            full.className = 'archive-node-full';
+            const scroll = document.createElement('span');
+            scroll.className = 'archive-node-scroll';
+            scroll.textContent = n.title;
+            full.appendChild(scroll);
+            el.appendChild(full);
+
+            // Distance is the hidden remainder; duration is derived from it so
+            // every title travels at the same reading speed rather than long
+            // ones racing to finish in a fixed time. The /0.64 accounts for
+            // the keyframes' hold beats at each end (18% + 18% = 36% idle).
+            const SPEED = 34;   // px per second, canvas units
+            const secs = Math.min(9, Math.max(2.2, (overflow / SPEED) / 0.64));
+            el.style.setProperty('--scroll-dist', overflow + 'px');
+            el.style.setProperty('--scroll-time', secs.toFixed(2) + 's');
+          }
+
+          el.addEventListener('mouseenter', () => lit(n.id, true));
+          el.addEventListener('mouseleave', () => lit(n.id, false));
+          el.addEventListener('focus', () => lit(n.id, true));
+          el.addEventListener('blur',  () => lit(n.id, false));
+          // Hold the node on the element so paint() doesn't have to search
+          // items for it on every frame.
+          el.__node = n;
+          inner.appendChild(el);
+          nodeEls.set(n.id, el);
+        });
+        paint();
+      }
+
+      // Pushes current positions into the DOM. Cheap enough to run per frame:
+      // it only writes style/attributes, never creates or removes anything.
+      function paint() {
+        if (!visible) return;
+        nodeEls.forEach((el) => {
+          const n = el.__node;
+          if (!n) return;
+          el.style.left = n.x + 'px';
+          el.style.top  = n.y + 'px';
+          // Label side is re-evaluated as the node moves, so a node dragged
+          // across the middle flips its name to the outward side rather than
+          // keeping whichever side it started on.
+          const side = n.x < centre.x ? 'left' : 'right';
+          if (el.dataset.side !== side) el.dataset.side = side;
+        });
+        routeEls.forEach((path, group) => {
+          const d = metroRoute(routeFor(group));
+          path.setAttribute('d', d || '');
+        });
+        branchEls.forEach(({ path, node, card }) => {
+          path.setAttribute('d', metroPath(node.x, node.y, card.x + 130, card.y + 90));
+        });
+      }
+
+      // Eases current positions toward the targets layout() worked out. A
+      // critically-damped-ish lerp: fast enough to feel responsive while a
+      // card is being dragged, slow enough that the network visibly flows into
+      // its new shape rather than teleporting.
+      let raf = null;
+      function animate() {
+        if (raf) return;                       // already running
+        const step = () => {
+          let moving = false;
+          items.forEach(n => {
+            const dx = n.tx - n.x, dy = n.ty - n.y;
+            if (Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4) {
+              n.x += dx * 0.16;
+              n.y += dy * 0.16;
+              moving = true;
+            } else {
+              n.x = n.tx; n.y = n.ty;
+            }
+          });
+          paint();
+          // Stop once settled — a permanently running rAF would keep the CPU
+          // (and a laptop fan) busy on a board that isn't moving.
+          raf = moving ? requestAnimationFrame(step) : null;
+        };
+        raf = requestAnimationFrame(step);
+      }
+
+      function render() { build(); }
+
+      function lit(id, on) {
+        svg.querySelectorAll('.node-link-line[data-node="' + CSS.escape(id) + '"]')
+           .forEach(l => l.classList.toggle('is-lit', on));
+      }
+
+      // ── How much of a title is hidden at rest? ──
+      // Measured against the SAME 168px cap .archive-node::after and
+      // .archive-node-full use (see the CSS) — keep all three in sync if any
+      // changes. A canvas is used rather than a hidden DOM element: no
+      // layout/reflow cost, and it runs once per node at build time rather
+      // than on every hover. font-weight/size must match the label's CSS or
+      // the measurement lies; letter-spacing (0.01em) isn't reflected in
+      // canvas metrics, but at ~0.1px/character the error is well under one
+      // character.
+      // Returns 0 when the title already fits — which is also the signal that
+      // no scroller is needed at all.
+      const LABEL_MAX_WIDTH = 168;
+      const measureCtx = document.createElement('canvas').getContext('2d');
+      measureCtx.font = '500 10px Satoshi, sans-serif';
+      function overflowOf(title) {
+        const w = measureCtx.measureText(title || '').width;
+        return Math.max(0, Math.ceil(w - LABEL_MAX_WIDTH));
+      }
+
+      function buildKey() {
+        const rows = document.getElementById('node-key-rows');
+        if (!rows || !keyEl) return;
+        const counts = {};
+        items.forEach(i => { counts[i.group] = (counts[i.group] || 0) + 1; });
+        rows.innerHTML = Object.entries(counts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([g, n]) =>
+            '<div class="node-key-row"><span class="node-key-dot" style="background:' +
+            colourFor(g) + '"></span>' + g + ' · ' + n + '</div>').join('');
+        keyEl.hidden = false;
+      }
+
+      const toggle = document.getElementById('node-key-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          visible = !visible;
+          toggle.textContent = visible ? 'Hide' : 'Show';
+          toggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
+          keyEl.classList.toggle('is-off', !visible);
+          render();
+        });
+      }
+
+      // Recompute targets and let animate() carry the nodes there. Throttled
+      // rather than debounced: debouncing meant nothing moved until 180ms
+      // AFTER the drag finished, which is exactly what made it feel like a
+      // snap. Throttling re-aims the targets while the card is still moving,
+      // so the network flows along with it.
+      let lastRelayout = 0;
+      function relayout(force) {
+        if (!items.length) return;
+        const now = performance.now();
+        if (!force && now - lastRelayout < 90) {
+          // Coalesce the tail of a burst so the final position is honoured.
+          clearTimeout(relayoutTimer);
+          relayoutTimer = setTimeout(() => relayout(true), 100);
+          return;
+        }
+        lastRelayout = now;
+        layout();
+        animate();
+      }
+
+      // Lets centreOnCards() include the nodes when fitting the view.
+      function bounds() {
+        if (!items.length || !visible) return null;
+        const xs = items.map(i => i.x), ys = items.map(i => i.y);
+        return {
+          minX: Math.min(...xs), maxX: Math.max(...xs),
+          minY: Math.min(...ys), maxY: Math.max(...ys),
+        };
+      }
+
+      return { load, relayout, bounds };
+    })();
 
     // ── FILTER + SEARCH ────────────────────────────────
     function applyFilters() {

@@ -550,18 +550,18 @@
 
   <!-- ── NAV ──────────────────────────────────────── -->
   <nav class="nav" id="site-nav">
-    <a class="nav-wordmark" href="index.html" aria-label="MAGI Portal — Home">
+    <a class="nav-wordmark" href="/" aria-label="MAGI Portal — Home">
       <img class="nav-wordmark-icon" src="logo/MAGI_favicon.png" alt="MAGI" />
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-links">
-      <a class="nav-link" href="latest.html">Latest</a>
-      <a class="nav-link" href="studios.html">Studios</a>
-      <a class="nav-link" href="alumni.html">Alumni</a>
-      <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="latest">Latest</a>
+      <a class="nav-link" href="studios">Studios</a>
+      <a class="nav-link" href="alumni">Alumni</a>
+      <a class="nav-link" href="staff">Staff</a>
+      <a class="nav-link" href="sponsors">Partners</a>
       <div class="nav-expo">
         <a class="nav-link nav-expo-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
         <span class="nav-expo-accent" aria-hidden="true"></span>
@@ -579,9 +579,9 @@
       </div>
     </div>
     <div class="nav-right">
-      <a class="nav-link active" href="soundcollab.html">Sound Collab</a>
-      <a class="nav-link" href="research.html">Archive</a>
-      <a class="nav-link" href="studio.html">Board</a>
+      <a class="nav-link active" href="soundcollab">Sound Collab</a>
+      <a class="nav-link" href="archive">Archive</a>
+      <a class="nav-link" href="board">Board</a>
     </div>
     <!-- Sits outside .nav-right so the mobile hamburger doesn't swallow it —
          on mobile it's ordered up next to the toggle (see style.css). -->
@@ -866,6 +866,26 @@
     const $$ = (s, r = document) => [...r.querySelectorAll(s)];
     const esc = (s) => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8));
+
+    // ── ICONS ─────────────────────────────────────────
+    // Flat inline SVGs instead of glyph characters (▶ / ⤢ / ▲ / ▼) — those
+    // sit in Unicode ranges some platforms (Windows especially) render with
+    // their own colour emoji font rather than the page's flat black-and-white
+    // style. An SVG with fill/stroke: currentColor always matches the
+    // surrounding text colour, everywhere.
+    // noMargin is for spots (like .pam-watch-btn) that already lay out icon +
+    // text with their own flex `gap` — a built-in margin there would double up.
+    const iconPlay = (size, noMargin) =>
+      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="currentColor" ' +
+      'style="vertical-align:-2px' + (noMargin ? '' : ';margin-right:5px') + '"><polygon points="5,3 19,12 5,21"/></svg>';
+    const iconExpand = (size) =>
+      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px">' +
+      '<path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+    const iconChevron = (dir, size) =>
+      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<polyline points="' + (dir === 'up' ? '6 15 12 9 18 15' : '6 9 12 15 18 9') + '"/></svg>';
     const host = (u) => { try { return new URL(u).host.replace(/^www\./, ''); } catch (e) { return u; } };
     const status = (msg) => { const el = $('#sc-status'); el.textContent = msg; el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2200); };
 
@@ -977,13 +997,13 @@
           '<div class="pamphlet pam-project" data-spec="' + esc(p.project_type) + '">' +
             '<div class="pam-poster' + (poster ? '' : ' is-placeholder') + '"' + (poster ? ' style="background-image:url(' + esc(poster) + ')"' : '') + '>' +
               '<span class="pam-type">' + esc(p.project_type) + '</span>' +
-              (p.poster_url ? '<button class="pam-a4" data-poster="' + esc(p.poster_url) + '" data-poster-title="' + esc(p.title) + '">⤢ A4</button>' : '') +
+              (p.poster_url ? '<button class="pam-a4" data-poster="' + esc(p.poster_url) + '" data-poster-title="' + esc(p.title) + '">' + iconExpand(11) + 'A4</button>' : '') +
             '</div>' +
             '<div class="pam-body">' +
               '<div class="pam-title">' + esc(p.title) + '</div>' +
               (sounds.length ? '<div class="pam-sounds"><span class="pam-sounds-label">Seeking:</span>' + sounds.map(s => '<span class="pam-sound-tag">' + esc(s) + '</span>').join('') + '</div>' : '') +
               (p.description ? '<div class="pam-desc">' + esc(p.description) + '</div>' : '') +
-              (p.media_url ? '<button class="pam-watch-btn" data-video="' + esc(p.media_url) + '" data-video-title="' + esc(p.title) + '">▶ Watch gameplay</button>' : '') +
+              (p.media_url ? '<button class="pam-watch-btn" data-video="' + esc(p.media_url) + '" data-video-title="' + esc(p.title) + '">' + iconPlay(11, true) + 'Watch gameplay</button>' : '') +
               '<div class="pam-sound-by">' +
                 '<div class="pam-sound-by-head"><span class="pam-assigned-label">Sound by</span>' +
                 '<span class="pam-open-badge">' + (left ? left + ' of ' + slots + ' open' : 'Full') + '</span></div>' +
@@ -1156,8 +1176,8 @@
           const name = 'Sample ' + (i + 1);
           return '<div class="d-sample-row">' +
             '<div class="d-sample-reorder">' +
-              '<button type="button" data-move-up="' + i + '"' + (i === 0 ? ' disabled' : '') + '>▲</button>' +
-              '<button type="button" data-move-down="' + i + '"' + (i === editingSamples.length - 1 ? ' disabled' : '') + '>▼</button>' +
+              '<button type="button" data-move-up="' + i + '"' + (i === 0 ? ' disabled' : '') + '>' + iconChevron('up', 12) + '</button>' +
+              '<button type="button" data-move-down="' + i + '"' + (i === editingSamples.length - 1 ? ' disabled' : '') + '>' + iconChevron('down', 12) + '</button>' +
             '</div>' +
             '<audio controls preload="none" src="' + esc(url) + '"></audio>' +
             '<button type="button" class="d-sample-remove" data-remove-sample="' + i + '">Remove</button>' +

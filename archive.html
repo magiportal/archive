@@ -1062,8 +1062,15 @@
          than letting it tuck under the thumb. So everything here stays in
          column 2 and merely re-flows within it. */
       .results-bar { padding: 0 20px; }
+      /* A bare `1fr` is `minmax(auto, 1fr)`, whose `auto` floor grows to the
+         min-content of column 2 — and an embedded <iframe> (Vimeo/YouTube)
+         reports a ~300px intrinsic width. That floor was widening the column
+         past the viewport, shoving the whole row — text and all — off the
+         right edge (and rendering the video at the wrong size). `minmax(0,
+         1fr)` lets the track shrink to the space available, so the copy wraps
+         and the player scales down to fit the screen instead. */
       .result-item {
-        grid-template-columns: 64px 1fr;
+        grid-template-columns: 64px minmax(0, 1fr);
         gap: 0 14px;
         padding: 18px 20px 20px;
       }
@@ -1077,6 +1084,20 @@
         gap: 6px;
         margin-top: 12px;
       }
+
+      /* Belt-and-braces with the minmax(0,…) above: let every column-2 block
+         shrink below its content's intrinsic width and cap the player to the
+         column, so the Vimeo iframe + its controls stay fully on-screen. */
+      .result-player-wrap,
+      .result-player,
+      .rp { min-width: 0; max-width: 100%; }
+      .rp-embed iframe { max-width: 100%; }
+
+      /* Smaller abstract on a phone so the expanded copy reads as a tidy
+         block, and drop the desktop 640/720px caps that fight the column. */
+      .result-abstract { font-size: 13px; letter-spacing: 0.02em; max-width: 100%; }
+      .result-title { font-size: 18px; max-width: 100%; }
+      .result-item.is-open .result-abstract { max-width: 100%; }
     }
 
   </style>
@@ -1087,18 +1108,18 @@
 <body>
 
   <nav class="nav" id="site-nav">
-    <a class="nav-wordmark" href="index.html" aria-label="MAGI Portal — Home">
+    <a class="nav-wordmark" href="/" aria-label="MAGI Portal — Home">
       <img class="nav-wordmark-icon" src="logo/MAGI_favicon.png" alt="MAGI" />
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-links">
-      <a class="nav-link" href="latest.html">Latest</a>
-      <a class="nav-link" href="studios.html">Studios</a>
-      <a class="nav-link" href="alumni.html">Alumni</a>
-      <a class="nav-link" href="staff.html">Staff</a>
-      <a class="nav-link" href="sponsors.html">Partners</a>
+      <a class="nav-link" href="latest">Latest</a>
+      <a class="nav-link" href="studios">Studios</a>
+      <a class="nav-link" href="alumni">Alumni</a>
+      <a class="nav-link" href="staff">Staff</a>
+      <a class="nav-link" href="sponsors">Partners</a>
       <div class="nav-expo">
         <a class="nav-link nav-expo-link" href="https://magiexpo2025.com/" target="_blank" rel="noopener">EXPO ↗</a>
         <span class="nav-expo-accent" aria-hidden="true"></span>
@@ -1116,9 +1137,9 @@
       </div>
     </div>
     <div class="nav-right">
-      <a class="nav-link" href="soundcollab.html">Sound Collab</a>
-      <a class="nav-link active" href="research.html">Archive</a>
-      <a class="nav-link" href="studio.html">Board</a>
+      <a class="nav-link" href="soundcollab">Sound Collab</a>
+      <a class="nav-link active" href="archive">Archive</a>
+      <a class="nav-link" href="board">Board</a>
     </div>
     <!-- Sits outside .nav-right so the mobile hamburger doesn't swallow it —
          on mobile it's ordered up next to the toggle (see style.css). -->
@@ -1351,6 +1372,37 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
+    // ── ICONS ─────────────────────────────────────────
+    // Flat inline SVGs, shared by every IIFE below (closures see these top-level
+    // consts) — used instead of bare glyph characters like ▶ / ❚❚ for play,
+    // pause, and expand. Those characters sit in Unicode ranges several
+    // platforms (Windows especially) render with their own colour emoji font
+    // rather than the page's own flat black-and-white style, which is exactly
+    // the mismatch this avoids: an SVG with fill/stroke: currentColor always
+    // renders identically, in the surrounding text colour, everywhere.
+    const ICON_PLAY_PATH  = '<polygon points="5,3 19,12 5,21"/>';
+    const ICON_PAUSE_PATH = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    const svgFillIcon = (paths, size, extraAttr) =>
+      '<svg' + (extraAttr || '') + ' width="' + size + '" height="' + size +
+      '" viewBox="0 0 24 24" fill="currentColor">' + paths + '</svg>';
+    // Sized to whatever font-size the button already carries (rp-play-lg is
+    // 18px for video / 14px for the audio mock player, rp-play-sm is 14px),
+    // so the icon drops in at the exact size the old character rendered at.
+    const iconForButton = (btn, playing) =>
+      svgFillIcon(playing ? ICON_PAUSE_PATH : ICON_PLAY_PATH,
+        Math.round(parseFloat(getComputedStyle(btn).fontSize)) || 16);
+    // A little inline breathing room + baseline nudge for icons dropped into
+    // running link text (e.g. "▶ Watch" → icon + "Watch").
+    const iconInlinePlay = (size) =>
+      svgFillIcon(ICON_PLAY_PATH, size, ' style="vertical-align:-2px;margin-right:5px"');
+    // Stroke-style "expand" icon for the mock video player's fullscreen
+    // control — matches the search icon's stroke treatment elsewhere on
+    // the site rather than the fill icons above.
+    const svgExpandIcon = (size) =>
+      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+
     // The filter chips and sidebar facets are wired inside the archive script
     // further down, where the live `items` array lives — they filter the data
     // and re-render, rather than just toggling classes / hiding DOM nodes.
@@ -1520,11 +1572,11 @@
         } else if (kind === 'video') {
           rp.className = 'rp rp-video';
           rp.innerHTML =
-            '<div class="rp-screen"><button class="rp-play-lg" aria-label="Play">▶</button>' +
+            '<div class="rp-screen"><button class="rp-play-lg" aria-label="Play">' + svgFillIcon(ICON_PLAY_PATH, 18) + '</button>' +
             '<span class="rp-screen-tag">MAGI Archive · Video</span></div>' +
-            '<div class="rp-controls"><button class="rp-play-sm">▶</button>' +
+            '<div class="rp-controls"><button class="rp-play-sm">' + svgFillIcon(ICON_PLAY_PATH, 11) + '</button>' +
             '<div class="rp-scrub"><div class="rp-scrub-fill"></div></div>' +
-            '<span class="rp-t">0:00 / ' + esc(dur) + '</span><span class="rp-ic">⤢</span></div>';
+            '<span class="rp-t">0:00 / ' + esc(dur) + '</span><span class="rp-ic">' + svgExpandIcon(12) + '</span></div>';
         } else if (kind === 'audio') {
           let bars = '';
           for (let i = 0; i < 64; i++) {
@@ -1533,7 +1585,7 @@
           }
           rp.className = 'rp rp-audio';
           rp.innerHTML =
-            '<button class="rp-play-lg" aria-label="Play">▶</button>' +
+            '<button class="rp-play-lg" aria-label="Play">' + svgFillIcon(ICON_PLAY_PATH, 14) + '</button>' +
             '<div class="rp-wave">' + bars + '</div>' +
             '<span class="rp-t">0:00 / ' + esc(dur) + '</span>';
         } else if (kind === 'pdf') {
@@ -1590,7 +1642,7 @@
           btn.addEventListener('click', () => {
             rp.classList.add('started');
             const on = rp.classList.toggle('playing');
-            rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.textContent = on ? '❚❚' : '▶'; });
+            rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.innerHTML = iconForButton(b, on); });
           });
         });
       };
@@ -1600,7 +1652,7 @@
         const rp = item.querySelector('.rp');
         if (!rp) return;
         rp.classList.remove('playing');
-        rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.textContent = '▶'; });
+        rp.querySelectorAll('.rp-play-lg, .rp-play-sm').forEach(b => { b.innerHTML = iconForButton(b, false); });
         // Vimeo: pause in place via the Player SDK — keeps position, no reload.
         if (rp._vimeo) { rp._vimeo.pause().catch(() => {}); return; }
         // Any other cross-origin iframe: blank the src to stop playback (reloads when reopened).
@@ -1908,8 +1960,6 @@
         render();
       }
 
-      const GLYPHS = { recording:'▶', lecture:'▶', video:'▶', audio:'♪', document:'PDF', image:'IMG' };
-
       // Best-effort thumbnail: the image itself for images, provider stills for
       // YouTube/Vimeo, otherwise a coloured type tile. Provider thumbs fall back
       // to the tile on load error (see render()).
@@ -1923,22 +1973,29 @@
         if (vm) return 'https://vumbnail.com/' + vm[1] + '.jpg';
         return null;
       }
+      // Placeholder tile content when there's no image/provider still: a play
+      // icon for anything playable, plain text for document/image (those read
+      // fine as short abbreviations rather than needing an icon).
+      function phIconHtml(type) {
+        if (type === 'document') return 'PDF';
+        if (type === 'image') return 'IMG';
+        return svgFillIcon(ICON_PLAY_PATH, 18);
+      }
       function thumbHtml(row) {
         const type  = row.type || 'document';
-        const glyph = GLYPHS[type] || '▶';
         const src   = thumbSrc(row);
-        const attrs = 'data-t="' + esc(type) + '" data-glyph="' + esc(glyph) + '"';
+        const attrs = 'data-t="' + esc(type) + '"';
         return src
           ? '<div class="result-thumb" ' + attrs + '><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
-          : '<div class="result-thumb result-thumb-ph" ' + attrs + '><span>' + esc(glyph) + '</span></div>';
+          : '<div class="result-thumb result-thumb-ph" ' + attrs + '>' + phIconHtml(type) + '</div>';
       }
 
       function itemHtml(row) {
         const type  = row.type || 'document';
         const label = LABELS[type] || type;
         const link  = isLinkType(type);
-        const primary = type === 'audio' ? '▶ Listen' : type === 'document' ? '↓ Full PDF' : type === 'image' ? 'View image' : '▶ Watch';
-        const asideP  = type === 'audio' ? '▶ Play'   : type === 'document' ? '↓ PDF'      : type === 'image' ? 'View'       : '▶ Play';
+        const primary = type === 'audio' ? iconInlinePlay(11) + 'Listen' : type === 'document' ? '↓ Full PDF' : type === 'image' ? 'View image' : iconInlinePlay(11) + 'Watch';
+        const asideP  = type === 'audio' ? iconInlinePlay(10) + 'Play'   : type === 'document' ? '↓ PDF'      : type === 'image' ? 'View'       : iconInlinePlay(10) + 'Play';
         const cited   = link ? (row.duration || '') : (type === 'document' ? 'PDF' : '');
         const dataAttr = (row.media_url ? (link ? ' data-embed="'+esc(row.media_url)+'"' : ' data-file="'+esc(row.media_url)+'"') : '')
                        + (row.slides_url ? ' data-slides="'+esc(row.slides_url)+'"' : '');
@@ -1985,7 +2042,7 @@
             const box = img.closest('.result-thumb');
             if (!box) return;
             box.classList.add('result-thumb-ph');
-            box.innerHTML = '<span>' + (box.dataset.glyph || '▶') + '</span>';
+            box.innerHTML = phIconHtml(box.dataset.t || 'video');
           }, { once: true });
         });
         stampFromData();

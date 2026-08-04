@@ -684,6 +684,11 @@ body > :not(.nav):not(.modal-overlay):not(.no-page-fade) {
 
 .news-link:hover { opacity: 0.6; }
 
+/* Swipe-hint dots. Hidden by default — the desktop grid shows all four cards
+   at once, so there's nothing to page through. Turned on in the mobile
+   scroller media query (see below), where the cards become a swipeable row. */
+.news-dots { display: none; }
+
 /* ── FEATURED EXHIBITION CARD — full-bleed low-opacity video ──
    Unlike the other three cards (image thumbnail with the tag/title pinned as
    overlays), this one keeps the older treatment: the trailer fills the whole
@@ -2917,6 +2922,34 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
        clamp value is unreliable across browsers. */
     display: block;
     overflow: visible;
+  }
+
+  /* ── NEWS & EVENTS — swipe-hint dots ──────────────────
+     A minimal row of dots under the scroller so it reads as a swipeable
+     carousel rather than a row that just happens to be clipped. The active
+     dot is driven by the scroller position in the script (adds .is-active). */
+  .news-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0 18px;
+    background: #0a0a0a;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .news-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3a3a3a;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .news-dot.is-active {
+    background: #e0e0e0;
+    transform: scale(1.35);
   }
 
   /* ── SELECTED WORKS ───────────────────────────────── */

@@ -118,9 +118,50 @@ Options -Indexes
   # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
-# ── PRETTY URLS (optional) ───────────────────────────────────
-# Lets /alumni serve alumni.html. The existing internal links all use the
-# .html form and keep working either way.
+# ── RENAMED PAGES ────────────────────────────────────────────
+# studio -> board, research -> archive (Jul 2026). Permanent redirects so
+# anything already pointing at the old paths keeps working: bookmarks, links
+# from the EXPO sites, anything shared in Teams, and any search engine that
+# indexed them. 301 (not 302) tells crawlers the move is permanent and
+# transfers the old URL's standing to the new one.
+#
+# Placed ABOVE the .html-stripping rules below so it wins first — otherwise
+# /studio.html would be rewritten to /studio and 404 before ever reaching a
+# redirect. Hashes (#some-id) survive automatically; browsers reattach the
+# fragment after a redirect, so archive deep links from the board still land
+# on the right item.
+<IfModule mod_rewrite.c>
+  RewriteRule ^studio(\.html)?$   /board   [R=301,L]
+  RewriteRule ^research(\.html)?$ /archive [R=301,L]
+</IfModule>
+
+# ── PRETTY URLS: hide .html from the address bar ─────────────
+# Two halves, and both are needed — one alone only gets you partway:
+#
+#   1. VISIBLE half: someone requests /alumni.html directly (an old link,
+#      a bookmark, or the site's own <a href="alumni.html">) → 301 redirect
+#      to /alumni. This is what actually changes the address bar; without
+#      it, a request for the .html form serves fine but keeps showing .html,
+#      no matter what the server is also willing to accept.
+#   2. SERVING half (below): the browser is now asking for /alumni, which
+#      isn't a real file — internally map it back to alumni.html so Apache
+#      has something to serve. This step is invisible; the address bar
+#      keeps showing /alumni.
+#
+# %{THE_REQUEST} (the raw request line) rather than %{REQUEST_URI} is what
+# lets this fire only on the ORIGINAL browser request — REQUEST_URI would
+# still show .html during step 2's internal rewrite and this would loop.
+<IfModule mod_rewrite.c>
+  # /index.html -> / (not /index — the homepage has no extensionless name
+  # of its own, "index" isn't meant to appear in the address bar)
+  RewriteCond %{THE_REQUEST} \s/+index\.html[?\s#] [NC]
+  RewriteRule ^index\.html$ /? [R=301,L]
+
+  # anything-else.html -> anything-else, preserving ?query and #fragment
+  RewriteCond %{THE_REQUEST} \s/+([^.\s]+)\.html[?\s#] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
