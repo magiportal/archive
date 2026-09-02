@@ -2168,7 +2168,12 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   transition: border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.staff-shot:hover { border-radius: 16px; }
+/* Triggered from the whole card, not just the frame. The name, role and bio
+   are most of a card's area, so keying off .staff-shot alone meant the shot
+   sat inert while the pointer was plainly on the person — and it made the
+   target much smaller than it looks. Hovering the frame still works, since
+   it's inside the card. */
+.staff-card:hover .staff-shot { border-radius: 16px; }
 
 /* Fills the frame rather than setting its own ratio — the frame owns the
    geometry now. object-position keeps heads in shot when a wider original has
@@ -2178,17 +2183,27 @@ body[data-spec="interactivity"] .spec-panel.is-lit .spec-n { color: #b04400; }
   width: 100%;
   height: 100%;
   display: block;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* filter rides in the same declaration as transform rather than in a
+     .staff-photo rule of its own — that would sit at equal specificity and
+     later in the file, so its `transition` would replace this one outright
+     and silently kill the zoom easing. .staff-initials has no filter to
+     animate, so listing it here costs nothing. */
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.45s ease;
 }
 
-.staff-shot:hover .staff-photo,
-.staff-shot:hover .staff-initials { transform: scale(1.05); }
+.staff-card:hover .staff-photo,
+.staff-card:hover .staff-initials { transform: scale(1.05); }
 
+/* Greyscale at rest, full colour under the pointer — the row reads as a
+   consistent set until you single one out. */
 .staff-photo {
   object-fit: cover;
   object-position: center top;
   filter: grayscale(1);
 }
+
+.staff-card:hover .staff-photo { filter: grayscale(0); }
 
 /* Stand-in tile for staff without a photo — same rectangle as the real shots
    so the grid keeps its rhythm. */

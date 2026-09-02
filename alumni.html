@@ -199,6 +199,21 @@
       line-height: 1.65;
     }
 
+    /* Source link on an award, where one exists. Sits inline at the end of the
+       description rather than as its own row, so an item with a citation still
+       occupies one line in the list and the years stay aligned down the page. */
+    .alum-item-link {
+      color: var(--secondary);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .alum-item-link:hover {
+      color: var(--black);
+      border-color: var(--black);
+    }
+
     @media (max-width: 900px) {
       .alum-col { width: 88%; padding: 34px 0 64px; }
       .alum-panel { position: relative; max-width: none; padding: 16px 20px 20px; }
@@ -486,6 +501,14 @@
                   <div class="alum-item-desc">MAGI RMIT Award.</div>
                 </div>
               </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2023</div>
+                <div>
+                  <div class="alum-item-role">Dean's Award for Excellence</div>
+                  <div class="alum-item-desc">School of Design, RMIT University. <a class="alum-item-link" href="https://rmitdesigngradshows.com/" target="_blank" rel="noopener">rmitdesigngradshows.com ↗</a></div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -493,16 +516,15 @@
       </div>
     </article>
 
-    <!-- Uyen Nguyen — bio/awards pending, placeholder shell only. Update
-         alum-panel-meta, alum-panel-role and alum-bio once info arrives;
-         the detail section currently has no awards/folio, so those blocks
-         are omitted rather than left empty. -->
+    <!-- Uyen Nguyen -->
     <article class="alum" id="uyen-nguyen">
       <div class="alum-hero">
         <img class="alum-hero-img" src="media/alumni/uyennguyen.webp" alt="Uyen Nguyen" />
         <div class="alum-panel">
-          <div class="alum-panel-meta">Bio coming soon</div>
+          <div class="alum-panel-grad">PhD Candidate · RMIT</div>
+          <div class="alum-panel-meta">Play · Sound · Interaction Design</div>
           <h2 class="alum-panel-name">Uyen Nguyen</h2>
+          <p class="alum-panel-role">Designer and researcher at the Future Play Lab exploring play as a design strategy for interaction with sound.</p>
         </div>
       </div>
 
@@ -517,6 +539,35 @@
 
             <div class="alum-intro">
               <p class="alum-bio">Uyen Nguyen is a designer, researcher and academic at RMIT University, Melbourne. She is researching how play can be harnessed as a design strategy for interaction with sound. Collaborating with leading artists, game makers, creative producers, research partners and cultural organisations, her gallery-based and site-specific works have been shared in national and international venues, events and exhibitions including Experimenta, Tarra Warra Museum of Art, DiGRA, Freeplay and ACMI. She is a co-founder of the experimental play collective YomeciPlay and is doing a PhD at the Future Play Lab at RMIT University.</p>
+              <a class="alum-folio" href="https://www.uyenng.com/" target="_blank" rel="noopener">View Folio ↗</a>
+            </div>
+
+            <div class="alum-sec">
+              <div class="alum-sec-title">Artist Talks, Workshops &amp; Guest Lectures</div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2023</div>
+                <div>
+                  <div class="alum-item-role"><em>TRON (1982): Future Play Lab</em></div>
+                  <div class="alum-item-desc">RMIT Culture, Melbourne International Games Week.</div>
+                </div>
+              </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2023</div>
+                <div>
+                  <div class="alum-item-role"><em>Urban Play School</em></div>
+                  <div class="alum-item-desc">RMIT Creative and Future Play Lab.</div>
+                </div>
+              </div>
+
+              <div class="alum-item">
+                <div class="alum-item-year">2022</div>
+                <div>
+                  <div class="alum-item-role"><em>Play about Place</em></div>
+                  <div class="alum-item-desc">Melbourne International Games Week.</div>
+                </div>
+              </div>
             </div>
 
           </div>

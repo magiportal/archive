@@ -44,7 +44,13 @@
       "Bash(awk '/^      function layout\\\\\\(\\\\\\) \\\\{/,/^        const PASSES/' studio.html)",
       "Bash(awk '/^        const PASSES = 200;/,/^      \\\\}$/' studio.html)",
       "Bash(grep -n \"RewriteRule ^studio\\\\|RewriteRule ^research\\\\|RewriteRule ^index\\\\\\\\\\\\\\\\.html\\\\|RewriteRule \\\\^ /%1\\\\|RewriteRule ^\\(.+\\)\\\\$ \\\\$1.html\" .htaccess)",
-      "Bash(grep -n \"// ── Typewriter reveal\" board.html)"
+      "Bash(grep -n \"// ── Typewriter reveal\" board.html)",
+      "Bash(awk '/^\\\\.staff-grid \\\\{/,/^\\\\}/' style.css)",
+      "Bash(awk '/^\\\\.staff-photo,/,/^\\\\}/' style.css)",
+      "Bash(awk '/^\\\\.staff-photo \\\\{/,/^\\\\}/' style.css)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist //FI \"IMAGENAME eq python.exe\")",
+      "WebFetch(domain:www.uyenng.com)"
     ]
   }
 }
