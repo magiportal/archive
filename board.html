@@ -140,6 +140,11 @@
       bottom: 0;
       overflow: hidden;
       cursor: default;
+      /* Hands every touch gesture to our own handlers (see touchNav()).
+         Without this the browser takes the pinch as a page zoom and the drag
+         as a page scroll, and the canvas never receives a usable event
+         stream — which is why the board couldn't be zoomed on a phone. */
+      touch-action: none;
     }
 
     /* dot grid background */
@@ -293,13 +298,13 @@
        node in render(). transform-origin matches the side so the zoom
        compensation expands away from the dot, never across it. */
     .archive-node[data-side="right"]::after {
-      left: 13px;
+      left: var(--label-gap);
       text-align: left;
       transform: translateY(-50%) scale(var(--node-label-scale, 1));
       transform-origin: left center;
     }
     .archive-node[data-side="left"]::after {
-      right: 13px;
+      right: var(--label-gap);
       text-align: right;
       transform: translateY(-50%) scale(var(--node-label-scale, 1));
       transform-origin: right center;
@@ -385,12 +390,12 @@
     /* Anchored to the same side as the resting label, so the window opens in
        the direction the label already ran. */
     .archive-node[data-side="right"] .archive-node-full {
-      left: 13px;
+      left: var(--label-gap);
       transform: translateY(-50%) scale(var(--node-label-scale, 1));
       transform-origin: left center;
     }
     .archive-node[data-side="left"] .archive-node-full {
-      right: 13px;
+      right: var(--label-gap);
       transform: translateY(-50%) scale(var(--node-label-scale, 1));
       transform-origin: right center;
     }
@@ -453,6 +458,34 @@
     body.canvas-dark .node-key-toggle { color: #eee; }
 
     @media (max-width: 760px) { .node-key { display: none; } }
+
+    /* ── MOBILE ────────────────────────────────────────
+       The board is a fixed-viewport canvas, so the usual "it just reflows"
+       doesn't apply — the overlays are all position:fixed and will happily
+       stack on top of each other on a phone. These pull them in to fit.
+       Gestures themselves are handled in touchNav() / the card touch
+       handlers; this is only the furniture around them. */
+    @media (max-width: 760px) {
+      /* Smaller so a card is a reasonable share of a phone screen rather than
+         filling it end to end. */
+      .studio-card { width: 200px; }
+
+      /* Presence panel and zoom controls both sit along the bottom edge and
+         collide at narrow widths — shrink both and tuck them into opposite
+         corners, above the pin button. */
+      .presence-panel { width: 132px; bottom: 76px; left: 12px; }
+      .canvas-controls { bottom: 76px; right: 12px; gap: 6px; }
+      /* Bigger tap targets: 36px is below the ~44px comfortable minimum. */
+      .canvas-ctrl-btn { width: 44px; height: 44px; }
+
+      .canvas-hint { bottom: 14px; font-size: 9px; padding: 0 12px; text-align: center; }
+      .pin-btn { bottom: 34px; font-size: 11px; padding: 12px 24px; }
+
+      /* Node labels are sized for a mouse pointer; at phone scale they crowd
+         the dots badly, so the board stays readable as a network without
+         them. Tapping a node still opens its archive item. */
+      .archive-node::after { display: none; }
+    }
 
     /* ── CARDS ────────────────────────────────────── */
 
@@ -1697,16 +1730,23 @@
       }
     }
 
-    function zoomAt(delta, cx, cy) {
+    // Absolute zoom. Pinch needs this (its gesture is a ratio of finger
+    // distances, not a fixed step), and the wheel/buttons go through it too so
+    // there's only one copy of the pan-compensation maths to get right.
+    function zoomTo(target, cx, cy) {
       // cx, cy = screen-space centre of zoom
-      const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, scale + delta));
+      const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, target));
       if (newScale === scale) return;
-      // adjust pan so zoom centres on cx,cy
+      // adjust pan so the point under cx,cy stays under cx,cy
       const ratio = newScale / scale;
       panX = cx - ratio * (cx - panX);
       panY = cy - ratio * (cy - panY);
       scale = newScale;
       applyTransform();
+    }
+
+    function zoomAt(delta, cx, cy) {
+      zoomTo(scale + delta, cx, cy);
     }
 
     function centreOnCards() {
@@ -1764,6 +1804,80 @@
       const delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
       zoomAt(delta, e.clientX, e.clientY - 104);
     }, { passive: false });
+
+    // ── TOUCH: pinch to zoom, one finger to pan ────────
+    // The board was mouse-only: no touchstart/move anywhere, so on a phone it
+    // couldn't be panned or zoomed at all. These mirror the mouse handlers
+    // above rather than replacing them, so desktop behaviour is untouched.
+    //
+    // touch-action:none on .studio-canvas (see the CSS) is what makes this
+    // possible — without it the browser claims the gesture for its own
+    // scroll/zoom first and these handlers only ever see a cancelled stream.
+    (function touchNav() {
+      const CANVAS_TOP = 104;             // nav + toolbar, same offset the wheel handler uses
+      let mode = null;                    // 'pan' | 'pinch'
+      let startDist = 0, startScale = 1;
+      let startPanX = 0, startPanY = 0, startMidX = 0, startMidY = 0;
+
+      const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      const mid  = (a, b) => ({ x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 });
+      // A gesture starting on a card should drag that card, not the board.
+      const onBackground = (t) =>
+        t.target === canvas || t.target.classList.contains('canvas-inner');
+
+      canvas.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+          const [a, b] = [e.touches[0], e.touches[1]];
+          mode = 'pinch';
+          startDist  = dist(a, b) || 1;
+          startScale = scale;
+          const m = mid(a, b);
+          startMidX = m.x; startMidY = m.y - CANVAS_TOP;
+          e.preventDefault();
+        } else if (e.touches.length === 1 && onBackground(e.touches[0])) {
+          mode = 'pan';
+          startPanX = e.touches[0].clientX - panX;
+          startPanY = e.touches[0].clientY - panY;
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', e => {
+        if (mode === 'pinch' && e.touches.length === 2) {
+          const [a, b] = [e.touches[0], e.touches[1]];
+          // Ratio of current to starting finger spread, applied to the scale
+          // the pinch began at — measuring from the start each time (rather
+          // than frame to frame) keeps rounding error from accumulating.
+          zoomTo(startScale * (dist(a, b) / startDist), startMidX, startMidY);
+          e.preventDefault();
+        } else if (mode === 'pan' && e.touches.length === 1) {
+          panX = e.touches[0].clientX - startPanX;
+          panY = e.touches[0].clientY - startPanY;
+          applyTransform();
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      const end = e => {
+        // Lifting one finger of a pinch shouldn't silently turn it into a pan
+        // from a stale origin — re-seed from whichever finger is still down.
+        if (e.touches.length === 1 && mode === 'pinch') {
+          mode = 'pan';
+          startPanX = e.touches[0].clientX - panX;
+          startPanY = e.touches[0].clientY - panY;
+        } else if (e.touches.length === 0) {
+          mode = null;
+        }
+      };
+      canvas.addEventListener('touchend', end);
+      canvas.addEventListener('touchcancel', end);
+    })();
+
+    // The hint describes mouse gestures that don't exist on a phone — telling
+    // a touch user to "scroll to zoom" is worse than saying nothing.
+    if (window.matchMedia('(hover: none)').matches) {
+      const hint = document.getElementById('canvas-hint');
+      if (hint) hint.textContent = 'Pinch to zoom · Drag to pan · Tap + Pin Work to add';
+    }
 
     // zoom buttons
     document.getElementById('btn-zoom-in').addEventListener('click', () => {
@@ -2130,6 +2244,58 @@
         // and purely visual — no writes leave the browser for this.
         if (window.MAGINodes) MAGINodes.relayout();
       });
+
+      // ── Touch drag ──
+      // Same logic as the mouse path above, reading touches[0] instead of the
+      // event itself. Without this cards are completely immovable on a phone.
+      // Single finger only: a second finger means the user is pinching, so we
+      // bail and let the canvas handle it rather than fighting over the
+      // gesture.
+      const startTouchDrag = e => {
+        if (e.touches.length !== 1) return;
+        const t = e.touches[0];
+        if (t.target.classList.contains('card-delete')) return;
+        if (t.target.classList.contains('card-edit')) return;
+        if (t.target.closest('a, button, input, textarea, select')) return;
+        e.stopPropagation();
+        dragging = true;
+        ox = (t.clientX - panX) / scale - c.x;
+        oy = (t.clientY - panY) / scale - c.y;
+        el.classList.add('is-dragging');
+        el.style.zIndex = 50;
+      };
+
+      const moveTouchDrag = e => {
+        if (!dragging) return;
+        if (e.touches.length !== 1) {           // became a pinch — hand it back
+          dragging = false;
+          el.classList.remove('is-dragging');
+          el.style.zIndex = '';
+          return;
+        }
+        const t = e.touches[0];
+        c.x = (t.clientX - panX) / scale - ox;
+        c.y = (t.clientY - panY) / scale - oy;
+        el.style.left = c.x + 'px';
+        el.style.top  = c.y + 'px';
+        broadcastDrag(c.id, c.x, c.y);
+        if (window.MAGINodes) MAGINodes.relayout();
+        e.preventDefault();                     // stop the canvas panning too
+      };
+
+      const endTouchDrag = () => {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove('is-dragging');
+        el.style.zIndex = '';
+        updateCard(c);
+        if (window.MAGINodes) MAGINodes.relayout();
+      };
+
+      el.addEventListener('touchstart', startTouchDrag, { passive: true });
+      el.addEventListener('touchmove',  moveTouchDrag,  { passive: false });
+      el.addEventListener('touchend',   endTouchDrag);
+      el.addEventListener('touchcancel', endTouchDrag);
 
       return el;
     }

@@ -74,97 +74,139 @@
 
     <div class="bar">
       <div class="bar-title">Academic Staff — 2026</div>
-      <div class="bar-right"><div class="bar-link">8 Members</div></div>
+      <div class="bar-right"><div class="bar-link">9 Members</div></div>
     </div>
 
+    <!-- Portrait shot with the name, role, bio and tags stacked under it —
+         nothing is hidden, so there's no interaction to discover. The grid is
+         centred and capped in width (see .staff-grid) rather than spanning the
+         page, which keeps each shot small enough that the low-resolution
+         originals aren't enlarged past what they can carry.
+
+         The .staff-shot wrapper around each photo isn't decorative — it's the
+         fixed frame the image scales inside on hover, so a card added without
+         it will lose the zoom and the corner rounding.
+
+         search.js scrapes this page for site search using .staff-name,
+         .staff-role, .staff-desc, .staff-tags .tag, .staff-photo and
+         .staff-initials — keep those class names on any card you add. -->
     <div class="staff-grid">
 
       <div class="staff-card" data-cat="interactivity">
-        <a class="staff-link" href="https://academics.rmit.edu.au/stephanie-andrews" target="_blank" rel="noopener">View profile ›</a>
-        <img class="staff-photo" src="media/profilepic/stephandrews.jpg" alt="Dr. Stephanie Andrews" />
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/stephandrews.jpg" alt="Dr. Stephanie Andrews" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Dr. Stephanie Andrews</div>
           <div class="staff-role">Program Manager</div>
           <div class="staff-desc">Virtual reality artist exploring spatial interaction, embodiment, and non-naturalistic immersive environments.</div>
           <div class="staff-tags"><span class="tag">VR</span><span class="tag">Spatial Interaction</span><span class="tag">Immersive</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/stephanie-andrews" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
       <div class="staff-card" data-cat="animation">
-        <a class="staff-link" href="https://academics.rmit.edu.au/chris-barker" target="_blank" rel="noopener">View profile ›</a>
-        <img class="staff-photo" src="media/profilepic/chrisbarker.jpg" alt="Dr. Chris Barker" />
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/chrisbarker.jpg" alt="Dr. Chris Barker" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Dr. Chris Barker</div>
           <div class="staff-role">Senior Lecturer</div>
           <div class="staff-desc">Artist and animator working across computer graphics, augmented architecture, virtual heritage, and immersive projection.</div>
-          <div class="staff-tags"><span class="tag">Animation</span><span class="tag">Computer Graphics</span><span class="tag">Virtual Heritage</span></div>
+          <div class="staff-tags"><span class="tag">Animation</span><span class="tag">Systems</span><span class="tag">Virtual Heritage</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/chris-barker" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
       <div class="staff-card" data-cat="animation">
-        <a class="staff-link" href="https://academics.rmit.edu.au/kate-cawley" target="_blank" rel="noopener">View profile ›</a>
-        <img class="staff-photo" src="media/profilepic/katecawley.webp" alt="Kate Cawley" />
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/katecawley.webp" alt="Kate Cawley" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Kate Cawley</div>
           <div class="staff-role">Lecturer</div>
           <div class="staff-desc">Studio teaching across animation and interaction, with research in online studios, community of practice, and narrative.</div>
           <div class="staff-tags"><span class="tag">Animation</span><span class="tag">Interaction</span><span class="tag">Narrative</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/kate-cawley" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
       <div class="staff-card" data-cat="games">
-        <a class="staff-link" href="https://academics.rmit.edu.au/uyen-nguyen" target="_blank" rel="noopener">View profile ›</a>
-        <div class="staff-initials">UN</div>
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/stefang.jpg" alt="Stefan Greuter" />
+        </div>
+
+        <div class="staff-body">
+          <div class="staff-name">Prof. Stefan Greuter</div>
+          <div class="staff-role">Professor, Digital Design</div>
+          <div class="staff-desc">Interaction and game designer researching serious games, simulations, and immersive screen experiences; Deputy Director of the Centre for Digital Ecosystems (CODE).</div>
+          <div class="staff-tags"><span class="tag">Serious Games</span><span class="tag">Interaction Design</span><span class="tag">Immersive</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/stefan-greuter" target="_blank" rel="noopener">View profile ›</a>
+        </div>
+      </div>
+
+      <div class="staff-card" data-cat="games">
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/uyennguyen.webp" alt="Uyen Nguyen" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Uyen Nguyen</div>
           <div class="staff-role">Associate Lecturer</div>
           <div class="staff-desc">Urban play, sonic interaction, and creative placemaking; co-creator of the YomeciPlay experimental collective.</div>
           <div class="staff-tags"><span class="tag">Games</span><span class="tag">Urban Play</span><span class="tag">Sound</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/uyen-nguyen" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
       <div class="staff-card" data-cat="games">
-        <a class="staff-link" href="https://academics.rmit.edu.au/matthew-riley" target="_blank" rel="noopener">View profile ›</a>
-        <img class="staff-photo" src="media/profilepic/mattriley.jpg" alt="Dr. Matthew Riley" />
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/mattriley.jpg" alt="Dr. Matthew Riley" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Dr. Matthew Riley</div>
           <div class="staff-role">Senior Lecturer</div>
           <div class="staff-desc">Playful, experimental design and art spanning urban play, interactive installation, and experiences of place.</div>
           <div class="staff-tags"><span class="tag">Play Design</span><span class="tag">Installation</span><span class="tag">Urban Play</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/matthew-riley" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
       <div class="staff-card" data-cat="animation">
-        <a class="staff-link" href="https://www.kingsunmoon.com/moon" target="_blank" rel="noopener">View profile ›</a>
-        <div class="staff-initials">MH</div>
+        <div class="staff-shot">
+          <span class="staff-initials">MH</span>
+        </div>
         <div class="staff-body">
           <div class="staff-name">Moon Hoang</div>
           <div class="staff-role">Sessional Lecturer</div>
           <div class="staff-desc">Melbourne-based 2D animator, storyboard artist, and illustrator working across experimental and character animation.</div>
           <div class="staff-tags"><span class="tag">Animation</span><span class="tag">2D</span><span class="tag">Illustration</span></div>
+          <a class="staff-link" href="https://www.kingsunmoon.com/moon" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
       <div class="staff-card" data-cat="interactivity">
-        <a class="staff-link" href="https://academics.rmit.edu.au/nhu-bui" target="_blank" rel="noopener">View profile ›</a>
-        <img class="staff-photo" src="media/profilepic/nhubui.webp" alt="Nhu Bui" />
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/nhubui.webp" alt="Nhu Bui" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Nhu Bui</div>
           <div class="staff-role">Associate Lecturer</div>
           <div class="staff-desc">XR, digital heritage, and community-engaged design safeguarding intangible cultural heritage through interactive media.</div>
           <div class="staff-tags"><span class="tag">XR</span><span class="tag">Digital Heritage</span><span class="tag">Interaction</span></div>
+          <a class="staff-link" href="https://academics.rmit.edu.au/nhu-bui" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
-      <!-- Bio, photo, profile link and tags still to come. The initials tile is
-           the same treatment the other photo-less staff use, and search.js picks
-           it up automatically (it scrapes .staff-card off this page). -->
-      <div class="staff-card">
-        <div class="staff-initials">SH</div>
+      <div class="staff-card" data-cat="interactivity">
+        <div class="staff-shot">
+          <img class="staff-photo" src="media/profilepic/samhains.webp" alt="Sam Hains" />
+        </div>
         <div class="staff-body">
           <div class="staff-name">Sam Hains</div>
           <div class="staff-role">Associate Lecturer</div>
-          <div class="staff-desc">Bio coming soon.</div>
+          <div class="staff-desc">Artist-technologist working across generative systems, speculative worldbuilding, and video installation to explore memory, dreams, and human-machine relationships.</div>
+          <div class="staff-tags"><span class="tag">Simulations</span><span class="tag">Critical AI</span><span class="tag">Interaction</span></div>
+          <a class="staff-link" href="http://www.samhains.com" target="_blank" rel="noopener">View profile ›</a>
         </div>
       </div>
 
