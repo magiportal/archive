@@ -213,8 +213,10 @@
     if (row.type === 'image' && url) return url;
     const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
     if (yt) return 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg';
-    const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    if (vm) return 'https://vumbnail.com/' + vm[1] + '.jpg';
+    // Vimeo needs an async oEmbed lookup and search results are transient —
+    // rather than fire a request per keystroke, these fall through to the
+    // initials/type tile the result rows already use. The Archive and Recent
+    // Media, which persist on screen, do resolve them via MAGIVimeoThumb.
     return null;
   }
 

@@ -1104,6 +1104,10 @@
   <script src="moderation.js"></script>
   <script src="gate-auth.js"></script>
   <script src="owner-token.js"></script>
+  <!-- Must load before the inline archive script below, which calls
+       MAGIVimeoThumb while building thumbnails. Not deferred for the same
+       reason: deferred scripts run after inline ones. -->
+  <script src="vimeo-thumb.js"></script>
 </head>
 <body>
 
@@ -1969,8 +1973,8 @@
         if (type === 'image' && url) return url;
         const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
         if (yt) return 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg';
-        const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-        if (vm) return 'https://vumbnail.com/' + vm[1] + '.jpg';
+        // Vimeo is NOT resolved here — it needs an async oEmbed lookup, handled
+        // by MAGIVimeoThumb after render. See thumbHtml().
         return null;
       }
       // Placeholder tile content when there's no image/provider still: a play
@@ -1984,7 +1988,11 @@
       function thumbHtml(row) {
         const type  = row.type || 'document';
         const src   = thumbSrc(row);
-        const attrs = 'data-t="' + esc(type) + '"';
+        // Vimeo tiles render as the placeholder and carry data-vimeo, so
+        // MAGIVimeoThumb can fill them in once oEmbed answers. If that never
+        // answers, the placeholder is already the right fallback.
+        const vid   = window.MAGIVimeoThumb ? MAGIVimeoThumb.idFrom(row.media_url) : null;
+        const attrs = 'data-t="' + esc(type) + '"' + (vid ? ' data-vimeo="' + esc(vid) + '"' : '');
         return src
           ? '<div class="result-thumb" ' + attrs + '><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
           : '<div class="result-thumb result-thumb-ph" ' + attrs + '>' + phIconHtml(type) + '</div>';
@@ -2038,13 +2046,22 @@
         renderFacets();
         // Provider thumbnail failed to load → fall back to the coloured type tile.
         listEl.querySelectorAll('.result-thumb img').forEach(img => {
-          img.addEventListener('error', () => {
+          const swap = () => {
             const box = img.closest('.result-thumb');
             if (!box) return;
             box.classList.add('result-thumb-ph');
             box.innerHTML = phIconHtml(box.dataset.t || 'video');
-          }, { once: true });
+          };
+          // An image that has already finished with no dimensions errored
+          // BEFORE this listener was attached — which is what happens when a
+          // host is unreachable or an extension blocks the request, and it's
+          // why dead thumbnails were showing as blank tiles rather than
+          // falling back. Catch that case explicitly.
+          if (img.complete && !img.naturalWidth) { swap(); return; }
+          img.addEventListener('error', swap, { once: true });
         });
+        // Fill Vimeo tiles from oEmbed (async; placeholder stays if it fails).
+        if (window.MAGIVimeoThumb) MAGIVimeoThumb.hydrate(listEl, { width: 300, placeholderClass: 'result-thumb-ph' });
         stampFromData();
         maybeScrollToHash();
       }

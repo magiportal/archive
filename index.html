@@ -482,6 +482,10 @@
   <script src="main.js"></script>
   <script src="nav-toggle.js"></script>
   <script src="search.js"></script>
+  <!-- Must load before the inline Recent Media script below, which calls
+       MAGIVimeoThumb while building thumbnails. Not deferred for the same
+       reason: deferred scripts run after inline ones. -->
+  <script src="vimeo-thumb.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
@@ -783,8 +787,8 @@
         if (type === 'image' && url) return url;
         const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
         if (yt) return 'https://img.youtube.com/vi/' + yt[1] + '/hqdefault.jpg';
-        const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-        if (vm) return 'https://vumbnail.com/' + vm[1] + '.jpg';
+        // Vimeo is NOT resolved here — it needs an async oEmbed lookup, handled
+        // by MAGIVimeoThumb after render. See rowHtml().
         return null;
       }
 
@@ -792,9 +796,11 @@
         const type  = row.type || 'document';
         const num   = String(i + 1).padStart(2, '0');
         const src   = thumbSrc(row);
+        const vid   = window.MAGIVimeoThumb ? MAGIVimeoThumb.idFrom(row.media_url) : null;
+        const tAttr = 'data-t="' + esc(type) + '"' + (vid ? ' data-vimeo="' + esc(vid) + '"' : '');
         const thumb = src
-          ? '<div class="rec-compact-thumb" data-t="' + esc(type) + '"><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
-          : '<div class="rec-compact-thumb rec-thumb-play" data-t="' + esc(type) + '">' + glyphHtml(type) + '</div>';
+          ? '<div class="rec-compact-thumb" ' + tAttr + '><img src="' + esc(src) + '" alt="" loading="lazy" /></div>'
+          : '<div class="rec-compact-thumb rec-thumb-play" ' + tAttr + '>' + glyphHtml(type) + '</div>';
         const meta  = [row.authors, fmtDate(row.created_at)].filter(Boolean).join(' &nbsp;·&nbsp; ');
 
         return (
@@ -841,13 +847,21 @@
       // Provider thumbnail failed to load → fall back to the play/type glyph tile.
       function wireThumbFallbacks() {
         listEl.querySelectorAll('.rec-compact-thumb img').forEach(img => {
-          img.addEventListener('error', () => {
+          const swap = () => {
             const box = img.closest('.rec-compact-thumb');
             if (!box) return;
             box.classList.add('rec-thumb-play');
             box.innerHTML = glyphHtml(box.dataset.t || 'video');
-          }, { once: true });
+          };
+          // Already finished with no dimensions = it errored BEFORE this
+          // listener attached, which is what an unreachable host or a
+          // blocking extension produces. Without this check those tiles just
+          // sat blank instead of falling back to the glyph.
+          if (img.complete && !img.naturalWidth) { swap(); return; }
+          img.addEventListener('error', swap, { once: true });
         });
+        // Fill Vimeo tiles from oEmbed (async; glyph stays if it fails).
+        if (window.MAGIVimeoThumb) MAGIVimeoThumb.hydrate(listEl, { width: 300, placeholderClass: 'rec-thumb-play' });
       }
 
       // Expand/collapse works for dynamically-rendered rows via delegation.
